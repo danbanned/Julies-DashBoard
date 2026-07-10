@@ -1,24 +1,24 @@
 [
   {
-    "id": "sunsetsocial-matinees-2026",
-    "title": "Saturday Movie Matinees",
+    "id": "sunsetsocial-movies-2026",
+    "title": "Weekly Wednesday Movie Nights",
     "source": "Sunset Social Scraper",
     "start_date": "2026-05-01",
     "end_date": "2026-10-31",
-    "days": "Saturday",
-    "start_time": "Matinee",
+    "days": "Wednesday",
+    "start_time": "Sunset",
     "end_time": "",
     "location": "Sunset Social",
     "address": "129 S 30th St, Philadelphia, PA 19104",
     "fee": "Free",
     "fee_frequency": "",
-    "age_range": "Family Friendly / Dogs Welcome",
-    "slug": "https://www.sunsetsocialphl.com/movie-matinees",
+    "age_range": "All Ages / Family & Dog Friendly",
+    "slug": "https://www.sunsetsocialphl.com/movie-nights",
     "category_id": "Arts & Theatre",
-    "description": "Our Saturday Movie Matinees are free and open to the public! Get here early to grab the best view of the 60-foot screen. Movies are family friendly and dogs are always welcome!",
+    "description": "Our Weekly Movie Nights are free and open to the public! Get here early to grab the best view of the 60-foot screen. Dogs and kids always welcome!",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:13.400Z",
+    "ingested_at": "2026-07-10T02:47:14.698Z",
     "neighborhood": "University City",
-    "image_url": "https://static.wixstatic.com/media/d3248c_f6b0677fd3f74512b9860d87e8194921~mv2.jpg/v1/fill/w_79,h_53,al_c,q_80,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/d3248c_f6b0677fd3f74512b9860d87e8194921~mv2.jpg"
+    "image_url": "https://static.wixstatic.com/media/d3248c_a3184e67550e4665b1924aeccc708dc5~mv2.jpg/v1/fill/w_70,h_53,al_c,q_80,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/d3248c_a3184e67550e4665b1924aeccc708dc5~mv2.jpg"
   }
 ]
