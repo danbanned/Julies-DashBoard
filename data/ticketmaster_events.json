@@ -1,68 +1,5 @@
 [
   {
-    "id": "vv17FZ_7GkwPcGhz",
-    "title": "Poppy - Constantly Nowhere Tour",
-    "source": "Ticketmaster Discovery API",
-    "start_date": "2026-07-09",
-    "end_date": "2026-07-09",
-    "days": "",
-    "start_time": "19:00:00",
-    "end_time": "",
-    "location": "The Fillmore Philadelphia",
-    "address": "29 E Allen Street, Philadelphia",
-    "fee": "Free/TBD",
-    "fee_frequency": "Per Ticket",
-    "age_range": "",
-    "slug": "https://www.ticketmaster.com/poppy-constantly-nowhere-tour-philadelphia-pennsylvania-07-09-2026/event/0200644CA5B4C6F8",
-    "category_id": "Music",
-    "description": "This is an All Ages Event. Doors open at 6:00 PM. All support acts are subject to change without notice.",
-    "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.077Z",
-    "neighborhood": "Unknown"
-  },
-  {
-    "id": "vvG1FZ_1MDjpKh",
-    "title": "Winston Hodges",
-    "source": "Ticketmaster Discovery API",
-    "start_date": "2026-07-09",
-    "end_date": "2026-07-09",
-    "days": "",
-    "start_time": "19:30:00",
-    "end_time": "",
-    "location": "Punch Line Philly",
-    "address": "33 E. Laurel Street, Philadelphia",
-    "fee": "Free/TBD",
-    "fee_frequency": "Per Ticket",
-    "age_range": "",
-    "slug": "https://www.ticketmaster.com/winston-hodges-philadelphia-pennsylvania-07-09-2026/event/020064ADFB7164DB",
-    "category_id": "Arts & Theatre",
-    "description": "Winston Hodges is from DC by way of Richmond VA. He?s toured all over the east coast showcasing his southern charm and edgy wit. He has been featured on Don't Tell Comedy's Secret Sets, and was a Top 6 finalist on Kevin Hart's \"Funny AF\" for Netflix - starting with thousands of applicants and 44 original competitors. His videos have been viewed over a combined 30 million times online. IG: @winstonhcomedy",
-    "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.077Z",
-    "neighborhood": "Unknown"
-  },
-  {
-    "id": "vv17FZ_aGkR0BdwL",
-    "title": "D Jones",
-    "source": "Ticketmaster Discovery API",
-    "start_date": "2026-07-09",
-    "end_date": "2026-07-09",
-    "days": "",
-    "start_time": "20:00:00",
-    "end_time": "",
-    "location": "The Foundry",
-    "address": "29 E Allen Street, Philadelphia",
-    "fee": "Free/TBD",
-    "fee_frequency": "Per Ticket",
-    "age_range": "",
-    "slug": "https://www.ticketmaster.com/d-jones-philadelphia-pennsylvania-07-09-2026/event/0200649BE4E83C9F",
-    "category_id": "Music",
-    "description": "This is an All Ages Event. Doors open at 7:00 PM. All support acts are subject to change without notice.",
-    "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.077Z",
-    "neighborhood": "Unknown"
-  },
-  {
     "id": "rZ7HnEZ1Afadp7",
     "title": "Honeythunder, Astro Alloy , Soft No!",
     "source": "Ticketmaster Discovery API",
@@ -80,7 +17,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.077Z",
+    "ingested_at": "2026-07-10T06:10:13.729Z",
     "neighborhood": "Unknown"
   },
   {
@@ -101,7 +38,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.077Z",
+    "ingested_at": "2026-07-10T06:10:13.729Z",
     "neighborhood": "Unknown"
   },
   {
@@ -122,7 +59,7 @@
     "category_id": "Arts & Theatre",
     "description": "Join us in our Callback Bar 1 hour before door time! This show is 21 & over with valid, government-issued photo ID. 18+ with parent or legal guardian over 30. There is a two-beverage minimum per person inside of the showroom. Cameras and video/audio recording devices are not permitted. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. $.25 per each ticket sold for a majority of events at Punch Line benefits Comedy Gives Back, a safety net for the comedy community. For more information, please visit www.comedygivesback.com.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.077Z",
+    "ingested_at": "2026-07-10T06:10:13.729Z",
     "neighborhood": "Unknown"
   },
   {
@@ -143,7 +80,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.077Z",
+    "ingested_at": "2026-07-10T06:10:13.729Z",
     "neighborhood": "Unknown"
   },
   {
@@ -164,7 +101,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.077Z",
+    "ingested_at": "2026-07-10T06:10:13.729Z",
     "neighborhood": "Unknown"
   },
   {
@@ -185,7 +122,7 @@
     "category_id": "Arts & Theatre",
     "description": "Two Philly comics that can?t wake up until 4pm so they are throwing a late show with some of the best acts in Philly and New York!",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.077Z",
+    "ingested_at": "2026-07-10T06:10:13.729Z",
     "neighborhood": "Unknown"
   },
   {
@@ -206,7 +143,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.086Z",
+    "ingested_at": "2026-07-10T06:10:13.729Z",
     "neighborhood": "Unknown"
   },
   {
@@ -227,7 +164,7 @@
     "category_id": "Sports",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.086Z",
+    "ingested_at": "2026-07-10T06:10:13.729Z",
     "neighborhood": "Unknown"
   },
   {
@@ -248,7 +185,7 @@
     "category_id": "Arts & Theatre",
     "description": "Big Wig Brunch is switching things up this year! Every single Saturday, we will be giving you the Ultimate Drag Experience, with amazing brunches where our queens will be doing their favorite performances and most show-stopping numbers! Don?t miss our themed Saturdays happening on select dates! 18+ with a valid ID. All seating is general admission, first come, first served. Doors to the Callback Bar open at 10:30AM. It's always best for your group to order tickets together. However, if you're unable to do so, it's best for a representative of your party to check in with the box office at 10:30AM so we can seat you together. We will ask for a name and the number of people in your party. The show begins promptly at 12:00PM. IMPORTANT TIMES 10:30am BOX OFFICE & CALLBACK BAR OPEN 11:00am SEATING BEGINS 12:00pm SHOWTIME!",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.086Z",
+    "ingested_at": "2026-07-10T06:10:13.729Z",
     "neighborhood": "Unknown"
   },
   {
@@ -269,7 +206,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.729Z",
     "neighborhood": "Unknown"
   },
   {
@@ -290,7 +227,7 @@
     "category_id": "Music",
     "description": "All patrons will be required to pass through a security search upon entry. Bags must be 12x6x12 or smaller. Patrons with prohibited items or bags that are larger than our bag policy requirements may be turned away. No storage/check-in area will be provided for any items that are restricted from entry. Please visit https://manncenter.org/visit/frequently-asked-questions for a detailed list of prohibited items. **THIS IS A RAIN OR SHINE EVENT**",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.729Z",
     "neighborhood": "Unknown"
   },
   {
@@ -311,7 +248,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.732Z",
     "neighborhood": "Unknown"
   },
   {
@@ -332,7 +269,7 @@
     "category_id": "Arts & Theatre",
     "description": "Join us in our Callback Bar 1 hour before door time! This show is 21 & over with valid, government-issued photo ID. 18+ with parent or legal guardian over 30. There is a two-beverage minimum per person inside of the showroom. Cameras and video/audio recording devices are not permitted. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. $.25 per each ticket sold for a majority of events at Punch Line benefits Comedy Gives Back, a safety net for the comedy community. For more information, please visit www.comedygivesback.com.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.732Z",
     "neighborhood": "Unknown"
   },
   {
@@ -353,7 +290,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.732Z",
     "neighborhood": "Unknown"
   },
   {
@@ -374,7 +311,7 @@
     "category_id": "Music",
     "description": "This is an All Ages Event. Doors open at 6:30 PM. All support acts are subject to change without notice.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.732Z",
     "neighborhood": "Unknown"
   },
   {
@@ -395,7 +332,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.732Z",
     "neighborhood": "Unknown"
   },
   {
@@ -416,7 +353,7 @@
     "category_id": "Music",
     "description": "Doors 7pm / Show 8pm. This event is 21+. Valid government-issued photo ID is required for entry. No refunds will be issued for failure to produce proper identification. This ticket is valid for standing room only, general admission. ADA accommodations are available day of show. All support acts are subject to change without notice. Any change in showtimes, safety protocols, and other important information will be relayed to ticket-buyers via email. ALL SALES ARE FINAL",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -437,7 +374,7 @@
     "category_id": "Music",
     "description": "This is an All Ages Event. Doors open at 7:00 PM. All support acts are subject to change without notice.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -458,7 +395,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -479,7 +416,7 @@
     "category_id": "Arts & Theatre",
     "description": "Join us in our Callback Bar 1 hour before door time! This show is 21 & over with valid, government-issued photo ID. 18+ with parent or legal guardian over 30. There is a two-beverage minimum per person inside of the showroom. Cameras and video/audio recording devices are not permitted. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. $.25 per each ticket sold for a majority of events at Punch Line benefits Comedy Gives Back, a safety net for the comedy community. For more information, please visit www.comedygivesback.com.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -500,7 +437,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -521,7 +458,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -542,7 +479,7 @@
     "category_id": "Sports",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -563,7 +500,7 @@
     "category_id": "Arts & Theatre",
     "description": "Quizzmaster Dave Terruso leads you through three rounds of trivia based on a theme. Play by yourself or on a team of up to 6. Between rounds, stand ups will keep you laughing. This month?s theme: Famous Philly. (Think Philly-related pop culture, history, and sports.)",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -584,7 +521,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -605,7 +542,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -626,7 +563,7 @@
     "category_id": "Sports",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -647,7 +584,7 @@
     "category_id": "Arts & Theatre",
     "description": "Open Mic sign ups open @ 1PM EST on Wednesday, July 8th. Submissions through https://forms.gle/p6oGagVBWmn7ng6w9 prior to that time will not be considered. The first (10) people who sign up online will be guaranteed a spot on our Open Mic. We will confirm via email. In person sign-ups begin on July 13th @ 6PM and close at 6:30PM. The list is not capped. We will choose 15-20 names, lottery order. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. 2 drink minimum required per person. 21+.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -668,7 +605,7 @@
     "category_id": "Sports",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -689,7 +626,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -710,7 +647,7 @@
     "category_id": "Music",
     "description": "All patrons will be required to pass through a security search upon entry. Bags must be 12x6x12 or smaller. Patrons with prohibited items or bags that are larger than our bag policy requirements may be turned away. No storage/check-in area will be provided for any items that are restricted from entry. Please visit https://highmarkmann.org/visit/frequently-asked-questions for a detailed list of prohibited items. **THIS IS A RAIN OR SHINE EVENT**",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -731,7 +668,7 @@
     "category_id": "Arts & Theatre",
     "description": "For 3 straight Tuesdays, Lawrence Killebrew and Reggie Conquest are bringing some of your favorite comedians together to work out brand-new material for their upcoming comedy specials? LIVE in front of y?all. No polished Netflix edits. No ?I?ve been doing this joke for 8 years? energy. Just raw jokes, real crowd reactions, wild moments, and the creative process happening in real time. Witness the process before the world does. This ain?t just a comedy show? it?s a behind-the-scenes pass to how specials get made.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -752,7 +689,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -773,7 +710,7 @@
     "category_id": "Arts & Theatre",
     "description": "Comedy Allstars features an array of our favorite professional local comedians, some of whom have appeared on Comedy Central and late night talk shows such as Conan and The Tonight Show with Jimmy Fallon.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -794,7 +731,7 @@
     "category_id": "Music",
     "description": "This is an All Ages Event. Doors open at 7:00 PM. All support acts are subject to change without notice.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -815,7 +752,7 @@
     "category_id": "Arts & Theatre",
     "description": "This is an 18+ Event. Doors open at 7:00 PM. All support acts are subject to change without notice. Murray & Peter Present ?The Marvelous Miss Gender? starring BOSCO. From RuPaul?s Drag Race Season 14, 2022 and most recently All Stars 10 from 2025, BOSCO is now headlining her first ever solo tour, created by BOSCO. Meet & Greet add-on tickets are sold separately. To attend the M&G, fans must also purchase a ticket to the event. There will be a 20-minute intermission. 18+ welcome.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -836,7 +773,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -857,7 +794,7 @@
     "category_id": "Arts & Theatre",
     "description": "Friendly Comedy is an Independent Comedy show located at the iconic Friendly Lounge in South Philly. Created and produced by Comedians Jake Lipinsky, Sean O?Shaughnessy and Connor Lutz. The Friendly Boys will be at Punch Line Philadelphia with some of our funniest friends for a special night of laughs.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -878,7 +815,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -899,7 +836,7 @@
     "category_id": "Music",
     "description": "This is an All Ages Event. Doors open at 7:00 PM. All support acts are subject to change without notice.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -920,7 +857,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -941,7 +878,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -962,7 +899,7 @@
     "category_id": "Arts & Theatre",
     "description": "Join us in our Callback Bar 1 hour before door time! This show is 21 & over with valid, government-issued photo ID. 18+ with parent or legal guardian over 30. There is a two-beverage minimum per person inside of the showroom. Cameras and video/audio recording devices are not permitted. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. $.25 per each ticket sold for a majority of events at Punch Line benefits Comedy Gives Back, a safety net for the comedy community. For more information, please visit www.comedygivesback.com.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -983,7 +920,7 @@
     "category_id": "Music",
     "description": "This is an All Ages Event. Doors open at 7:00 PM. All support acts are subject to change without notice.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1004,7 +941,7 @@
     "category_id": "Music",
     "description": "All patrons will be required to pass through a security search upon entry. Bags must be 12x6x12 or smaller. Patrons with prohibited items or bags that are larger than our bag policy requirements may be turned away. No storage/check-in area will be provided for any items that are restricted from entry. Please visit https://highmarkmann.org/visit/frequently-asked-questions for a detailed list of prohibited items. **THIS IS A RAIN OR SHINE EVENT**",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1025,7 +962,7 @@
     "category_id": "Music",
     "description": "This is an All Ages Event. Doors open at 7:00 PM. All support acts are subject to change without notice.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1046,7 +983,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.087Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1067,7 +1004,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.091Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1088,7 +1025,7 @@
     "category_id": "Arts & Theatre",
     "description": "Join us in our Callback Bar 1 hour before door time! This show is 21 & over with valid, government-issued photo ID. 18+ with parent or legal guardian over 30. There is a two-beverage minimum per person inside of the showroom. Cameras and video/audio recording devices are not permitted. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. $.25 per each ticket sold for a majority of events at Punch Line benefits Comedy Gives Back, a safety net for the comedy community. For more information, please visit www.comedygivesback.com.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1109,7 +1046,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1130,7 +1067,7 @@
     "category_id": "Arts & Theatre",
     "description": "Big Wig Brunch is switching things up this year! Every single Saturday, we will be giving you the Ultimate Drag Experience, with amazing brunches where our queens will be doing their favorite performances and most show-stopping numbers! Don?t miss our themed Saturdays happening on select dates! 18+ with a valid ID. All seating is general admission, first come, first served. Doors to the Callback Bar open at 10:30AM. It's always best for your group to order tickets together. However, if you're unable to do so, it's best for a representative of your party to check in with the box office at 10:30AM so we can seat you together. We will ask for a name and the number of people in your party. The show begins promptly at 12:00PM. IMPORTANT TIMES 10:30am BOX OFFICE & CALLBACK BAR OPEN 11:00am SEATING BEGINS 12:00pm SHOWTIME!",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1151,7 +1088,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1172,7 +1109,7 @@
     "category_id": "Music",
     "description": "This event is 21 and over. Any ticket holder unable to present valid identification indicating that they are at least 21 years of age will not be admitted to this event, and will not be eligible for a refund.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1193,7 +1130,7 @@
     "category_id": "Arts & Theatre",
     "description": "Join us in our Callback Bar 1 hour before door time! This show is 21 & over with valid, government-issued photo ID. 18+ with parent or legal guardian over 30. There is a two-beverage minimum per person inside of the showroom. Cameras and video/audio recording devices are not permitted. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. $.25 per each ticket sold for a majority of events at Punch Line benefits Comedy Gives Back, a safety net for the comedy community. For more information, please visit www.comedygivesback.com.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1214,7 +1151,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1235,7 +1172,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Fairmount"
   },
   {
@@ -1256,7 +1193,7 @@
     "category_id": "Music",
     "description": "Doors 7pm / Show 8pm. All ages welcome. This ticket is valid for standing room only, general admission. ADA accommodations are available day of show. All support acts are subject to change without notice. Any change in showtimes, safety protocols, and other important information will be relayed to ticket-buyers via email. ALL SALES ARE FINAL",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1277,7 +1214,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1298,7 +1235,7 @@
     "category_id": "Music",
     "description": "This is an All Ages Event. Doors open at 7:00 PM. All support acts are subject to change without notice.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1319,7 +1256,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1340,7 +1277,7 @@
     "category_id": "Music",
     "description": "This event is 21+ with valid ID. Doors open at 9:00PM.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.733Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1361,7 +1298,7 @@
     "category_id": "Arts & Theatre",
     "description": "Join us in our Callback Bar 1 hour before door time! This show is 21 & over with valid, government-issued photo ID. 18+ with parent or legal guardian over 30. There is a two-beverage minimum per person inside of the showroom. Cameras and video/audio recording devices are not permitted. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. $.25 per each ticket sold for a majority of events at Punch Line benefits Comedy Gives Back, a safety net for the comedy community. For more information, please visit www.comedygivesback.com.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.739Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1382,7 +1319,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.739Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1403,7 +1340,7 @@
     "category_id": "Music",
     "description": "New Desires : Modern Post-Punk * Dream Pop * Dark Wave * New Romantic * Synthpop * Cold Wave ** Shoegaze",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.739Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1424,7 +1361,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.739Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1445,7 +1382,7 @@
     "category_id": "Arts & Theatre",
     "description": "Join us in our Callback Bar 1 hour before door time! This show is 21 & over with valid, government-issued photo ID. 18+ with parent or legal guardian over 30. There is a two-beverage minimum per person inside of the showroom. Cameras and video/audio recording devices are not permitted. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. $.25 per each ticket sold for a majority of events at Punch Line benefits Comedy Gives Back, a safety net for the comedy community. For more information, please visit www.comedygivesback.com.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1466,7 +1403,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1487,7 +1424,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Fairmount"
   },
   {
@@ -1508,7 +1445,7 @@
     "category_id": "Music",
     "description": "This is an All Ages Event. Doors open at 7:00 PM. All support acts are subject to change without notice.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1529,7 +1466,7 @@
     "category_id": "Music",
     "description": "This event is 21 and over. Any ticket holder unable to present valid identification indicating that they are at least 21 years of age will not be admitted to this event, and will not be eligible for a refund.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1550,7 +1487,7 @@
     "category_id": "Arts & Theatre",
     "description": "For 3 straight Tuesdays, Lawrence Killebrew and Reggie Conquest are bringing some of your favorite comedians together to work out brand-new material for their upcoming comedy specials? LIVE in front of y?all. No polished Netflix edits. No ?I?ve been doing this joke for 8 years? energy. Just raw jokes, real crowd reactions, wild moments, and the creative process happening in real time. Witness the process before the world does. This ain?t just a comedy show? it?s a behind-the-scenes pass to how specials get made.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1571,7 +1508,7 @@
     "category_id": "Arts & Theatre",
     "description": "All patrons will be required to pass through a security search upon entry. Please visit https://highmarkmann.org/visit/frequently-asked-questions for a detailed list of prohibited items. **ALL PRICING IS SUBJECT TO CHANGE** **THIS IS A RAIN OR SHINE EVENT**",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1592,7 +1529,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1613,7 +1550,7 @@
     "category_id": "Arts & Theatre",
     "description": "FAB Comedy Presents Civilized Comedy features civil service comedians who have traveled all over performing comedy, some being featured on local and national television, HBO, BET and have performed at Punch Line Philly. Their duty off work is to bring big laughs. Hosted by Ayisha Henry! Ft. Mz. Cash, Jay Sutton & John Phillips! With headliner Timmy Hall!",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1634,7 +1571,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1655,7 +1592,7 @@
     "category_id": "Music",
     "description": "All patrons will be required to pass through a security search upon entry. Bags must be 12x6x12 or smaller. Patrons with prohibited items or bags that are larger than our bag policy requirements may be turned away. No storage/check-in area will be provided for any items that are restricted from entry. Please visit https://highmarkmann.org/visit/frequently-asked-questions for a detailed list of prohibited items. **ALL PRICING IS SUBJECT TO CHANGE** **THIS IS A RAIN OR SHINE EVENT**",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1676,7 +1613,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1697,7 +1634,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1718,7 +1655,7 @@
     "category_id": "Arts & Theatre",
     "description": "Material en Uso Totalmente Adaptable y en Revisión.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1739,7 +1676,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1760,7 +1697,7 @@
     "category_id": "Music",
     "description": "Bar open at 3pm M-F and 11am Saturday and Sunday. Join us for Happy Hour before the show! Monday-Friday till 7pm. $5 drafts, $5 well, $8 signature craft cocktails. $1 hot dogs during all Philly sports home games.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1781,7 +1718,7 @@
     "category_id": "Arts & Theatre",
     "description": "Join us in our Callback Bar 1 hour before door time! This show is 21 & over with valid, government-issued photo ID. 18+ with parent or legal guardian over 30. There is a two-beverage minimum per person inside of the showroom. Cameras and video/audio recording devices are not permitted. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. $.25 per each ticket sold for a majority of events at Punch Line benefits Comedy Gives Back, a safety net for the comedy community. For more information, please visit www.comedygivesback.com.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1802,7 +1739,7 @@
     "category_id": "Music",
     "description": "This event will be a phone-free experience. Use of cellphones or recording devices (including smart glasses) will not be permitted in the performance space. Upon arrival at the venue, all phones and recording accessories will be secured in Yondr pouches that will be opened at the end of the event. Guests maintain possession of their belongings at all times and can access their phones throughout the event at designated Phone Use Areas in the venue. All phones will be re-secured in Yondr pouches before returning to the event space. Anyone seen using a non-permitted device during the performance will be escorted out of the venue. Guests are encouraged to bring a credit card for purchases inside the venue. We appreciate your cooperation in creating a phone-free viewing experience.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1823,7 +1760,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Fairmount"
   },
   {
@@ -1844,7 +1781,7 @@
     "category_id": "Music",
     "description": "Doors / Show 8pm. This event is 21+. Valid government-issued photo ID is required for entry. No refunds will be issued for failure to produce proper identification. This ticket is valid for standing room only, general admission. ADA accommodations are available day of show. All support acts are subject to change without notice. Any change in showtimes, safety protocols, and other important information will be relayed to ticket-buyers via email. ALL SALES ARE FINAL",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1865,7 +1802,7 @@
     "category_id": "Music",
     "description": "This is an All Ages Event. Doors open at 7:00 PM. All support acts are subject to change without notice.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1886,7 +1823,7 @@
     "category_id": "Arts & Theatre",
     "description": "All patrons will be required to pass through a security search upon entry. Please visit https://highmarkmann.org/visit/frequently-asked-questions for a detailed list of prohibited items. **ALL PRICING IS SUBJECT TO CHANGE** **THIS IS A RAIN OR SHINE EVENT**",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1907,7 +1844,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.092Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1928,7 +1865,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.094Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1949,7 +1886,7 @@
     "category_id": "Arts & Theatre",
     "description": "Join us in our Callback Bar 1 hour before door time! This show is 21 & over with valid, government-issued photo ID. 18+ with parent or legal guardian over 30. There is a two-beverage minimum per person inside of the showroom. Cameras and video/audio recording devices are not permitted. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. $.25 per each ticket sold for a majority of events at Punch Line benefits Comedy Gives Back, a safety net for the comedy community. For more information, please visit www.comedygivesback.com.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.094Z",
+    "ingested_at": "2026-07-10T06:10:13.740Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1970,7 +1907,7 @@
     "category_id": "Arts & Theatre",
     "description": "Big Wig Brunch is switching things up this year! Every single Saturday, we will be giving you the Ultimate Drag Experience, with amazing brunches where our queens will be doing their favorite performances and most show-stopping numbers! Don?t miss our themed Saturdays happening on select dates! 18+ with a valid ID. All seating is general admission, first come, first served. Doors to the Callback Bar open at 10:30AM. It's always best for your group to order tickets together. However, if you're unable to do so, it's best for a representative of your party to check in with the box office at 10:30AM so we can seat you together. We will ask for a name and the number of people in your party. The show begins promptly at 12:00PM. IMPORTANT TIMES 10:30am BOX OFFICE & CALLBACK BAR OPEN 11:00am SEATING BEGINS 12:00pm SHOWTIME!",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.095Z",
+    "ingested_at": "2026-07-10T06:10:13.743Z",
     "neighborhood": "Unknown"
   },
   {
@@ -1991,7 +1928,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.095Z",
+    "ingested_at": "2026-07-10T06:10:13.743Z",
     "neighborhood": "Unknown"
   },
   {
@@ -2012,7 +1949,7 @@
     "category_id": "Sports",
     "description": "This is an All Ages event. Doors open at 5:00 PM. Lineup subject to change without notice.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.095Z",
+    "ingested_at": "2026-07-10T06:10:13.743Z",
     "neighborhood": "Unknown"
   },
   {
@@ -2033,7 +1970,7 @@
     "category_id": "Music",
     "description": "All patrons will be required to pass through a security search upon entry. Bags must be 12x6x12 or smaller. Patrons with prohibited items or bags that are larger than our bag policy requirements may be turned away. No storage/check-in area will be provided for any items that are restricted from entry. Please visit https://highmarkmann.org/visit/frequently-asked-questions for a detailed list of prohibited items. **THIS IS A RAIN OR SHINE EVENT**",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.095Z",
+    "ingested_at": "2026-07-10T06:10:13.743Z",
     "neighborhood": "Unknown"
   },
   {
@@ -2054,7 +1991,7 @@
     "category_id": "Undefined",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.095Z",
+    "ingested_at": "2026-07-10T06:10:13.743Z",
     "neighborhood": "Unknown"
   },
   {
@@ -2075,7 +2012,7 @@
     "category_id": "Music",
     "description": "No additional details provided.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.095Z",
+    "ingested_at": "2026-07-10T06:10:13.744Z",
     "neighborhood": "Unknown"
   },
   {
@@ -2096,7 +2033,70 @@
     "category_id": "Arts & Theatre",
     "description": "Join us in our Callback Bar 1 hour before door time! This show is 21 & over with valid, government-issued photo ID. 18+ with parent or legal guardian over 30. There is a two-beverage minimum per person inside of the showroom. Cameras and video/audio recording devices are not permitted. Our events often run for multiple dates/times. Before purchasing, please ensure that you can attend the specific event, date, and time that is listed on the event page. There are no refunds/exchanges unless an event is cancelled/postponed. $.25 per each ticket sold for a majority of events at Punch Line benefits Comedy Gives Back, a safety net for the comedy community. For more information, please visit www.comedygivesback.com.",
     "new_since_last": "TRUE",
-    "ingested_at": "2026-07-10T02:47:19.095Z",
+    "ingested_at": "2026-07-10T06:10:13.744Z",
     "neighborhood": "Unknown"
+  },
+  {
+    "id": "vv1AeZko0Gkd9dSgq",
+    "title": "Jill Scott - To Whom This May Concern Tour",
+    "source": "Ticketmaster Discovery API",
+    "start_date": "2026-07-25",
+    "end_date": "2026-07-25",
+    "days": "",
+    "start_time": "19:30:00",
+    "end_time": "",
+    "location": "The Met Presented by Highmark",
+    "address": "858 N Broad St, Philadelphia",
+    "fee": "Free/TBD",
+    "fee_frequency": "Per Ticket",
+    "age_range": "",
+    "slug": "https://www.ticketmaster.com/jill-scott-to-whom-this-may-philadelphia-pennsylvania-07-25-2026/event/02006464D70F3D5D",
+    "category_id": "Music",
+    "description": "This event will be a phone-free experience. Use of cellphones or recording devices (including smart glasses) will not be permitted in the performance space. Upon arrival at the venue, all phones and recording accessories will be secured in Yondr pouches that will be opened at the end of the event. Guests maintain possession of their belongings at all times and can access their phones throughout the event at designated Phone Use Areas in the venue. All phones will be re-secured in Yondr pouches before returning to the event space. Anyone seen using a non-permitted device during the performance will be escorted out of the venue. Guests are encouraged to bring a credit card for purchases inside the venue. We appreciate your cooperation in creating a phone-free viewing experience.",
+    "new_since_last": "TRUE",
+    "ingested_at": "2026-07-10T06:10:13.744Z",
+    "neighborhood": "Unknown"
+  },
+  {
+    "id": "vvG1FZ_GkVfm78",
+    "title": "The Southern Truth Tour: Boosie x Webbie with special guest Pleasure P",
+    "source": "Ticketmaster Discovery API",
+    "start_date": "2026-07-25",
+    "end_date": "2026-07-25",
+    "days": "",
+    "start_time": "20:00:00",
+    "end_time": "",
+    "location": "The Liacouras Center",
+    "address": "1776 N. Broad St., Philadelphia",
+    "fee": "Free/TBD",
+    "fee_frequency": "Per Ticket",
+    "age_range": "",
+    "slug": "https://www.ticketmaster.com/the-southern-truth-tour-boosie-x-philadelphia-pennsylvania-07-25-2026/event/020064C1B452E110",
+    "category_id": "Music",
+    "description": "Unfortunately, the Event Organizer has had to cancel your event. You don't need to do a thing. We'll issue a refund to the [original method of payment](https://help.ticketmaster.com/hc/en-us/articles/9614074869009) used at time of purchase, as soon as funds are received from the Event Organizer. It should appear on your account within 14-21 days. Please Note: If the tickets were transferred to you, the refund will go to the fan who originally purchased the tickets from Ticketmaster. Please see our [Purchase Policy](https://help.ticketmaster.com/hc/en-us/articles/10465798887953-Purchase-Policy) for more information.",
+    "new_since_last": "TRUE",
+    "ingested_at": "2026-07-10T06:10:13.744Z",
+    "neighborhood": "Unknown"
+  },
+  {
+    "id": "Z7r9jZ1A7PdaY",
+    "title": "Heated Twilight: A Heated Rivalry + Twilight Dance Party (18 and Over)",
+    "source": "Ticketmaster Discovery API",
+    "start_date": "2026-07-25",
+    "end_date": "2026-07-25",
+    "days": "",
+    "start_time": "20:00:00",
+    "end_time": "",
+    "location": "Union Transfer",
+    "address": "1026 Spring Garden Street, Philadelphia",
+    "fee": "Free/TBD",
+    "fee_frequency": "Per Ticket",
+    "age_range": "",
+    "slug": "https://www.ticketmaster.com/event/Z7r9jZ1A7PdaY",
+    "category_id": "Undefined",
+    "description": "No additional details provided.",
+    "new_since_last": "TRUE",
+    "ingested_at": "2026-07-10T06:10:13.744Z",
+    "neighborhood": "Fairmount"
   }
 ]
