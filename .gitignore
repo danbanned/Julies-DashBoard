@@ -2,3 +2,7 @@ node_modules/
 .next/
 .DS_Store
 *.log
+
+# env files hold API keys — commit only .env.example
+.env
+.env*.local
