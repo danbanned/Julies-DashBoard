@@ -1,0 +1,24 @@
+[
+  {
+    "id": "sunsetsocial-movies-2026",
+    "title": "Weekly Wednesday Movie Nights",
+    "source": "Sunset Social Scraper",
+    "start_date": "2026-05-01",
+    "end_date": "2026-10-31",
+    "days": "Wednesday",
+    "start_time": "Sunset",
+    "end_time": "",
+    "location": "Sunset Social",
+    "address": "129 S 30th St, Philadelphia, PA 19104",
+    "fee": "Free",
+    "fee_frequency": "",
+    "age_range": "All Ages / Family & Dog Friendly",
+    "slug": "https://www.sunsetsocialphl.com/movie-nights",
+    "category_id": "Arts & Theatre",
+    "description": "Our Weekly Movie Nights are free and open to the public! Get here early to grab the best view of the 60-foot screen. Dogs and kids always welcome!",
+    "new_since_last": "TRUE",
+    "ingested_at": "2026-07-10T06:10:10.134Z",
+    "neighborhood": "University City",
+    "image_url": "https://static.wixstatic.com/media/d3248c_a3184e67550e4665b1924aeccc708dc5~mv2.jpg/v1/fill/w_70,h_53,al_c,q_80,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/d3248c_a3184e67550e4665b1924aeccc708dc5~mv2.jpg"
+  }
+]

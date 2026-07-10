@@ -1,0 +1,47 @@
+:root {
+  /* palette — pulled from Julie's mockup */
+  --navy-900: #0b1437;
+  --navy-800: #111c44;
+  --navy-700: #1b2559;
+  --navy-600: #222f66;
+  --card: #ffffff;
+  --card-soft: #f6f7fb;
+  --ink: #1b2140;
+  --ink-soft: #5b6285;
+  --line: #e6e8f2;
+
+  --purple: #7551ff;
+  --purple-soft: #efeaff;
+  --green: #01b574;
+  --green-soft: #e6f8f1;
+  --amber: #ffb547;
+  --amber-soft: #fff4e0;
+  --red: #ee5d50;
+  --red-soft: #fdeceb;
+  --blue: #3965ff;
+  --blue-soft: #e9eeff;
+
+  --radius: 20px;
+  --radius-sm: 14px;
+  --shadow: 0 18px 40px -20px rgba(11, 20, 55, 0.45);
+
+  --font-display: "Georgia", "Times New Roman", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--navy-900);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* thin scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--navy-600); border-radius: 8px; }
