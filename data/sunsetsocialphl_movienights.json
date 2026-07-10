@@ -1,0 +1,24 @@
+[
+  {
+    "id": "sunsetsocial-matinees-2026",
+    "title": "Saturday Movie Matinees",
+    "source": "Sunset Social Scraper",
+    "start_date": "2026-05-01",
+    "end_date": "2026-10-31",
+    "days": "Saturday",
+    "start_time": "Matinee",
+    "end_time": "",
+    "location": "Sunset Social",
+    "address": "129 S 30th St, Philadelphia, PA 19104",
+    "fee": "Free",
+    "fee_frequency": "",
+    "age_range": "Family Friendly / Dogs Welcome",
+    "slug": "https://www.sunsetsocialphl.com/movie-matinees",
+    "category_id": "Arts & Theatre",
+    "description": "Our Saturday Movie Matinees are free and open to the public! Get here early to grab the best view of the 60-foot screen. Movies are family friendly and dogs are always welcome!",
+    "new_since_last": "TRUE",
+    "ingested_at": "2026-07-10T02:47:13.400Z",
+    "neighborhood": "University City",
+    "image_url": "https://static.wixstatic.com/media/d3248c_f6b0677fd3f74512b9860d87e8194921~mv2.jpg/v1/fill/w_79,h_53,al_c,q_80,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/d3248c_f6b0677fd3f74512b9860d87e8194921~mv2.jpg"
+  }
+]
