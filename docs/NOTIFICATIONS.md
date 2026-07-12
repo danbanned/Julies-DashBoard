@@ -75,6 +75,25 @@ curl -H "Title: Test — new event posted" \
 
 If Julie's phone pings, it works.
 
+## Dashboard listener (Phase 9e — implemented)
+
+The dashboard itself also subscribes to the topic in the browser
+(`components/EventAlerts.js`, topic from `NEXT_PUBLIC_NTFY_TOPIC`):
+
+- On a new ntfy message it refreshes the feed (so new events + NEW dots
+  appear), shows an in-app toast, and — only if Julie has granted permission —
+  an OS notification.
+- Permission is asked via an "🔔 Enable event alerts" button (a user gesture),
+  never on page load. Denied/unavailable permission still gets the toast +
+  NEW dots.
+- Redelivered ntfy messages are deduped by message id; the SSE connection is
+  closed on unmount and auto-reconnects on drops.
+- **Privacy:** a public ntfy topic is a shared secret — anyone who knows the
+  topic name can read AND publish to it. The random suffix is the only
+  privacy. Keep it to low-stakes "new events posted" pings; never send
+  personal data over it. Rotate the topic name (env var + n8n node) if it
+  leaks.
+
 ## Notes
 
 - The dashboard already shows a green **NEW** dot on events with

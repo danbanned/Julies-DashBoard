@@ -1,0 +1,101 @@
+// Julie's Dashboard — Phase 8 data model.
+// Single user for now (no auth); everything hangs off userId so real auth can
+// be added later without reshaping the data.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String             @id
+  name          String
+  interactions  EventInteraction[]
+  achievements  Achievement[]
+  subscriptions PushSubscription[]
+  createdAt     DateTime           @default(now())
+
+  // Google Calendar OAuth (Phase 9) — per-user tokens from the in-app consent
+  // flow. The refresh token is AES-256-GCM encrypted at rest (lib/tokenCrypto).
+  googleConnected    Boolean   @default(false)
+  googleRefreshToken String?
+  googleAccessToken  String?
+  googleTokenExpiry  DateTime?
+}
+
+// One row per (user, event): Julie's relationship to a feed event. The feed
+// is external JSON, so key event fields are snapshotted here — attended/saved
+// history survives after an event ages out of the feed.
+model EventInteraction {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  eventId        String
+  eventTitle     String
+  eventStartDate String?
+  eventEndDate   String?
+  eventUrl       String?
+  location       String?
+  neighborhood   String?
+  source         String?
+
+  attended   Boolean   @default(false)
+  attendedAt DateTime?
+
+  saved   Boolean   @default(false)
+  savedAt DateTime?
+
+  // in-app planning calendar (8g); calendarEventId set once pushed to Google
+  addedToCalendar   Boolean   @default(false)
+  addedToCalendarAt DateTime?
+  calendarEventId   String?
+
+  views Int @default(0)
+
+  shared   Boolean   @default(false)
+  sharedAt DateTime?
+
+  posted   Boolean   @default(false)
+  postedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, eventId])
+  @@index([userId, saved])
+  @@index([userId, attended])
+}
+
+// Web Push subscriptions (Phase 11) — one row per device/browser Julie
+// enables notifications on. Expired endpoints (404/410 on send) are deleted.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Weekly achievement records — one row per (user, key, weekStart Monday).
+// Each week is its own record, which doubles as the history archive.
+model Achievement {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  key       String // event_explorer | community_spotlight | content_creator | neighborhood_expert
+  weekStart String // YYYY-MM-DD (Monday)
+  earned    Boolean   @default(false)
+  earnedAt  DateTime?
+  progress  Json      @default("{}")
+
+  @@unique([userId, key, weekStart])
+  @@index([userId, weekStart])
+}

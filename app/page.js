@@ -6,15 +6,15 @@ import { loadEvents } from "../lib/loadEvents";
 export const dynamic = "force-dynamic";
 
 export default function Page() {
-  const { events, chips, dropped } = loadEvents();
+  const { events, pastEvents, chips, dropped } = loadEvents();
 
   // Surfaced in server logs so a silently-failing scraper is visible.
   if (typeof console !== "undefined") {
     console.log(
-      `[events] visible=${events.length} dropped:`,
+      `[events] upcoming=${events.length} past=${pastEvents.length} dropped:`,
       JSON.stringify(dropped)
     );
   }
 
-  return <EventsSection events={events} chips={chips} />;
+  return <EventsSection events={events} pastEvents={pastEvents} chips={chips} />;
 }

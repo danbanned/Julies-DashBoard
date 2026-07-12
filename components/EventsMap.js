@@ -7,15 +7,19 @@ import { useEffect, useRef, useState } from "react";
 const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
 // Load the Maps JS API exactly once, shared across renders.
+// NOTE: with `loading=async` the API is NOT ready at the script's onload —
+// resolving there makes the map silently fail. Google's `callback` param is
+// the supported ready signal.
 let mapsPromise = null;
 function loadMaps() {
   if (mapsPromise) return mapsPromise;
   mapsPromise = new Promise((resolve, reject) => {
-    if (window.google?.maps) return resolve(window.google);
+    if (window.google?.maps?.Map) return resolve(window.google);
+    const cb = "__julieMapsReady";
+    window[cb] = () => resolve(window.google);
     const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(KEY)}&loading=async`;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(KEY)}&loading=async&callback=${cb}`;
     s.async = true;
-    s.onload = () => (window.google?.maps ? resolve(window.google) : reject(new Error("maps failed")));
     s.onerror = () => reject(new Error("maps failed"));
     document.head.appendChild(s);
   });

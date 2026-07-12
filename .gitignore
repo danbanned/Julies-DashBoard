@@ -6,3 +6,5 @@ node_modules/
 # env files hold API keys — commit only .env.example
 .env
 .env*.local
+
+/lib/generated/prisma
