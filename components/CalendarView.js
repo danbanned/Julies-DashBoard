@@ -12,6 +12,7 @@ export default function CalendarView({
   gcalConnected = false,
   onGcalChange,
   initialNotice = "",
+  showGoogle = true, // viewers get the planning calendar without Google sync
 }) {
   const [month, setMonth] = useState(() => {
     const n = new Date();
@@ -44,7 +45,6 @@ export default function CalendarView({
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
   const iso = (d) => `${y}-${String(mo + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-  const monthPlanned = planned.filter((r) => r.eventStartDate.startsWith(`${y}-${String(mo + 1).padStart(2, "0")}`));
 
   async function pushToGoogle(r) {
     // Not connected yet → run the in-app OAuth flow; the callback finishes
@@ -95,22 +95,26 @@ export default function CalendarView({
         <h2>📆 My Calendar</h2>
       </div>
       <p className={styles.calBlurb}>
-        Events you plan with 📅 land here first. Push them to Google Calendar when you&apos;re ready.
+        {showGoogle
+          ? "Events you plan with 📅 land here first. Push them to Google Calendar when you're ready."
+          : "Events you add with 📅 show up here, laid out by date."}
       </p>
 
-      <div className={styles.gcalRow}>
-        {gcalConnected ? (
-          <>
-            <span className={styles.gcalStatus} data-on="true">Google Calendar: Connected ✓</span>
-            <button className={styles.gcalLink} onClick={disconnect}>Disconnect</button>
-          </>
-        ) : (
-          <>
-            <span className={styles.gcalStatus}>Google Calendar: not connected</span>
-            <a className={styles.gcalLink} href="/api/auth/google">Connect</a>
-          </>
-        )}
-      </div>
+      {showGoogle && (
+        <div className={styles.gcalRow}>
+          {gcalConnected ? (
+            <>
+              <span className={styles.gcalStatus} data-on="true">Google Calendar: Connected ✓</span>
+              <button className={styles.gcalLink} onClick={disconnect}>Disconnect</button>
+            </>
+          ) : (
+            <>
+              <span className={styles.gcalStatus}>Google Calendar: not connected</span>
+              <a className={styles.gcalLink} href="/api/auth/google">Connect</a>
+            </>
+          )}
+        </div>
+      )}
 
       <div className={styles.calNav}>
         <button className={styles.calNavBtn} onClick={() => setMonth(new Date(y, mo - 1, 1))}>‹</button>
@@ -143,14 +147,16 @@ export default function CalendarView({
 
       {notice && <p className={styles.calNotice}>{notice}</p>}
 
+      {/* list EVERY planned event (not just the displayed month) — an event
+          added for another month must never look "lost" */}
       <div className={styles.savedList}>
-        {monthPlanned.length === 0 ? (
+        {planned.length === 0 ? (
           <div className={styles.empty}>
-            <h3>Nothing planned this month</h3>
+            <h3>Nothing planned yet</h3>
             <p>Tap 📅 on an event card to add it to your calendar.</p>
           </div>
         ) : (
-          monthPlanned.map((r) => (
+          planned.map((r) => (
             <div key={r.eventId} className={styles.savedRow}>
               <div className={styles.savedInfo}>
                 <div className={styles.savedTitle}>{r.eventTitle}</div>
@@ -159,7 +165,7 @@ export default function CalendarView({
                 </div>
               </div>
               <div className={styles.savedActions}>
-                {r.calendarEventId ? (
+                {!showGoogle ? null : r.calendarEventId ? (
                   <span className={styles.syncedTag}>✓ Synced</span>
                 ) : (
                   <button

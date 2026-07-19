@@ -5,7 +5,6 @@
 import { NextResponse } from "next/server";
 import webpush from "web-push";
 import { prisma } from "../../../../lib/db";
-import { CURRENT_USER_ID } from "../../../../lib/user";
 
 export const dynamic = "force-dynamic";
 
@@ -38,9 +37,9 @@ export async function POST(req) {
     tag: body.tag || "julie-events",
   });
 
-  const subs = await prisma.pushSubscription.findMany({
-    where: { userId: CURRENT_USER_ID },
-  });
+  // Secret-authenticated pipeline call: notify every subscribed device
+  // (Julie's + any viewers who opted in).
+  const subs = await prisma.pushSubscription.findMany();
 
   let sent = 0;
   let removed = 0;

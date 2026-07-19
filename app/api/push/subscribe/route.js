@@ -2,11 +2,13 @@
 // several rows (phone + laptop) — endpoint is the unique key.
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/db";
-import { CURRENT_USER_ID } from "../../../../lib/user";
+import { sessionUser } from "../../../../lib/session";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req) {
+  const user = await sessionUser();
+  if (!user) return NextResponse.json({ error: "sign in to enable notifications" }, { status: 401 });
   const sub = await req.json().catch(() => null);
   const endpoint = sub?.endpoint;
   const p256dh = sub?.keys?.p256dh;
@@ -19,8 +21,8 @@ export async function POST(req) {
   }
   const row = await prisma.pushSubscription.upsert({
     where: { endpoint },
-    update: { p256dh, auth, userId: CURRENT_USER_ID },
-    create: { userId: CURRENT_USER_ID, endpoint, p256dh, auth },
+    update: { p256dh, auth, userId: user.id },
+    create: { userId: user.id, endpoint, p256dh, auth },
   });
   return NextResponse.json({ ok: true, id: row.id });
 }

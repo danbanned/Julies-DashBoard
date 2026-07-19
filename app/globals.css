@@ -63,10 +63,10 @@ html, body {
 }
 body { background: transparent; }
 
-/* Blurred photo backdrop under a warm cream overlay so text and cards stay
-   legible on any part of the image (10d readability caveat). */
-body::before {
-  content: "";
+/* Blurred photo backdrop under a warm cream overlay — ADMIN pages only.
+   Rendered as an explicit <div className="pageBackdrop"> so the viewer
+   surface stays on plain cream (its photo lives in the hero banner only). */
+.pageBackdrop {
   position: fixed;
   inset: 0;
   z-index: -1;

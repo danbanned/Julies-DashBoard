@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>technical.me — MVP: Philadelphia Pilot (Prototype)</title>
+
+<!-- CesiumJS from cdnjs (classic build, reliable cross-origin workers) -->
+<script>window.CESIUM_BASE_URL = "https://cdnjs.cloudflare.com/ajax/libs/cesium/1.95.0/";</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.95.0/Cesium.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.95.0/Widgets/widgets.css" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --bg:#0b0e14; --surface:rgba(20,25,33,.94); --surface-2:rgba(13,17,23,.92);
+    --border:#2a2f3a; --text:#f0f3f8; --text-2:#9aa4b2; --text-3:#5d6775;
+    --accent:#4fc3f7; --violet:#7c4dff;
+    --good:#2ecc71; --mid:#f1c40f; --bad:#e0453a;
+    --gauge:linear-gradient(90deg,#8e44ad,#3498db,#2ecc71);
+    --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:var(--bg);
+    font-family:'Archivo',sans-serif;color:var(--text);font-size:14px}
+  #cesiumContainer{position:absolute;inset:0}
+  .cesium-viewer-bottom{opacity:.45;filter:grayscale(1)}
+  .mono{font-family:'IBM Plex Mono',monospace}
+
+  /* ───────── top bar ───────── */
+  .topbar{position:absolute;top:0;left:0;right:0;height:54px;z-index:30;
+    display:flex;align-items:center;gap:18px;padding:0 16px;
+    background:linear-gradient(180deg,rgba(9,12,17,.97),rgba(9,12,17,.86));
+    border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px}
+  .brand .mark{width:26px;height:26px;border-radius:7px;flex:none;
+    background:conic-gradient(from 210deg,#7c4dff,#4fc3f7,#2ecc71,#7c4dff);
+    box-shadow:0 0 14px rgba(124,77,255,.55)}
+  .brand small{display:block;font-weight:500;color:var(--text-2);font-size:11px;letter-spacing:.4px}
+  .nav{display:flex;gap:4px;margin-left:8px}
+  .nav a{color:var(--text-2);text-decoration:none;padding:6px 12px;border-radius:8px;font-size:13px}
+  .nav a.active{color:var(--text);background:rgba(79,195,247,.10);box-shadow:inset 0 -2px 0 var(--accent)}
+  .spacer{flex:1}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;cursor:pointer;
+    border:1px solid var(--border);background:var(--surface-2);color:var(--text-2);
+    font-size:12px;font-weight:600;user-select:none;transition:all .15s}
+  .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--text-3);transition:all .15s}
+  .chip.on{color:var(--text);border-color:rgba(79,195,247,.5)}
+  .chip.on .dot{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .chip.cb.on .dot{background:#e66101;box-shadow:0 0 8px #e66101}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,.45)}
+
+  /* ───────── legend ───────── */
+  .legend{position:absolute;left:14px;bottom:38px;z-index:25;padding:14px 16px;width:268px}
+  .legend h3{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--text-2);margin-bottom:11px}
+  .lrow{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:12.5px;color:var(--text)}
+  .sw{width:18px;height:18px;border-radius:4px;flex:none;border:1px solid rgba(255,255,255,.15)}
+  .sw.towers{background:linear-gradient(180deg,#7c4dff,#4fc3f7);box-shadow:0 0 8px rgba(79,195,247,.6)}
+  .sw.heat{background:linear-gradient(90deg,var(--good),var(--mid),var(--bad))}
+  .sw.heat.cb{background:linear-gradient(90deg,#2166ac,#b8c4cf,#e66101)}
+  .sw.sel{background:rgba(232,236,242,.45);border-color:#fff}
+  .legend .hint{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);
+    font-size:11.5px;color:var(--text-2);line-height:1.45}
+
+  /* ───────── inspect panel ───────── */
+  .panel{position:absolute;top:68px;right:14px;width:318px;z-index:25;padding:16px;
+    max-height:calc(100% - 130px);overflow-y:auto;
+    transform:translateX(360px);opacity:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s}
+  .panel.open{transform:none;opacity:1}
+  .panel::-webkit-scrollbar{width:6px}
+  .panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  .phead{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .phead h2{font-size:15px;font-weight:700}
+  .close{background:none;border:none;color:var(--text-2);font-size:18px;cursor:pointer;
+    width:28px;height:28px;border-radius:7px}
+  .close:hover{background:rgba(255,255,255,.07);color:var(--text)}
+  .tract-id{font-size:12px;color:var(--text-2);margin-bottom:13px}
+  .score-block{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+    padding:14px;text-align:center;margin-bottom:13px}
+  .score-block .lbl{font-size:12px;color:var(--text-2);letter-spacing:.6px;margin-bottom:6px}
+  .score-num{font-family:'IBM Plex Mono',monospace;font-size:38px;font-weight:600;line-height:1}
+  .score-num .of{font-size:16px;color:var(--text-2);font-weight:400}
+  .gauge{position:relative;height:8px;border-radius:4px;background:#252b35;margin-top:13px;overflow:visible}
+  .gauge .fill{position:absolute;inset:0;border-radius:4px;background:var(--gauge)}
+  .gauge .pin{position:absolute;top:-4px;width:3px;height:16px;background:#fff;border-radius:2px;
+    box-shadow:0 0 6px rgba(255,255,255,.9);transition:left .35s ease}
+  .mismatch{display:none;margin-top:11px;padding:7px 10px;border-radius:8px;font-size:11.5px;font-weight:600;
+    background:rgba(224,69,58,.14);border:1px solid rgba(224,69,58,.45);color:#ff8d84}
+  .mismatch.show{display:block}
+  .summary{font-size:13px;line-height:1.55;color:var(--text);background:rgba(79,195,247,.07);
+    border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:14px}
+  .sect{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--text-2);
+    margin:14px 0 7px;padding-top:11px;border-top:1px solid var(--border)}
+  .stat{display:flex;justify-content:space-between;align-items:baseline;margin:7px 0;font-size:13px}
+  .stat .k{color:var(--text-2)}
+  .stat .v{font-family:'IBM Plex Mono',monospace;font-weight:500}
+
+  /* ───────── tooltip / toast / loader ───────── */
+  .tip{position:absolute;z-index:40;pointer-events:none;display:none;padding:7px 11px;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
+    font-size:12px;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+  .tip b{font-family:'IBM Plex Mono',monospace}
+  .toast{position:absolute;left:50%;bottom:46px;transform:translateX(-50%);z-index:25;
+    padding:9px 16px;border-radius:999px;font-size:12.5px;color:var(--text-2);
+    background:var(--surface-2);border:1px solid var(--border);transition:opacity .5s}
+  .loader{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;gap:14px;
+    align-items:center;justify-content:center;background:var(--bg);transition:opacity .5s}
+  .loader .ring{width:42px;height:42px;border-radius:50%;border:3px solid var(--border);
+    border-top-color:var(--accent);animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loader p{color:var(--text-2);font-size:13px}
+  .loader .err{color:#ff8d84;max-width:420px;text-align:center;line-height:1.5;display:none}
+
+  @media (max-width:760px){
+    .nav,.brand small{display:none}
+    .panel{width:min(318px,calc(100vw - 28px))}
+    .legend{width:232px;bottom:34px}
+  }
+</style>
+</head>
+<body>
+
+<div id="cesiumContainer"></div>
+
+<!-- top bar -->
+<header class="topbar">
+  <div class="brand">
+    <div class="mark"></div>
+    <div>technical.me<small>MVP · Philadelphia Pilot — interactive prototype</small></div>
+  </div>
+  <nav class="nav"><a class="active" href="#">MVP Overview</a><a href="#">About</a></nav>
+  <div class="spacer"></div>
+  <div class="chips" role="group" aria-label="Map layer toggles">
+    <button class="chip on" id="tgHot" aria-pressed="true"><span class="dot"></span>Hotspots</button>
+    <button class="chip on" id="tgHeat" aria-pressed="true"><span class="dot"></span>Heatmap</button>
+    <button class="chip on" id="tgLbl" aria-pressed="true"><span class="dot"></span>Labels</button>
+    <button class="chip cb" id="tgCB" aria-pressed="false" title="Color-blind-safe palette (blue = high, orange = low)"><span class="dot"></span>CB-safe</button>
+  </div>
+</header>
+
+<!-- legend -->
+<aside class="legend card" aria-label="Map legend">
+  <h3>Legend</h3>
+  <div class="lrow"><span class="sw towers"></span>Innovation Hotspots (R&amp;D / VC activity)</div>
+  <div class="lrow"><span class="sw heat" id="swHeat"></span><span id="heatTxt">Mobility Heatmap (Green = High, Red = Low)</span></div>
+  <div class="lrow"><span class="sw sel"></span>Selected Neighborhood</div>
+  <div class="hint">Tower height ≈ nearby R&amp;D spend / deal count. <b>Click any census tract</b> to see its Community Benefit Score.</div>
+</aside>
+
+<!-- click-to-inspect panel -->
+<aside class="panel card" id="panel" aria-label="Click-to-Inspect Panel">
+  <div class="phead">
+    <h2>Click-to-Inspect Panel</h2>
+    <button class="close" id="closePanel" aria-label="Close panel">✕</button>
+  </div>
+  <div class="tract-id">Neighborhood Data for Census Tract <b class="mono" id="tractId">—</b></div>
+
+  <div class="score-block">
+    <div class="lbl">Community Benefit Score</div>
+    <div class="score-num" id="cbs">—<span class="of"> / 10</span></div>
+    <div class="gauge"><div class="fill"></div><div class="pin" id="pin" style="left:0%"></div></div>
+    <div class="mismatch" id="mismatch">⚠ Mismatch alert — high nearby innovation, low resident mobility</div>
+  </div>
+
+  <div class="summary" id="summary">Click a tract on the map.</div>
+
+  <div class="sect">Nearby Innovation Activity</div>
+  <div class="stat"><span class="k">R&amp;D spend (≈1 mi)</span><span class="v" id="rd">—</span></div>
+  <div class="stat"><span class="k">VC deals (12 mo)</span><span class="v" id="vc">—</span></div>
+
+  <div class="sect">Resident Outcomes</div>
+  <div class="stat"><span class="k">Median household income</span><span class="v" id="inc">—</span></div>
+  <div class="stat"><span class="k">Unemployment rate</span><span class="v" id="unemp">—</span></div>
+  <div class="stat"><span class="k">Housing cost burden</span><span class="v" id="house">—</span></div>
+  <div class="stat"><span class="k">Upward mobility percentile</span><span class="v" id="mob">—</span></div>
+
+  <div class="sect">Methodology (v1)</div>
+  <div style="font-size:12px;color:var(--text-2);line-height:1.55">
+    Score blends a resident-outcome index with a penalty when nearby innovation density far
+    exceeds resident outcomes. <span style="color:var(--text)">All numbers in this prototype are
+    synthetic placeholders</span> — the real MVP reads census-tract + HERD + Venture Monitor data.
+  </div>
+</aside>
+
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast">Synthetic demo data · drag to orbit · scroll to zoom · click a tract</div>
+
+<div class="loader" id="loader">
+  <div class="ring"></div>
+  <p id="loadMsg">Initializing Cesium scene…</p>
+  <p class="err" id="loadErr"></p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const fail = msg => { $('loadMsg').style.display='none'; document.querySelector('.ring').style.display='none';
+    const e=$('loadErr'); e.style.display='block'; e.textContent=msg; };
+
+  if (typeof Cesium === "undefined"){ fail("CesiumJS failed to load from the CDN. Check your network and reload."); return; }
+  Cesium.Ion.defaultAccessToken = undefined; // no ion assets used — fully offline scene
+
+  /* ════════ 1 · VIEWER ════════ */
+  let viewer;
+  try{
+    viewer = new Cesium.Viewer("cesiumContainer", {
+      imageryProvider:false, baseLayerPicker:false, geocoder:false, homeButton:false,
+      sceneModePicker:false, navigationHelpButton:false, animation:false, timeline:false,
+      fullscreenButton:false, infoBox:false, selectionIndicator:false,
+      terrainProvider:new Cesium.EllipsoidTerrainProvider(),
+      skyBox:false, skyAtmosphere:false, contextOptions:{webgl:{antialias:true}}
+    });
+  }catch(err){ fail("Could not start the Cesium viewer: "+err.message); return; }
+
+  const scene = viewer.scene, globe = scene.globe;
+  globe.baseColor = Cesium.Color.fromCssColorString("#0d1119");
+  globe.showGroundAtmosphere = false; scene.fog.enabled = false;
+  scene.backgroundColor = Cesium.Color.fromCssColorString("#0b0e14");
+  scene.highDynamicRange = false;
+  viewer.resolutionScale = Math.min(window.devicePixelRatio||1, 1.6);
+
+  /* ════════ 2 · SYNTHETIC DATA MODEL ════════ */
+  // Innovation anchors (rough real coordinates, synthetic magnitudes)
+  const HUBS = [
+    {name:"UPenn",            lon:-75.1932, lat:39.9522, rd:1700, vc: 60, label:true},
+    {name:"CHOP",             lon:-75.1942, lat:39.9479, rd: 620, vc: 10, label:true},
+    {name:"Drexel",           lon:-75.1899, lat:39.9566, rd: 190, vc: 25, label:true},
+    {name:"Univ. City Science Center", lon:-75.1796, lat:39.9583, rd: 90, vc:140, label:true},
+    {name:"Temple",           lon:-75.1577, lat:39.9810, rd: 310, vc: 12, label:true},
+    {name:"Jefferson",        lon:-75.1576, lat:39.9492, rd: 230, vc:  8, label:true},
+    {name:"VC Deal Hub — Center City", lon:-75.1662, lat:39.9512, rd: 30, vc:220, label:true},
+    {name:"Old City VC Hub",  lon:-75.1448, lat:39.9538, rd: 15, vc: 90, label:true},
+    {name:"Navy Yard",        lon:-75.1530, lat:39.8920, rd: 85, vc: 35, label:true}
+  ];
+  const HOODS = [
+    {name:"West Philadelphia",  lon:-75.2300, lat:39.9610},
+    {name:"North Philadelphia", lon:-75.1500, lat:39.9990},
+    {name:"Center City",        lon:-75.1635, lat:39.9505},
+    {name:"South Philadelphia", lon:-75.1660, lat:39.9180},
+    {name:"Roxborough / NW",    lon:-75.2430, lat:40.0330},
+    {name:"Kensington",         lon:-75.1230, lat:39.9870}
+  ];
+
+  // deterministic pseudo-random
+  const rng = s => { let x = Math.sin(s*127.1+311.7)*43758.5453; return x - Math.floor(x); };
+  const gauss = (lon,lat,clon,clat,sig) => {
+    const dx=(lon-clon)*Math.cos(lat*Math.PI/180), dy=lat-clat;
+    return Math.exp(-(dx*dx+dy*dy)/(2*sig*sig));
+  };
+  // upward-mobility field: stylized, NOT real tract data
+  const HIGHS=[[-75.1640,39.9500,.030,.95],[-75.2480,40.0340,.034,.90],[-75.0820,40.0380,.040,.70],
+               [-75.1450,39.9270,.026,.60],[-75.2050,40.0480,.026,.65]];
+  const LOWS =[[-75.1520,39.9930,.034,1.05],[-75.2330,39.9580,.030,.95],[-75.2120,39.9220,.028,.85],
+               [-75.1190,39.9890,.024,.80]];
+  function mobilityAt(lon,lat,seed){
+    let s=.46;
+    HIGHS.forEach(h=>s+= h[3]*.42*gauss(lon,lat,h[0],h[1],h[2]));
+    LOWS .forEach(h=>s-= h[3]*.46*gauss(lon,lat,h[0],h[1],h[2]));
+    s += (rng(seed)-.5)*.14;
+    return Math.max(.03,Math.min(.97,s));
+  }
+  function innovationAt(lon,lat){
+    let rd=0,vc=0;
+    HUBS.forEach(h=>{ const g=gauss(lon,lat,h.lon,h.lat,.012); rd+=h.rd*g; vc+=h.vc*g; });
+    return {rd,vc, idx:Math.min(1,(rd/900)*.7+(vc/180)*.3)};
+  }
+
+  // tract grid over Philadelphia (jittered cells ≈ stylized census tracts)
+  const LON0=-75.282, LON1=-75.062, LAT0=39.888, LAT1=40.050, NX=12, NY=11;
+  const dLon=(LON1-LON0)/NX, dLat=(LAT1-LAT0)/NY;
+  const corners={}; // shared jittered grid corners so tracts tile seamlessly
+  const corner=(i,j)=>{ const k=i+"_"+j;
+    if(!corners[k]){ const ji=(i>0&&i<NX)?(rng(i*7+j*13)-.5)*dLon*.42:0,
+                           jj=(j>0&&j<NY)?(rng(i*17+j*3)-.5)*dLat*.42:0;
+      corners[k]=[LON0+i*dLon+ji, LAT0+j*dLat+jj]; }
+    return corners[k]; };
+
+  const tracts=[]; let tid=0;
+  for(let i=0;i<NX;i++) for(let j=0;j<NY;j++){
+    const cx=LON0+(i+.5)*dLon, cy=LAT0+(j+.5)*dLat;
+    // trim corners to a rough city silhouette
+    if((i<2&&j<2)||(i>NX-3&&j<2&&cx>-75.10)||(i<2&&j>NY-3)) continue;
+    tid++;
+    const seed=tid, mob=mobilityAt(cx,cy,seed), inn=innovationAt(cx,cy);
+    const income=Math.round((27+mob*74+(rng(seed+5)-.5)*8))*1000;
+    const unemp =Math.max(1.4,(13.5-mob*10.6+(rng(seed+9)-.5)*1.6));
+    const burden=Math.max(16,(46-mob*21+(rng(seed+13)-.5)*5));
+    // CBS: outcome index, penalized when innovation outpaces outcomes (the "mismatch" signal)
+    const cbs=Math.max(.3,Math.min(9.8, 10*(.55*mob+.45*(1-Math.max(0,inn.idx-mob)))*(0.92+rng(seed+21)*.08)));
+    tracts.push({ id:"42101"+String(1200+seed*7).padStart(6,"0"),
+      ring:[corner(i,j),corner(i+1,j),corner(i+1,j+1),corner(i,j+1)],
+      mob, inn, income, unemp, burden, cbs:Math.round(cbs*10)/10,
+      mismatch: inn.idx>.45 && mob<.40 });
+  }
+
+  /* ════════ 3 · RENDER LAYERS ════════ */
+  const heatEnts=[], towerEnts=[], labelEnts=[];
+  const rampStd=t=> t<.5 ? Cesium.Color.lerp(Cesium.Color.fromCssColorString("#e0453a"),
+                                             Cesium.Color.fromCssColorString("#f1c40f"), t*2, new Cesium.Color())
+                         : Cesium.Color.lerp(Cesium.Color.fromCssColorString("#f1c40f"),
+                                             Cesium.Color.fromCssColorString("#2ecc71"),(t-.5)*2,new Cesium.Color());
+  const rampCB =t=> t<.5 ? Cesium.Color.lerp(Cesium.Color.fromCssColorString("#e66101"),
+                                             Cesium.Color.fromCssColorString("#b8c4cf"), t*2, new Cesium.Color())
+                         : Cesium.Color.lerp(Cesium.Color.fromCssColorString("#b8c4cf"),
+                                             Cesium.Color.fromCssColorString("#2166ac"),(t-.5)*2,new Cesium.Color());
+  let cbMode=false;
+  const tractColor=t=> (cbMode?rampCB:rampStd)(t).withAlpha(.52);
+
+  tracts.forEach(t=>{
+    const flat=[]; t.ring.forEach(c=>flat.push(c[0],c[1]));
+    t.entity=viewer.entities.add({
+      polygon:{ hierarchy:Cesium.Cartesian3.fromDegreesArray(flat),
+        material:tractColor(t.mob), outline:true,
+        outlineColor:Cesium.Color.fromCssColorString("#0b0e14").withAlpha(.85), height:0 },
+      properties:{tract:t}
+    });
+    heatEnts.push(t.entity);
+  });
+
+  // glowing towers + VC particle clusters
+  const towerCol=h=>Cesium.Color.lerp(Cesium.Color.fromCssColorString("#4fc3f7"),
+        Cesium.Color.fromCssColorString("#7c4dff"), Math.min(1,h/950), new Cesium.Color()).withAlpha(.92);
+  HUBS.forEach((h,hi)=>{
+    const main=170+Math.min(950,h.rd*.52+h.vc*1.5);
+    const n=3+Math.floor(rng(hi+40)*3);
+    for(let k=0;k<=n;k++){
+      const a=rng(hi*9+k)*6.283, r=k===0?0:.0012+rng(hi*5+k)*.0035;
+      const lon=h.lon+Math.cos(a)*r, lat=h.lat+Math.sin(a)*r*.78;
+      const ht=k===0?main:main*(.28+rng(hi*3+k)*.45), w=k===0?150:70+rng(hi+k)*60;
+      towerEnts.push(viewer.entities.add({
+        position:Cesium.Cartesian3.fromDegrees(lon,lat,ht/2),
+        box:{dimensions:new Cesium.Cartesian3(w,w,ht),material:towerCol(ht),
+             outline:true,outlineColor:Cesium.Color.fromCssColorString("#bce6ff").withAlpha(.35)},
+        properties:{hub:h}
+      }));
+    }
+    const pts=Math.round(h.vc*.45);
+    for(let k=0;k<pts;k++){
+      const a=rng(hi*31+k)*6.283, r=Math.abs(rng(hi*77+k))*.009+.0015;
+      towerEnts.push(viewer.entities.add({
+        position:Cesium.Cartesian3.fromDegrees(h.lon+Math.cos(a)*r, h.lat+Math.sin(a)*r*.8, 25+rng(k+hi)*420),
+        point:{ pixelSize:2.5+rng(k*3+hi)*3.5,
+          color:(rng(k+hi*2)>.5?Cesium.Color.fromCssColorString("#4fc3f7"):Cesium.Color.fromCssColorString("#9b7bff")).withAlpha(.85),
+          scaleByDistance:new Cesium.NearFarScalar(4000,1.4,40000,.45) }
+      }));
+    }
+  });
+
+  // pill labels
+  const addLabel=(name,lon,lat,h,size)=>labelEnts.push(viewer.entities.add({
+    position:Cesium.Cartesian3.fromDegrees(lon,lat,h),
+    label:{ text:name, font:(size||"13")+"px 'Archivo', sans-serif",
+      fillColor:Cesium.Color.WHITE, showBackground:true,
+      backgroundColor:Cesium.Color.fromCssColorString("#0f1218").withAlpha(.88),
+      backgroundPadding:new Cesium.Cartesian2(9,5), style:Cesium.LabelStyle.FILL,
+      pixelOffset:new Cesium.Cartesian2(0,-12),
+      disableDepthTestDistance:Number.POSITIVE_INFINITY,
+      scaleByDistance:new Cesium.NearFarScalar(6000,1,60000,.62) }
+  }));
+  HUBS.filter(h=>h.label).forEach(h=>addLabel(h.name,h.lon,h.lat,210+Math.min(950,h.rd*.52+h.vc*1.5)));
+  HOODS.forEach(n=>addLabel(n.name,n.lon,n.lat,40,"12.5"));
+
+  /* ════════ 4 · CAMERA ════════ */
+  viewer.camera.setView({
+    destination:Cesium.Cartesian3.fromDegrees(-75.225,39.862,9200),
+    orientation:{heading:Cesium.Math.toRadians(24),pitch:Cesium.Math.toRadians(-37),roll:0}
+  });
+  scene.screenSpaceCameraController.minimumZoomDistance=600;
+  scene.screenSpaceCameraController.maximumZoomDistance=90000;
+
+  /* ════════ 5 · INTERACTION ════════ */
+  const panel=$('panel'), tip=$('tip');
+  let selected=null;
+  const money=v=>"$"+(v>=1000?(v/1000).toFixed(2).replace(/\.?0+$/,"")+"B":Math.round(v)+"M");
+
+  function quadrantSummary(t){
+    const innHi=t.inn.idx>.45, mobHi=t.mob>.55;
+    if(innHi&&mobHi)  return "This neighborhood sits near major research and investment activity, and resident outcomes — income and upward mobility — are tracking with it.";
+    if(innHi&&!mobHi) return "This neighborhood is surrounded by significant R&D and venture activity, but incomes and mobility here remain well below the city median. That gap is the signal this platform exists to surface.";
+    if(!innHi&&mobHi) return "Resident outcomes here are relatively strong, though there's little innovation activity nearby — growth is being driven by other factors.";
+    return "There is limited innovation activity near this neighborhood, and resident outcomes are below the city median — a candidate area for new investment and programs.";
+  }
+
+  function select(t){
+    if(selected){ const p=selected.entity.polygon;
+      p.material=tractColor(selected.mob);
+      p.outlineColor=Cesium.Color.fromCssColorString("#0b0e14").withAlpha(.85); }
+    selected=t;
+    t.entity.polygon.material=Cesium.Color.fromCssColorString("#e8ecf2").withAlpha(.42);
+    t.entity.polygon.outlineColor=Cesium.Color.WHITE;
+
+    $('tractId').textContent=t.id;
+    $('cbs').innerHTML=t.cbs.toFixed(1)+'<span class="of"> / 10</span>';
+    $('pin').style.left=`calc(${(t.cbs/10*100).toFixed(1)}% - 1px)`;
+    $('mismatch').classList.toggle('show',t.mismatch);
+    $('summary').textContent=quadrantSummary(t);
+    $('rd').textContent=money(t.inn.rd);
+    $('vc').textContent=Math.round(t.inn.vc)+" deals";
+    $('inc').textContent="$"+t.income.toLocaleString();
+    $('unemp').textContent=t.unemp.toFixed(1)+"%";
+    $('house').textContent=t.burden.toFixed(0)+"% of income";
+    $('mob').textContent=Math.round(t.mob*100)+"th";
+    panel.classList.add('open');
+  }
+  function deselect(){
+    if(selected){ const p=selected.entity.polygon;
+      p.material=tractColor(selected.mob);
+      p.outlineColor=Cesium.Color.fromCssColorString("#0b0e14").withAlpha(.85); selected=null; }
+    panel.classList.remove('open');
+  }
+
+  const handler=new Cesium.ScreenSpaceEventHandler(scene.canvas);
+  handler.setInputAction(m=>{
+    const picked=scene.pick(m.position);
+    if(Cesium.defined(picked)&&picked.id&&picked.id.properties&&picked.id.properties.tract)
+      select(picked.id.properties.tract.getValue());
+    else if(Cesium.defined(picked)&&picked.id&&picked.id.properties&&picked.id.properties.hub){
+      const h=picked.id.properties.hub.getValue();
+      toastMsg(h.name+" — R&D "+money(h.rd)+" · "+h.vc+" VC deals (synthetic)");
+    } else deselect();
+  },Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+  handler.setInputAction(m=>{
+    const picked=scene.pick(m.endPosition);
+    const isTract=Cesium.defined(picked)&&picked.id&&picked.id.properties&&picked.id.properties.tract;
+    scene.canvas.style.cursor=(isTract||(Cesium.defined(picked)&&picked.id&&picked.id.properties&&picked.id.properties.hub))?"pointer":"default";
+    if(isTract&&$('tgHeat').classList.contains('on')){
+      const t=picked.id.properties.tract.getValue();
+      tip.innerHTML=`Tract <b>${t.id.slice(-6)}</b> · CBS <b>${t.cbs.toFixed(1)}</b>`;
+      tip.style.display="block";
+      tip.style.left=(m.endPosition.x+16)+"px"; tip.style.top=(m.endPosition.y+12)+"px";
+    } else tip.style.display="none";
+  },Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+  $('closePanel').onclick=deselect;
+  window.addEventListener('keydown',e=>{ if(e.key==='Escape')deselect(); });
+
+  /* toggles */
+  const bindToggle=(id,ents,extra)=>{ const b=$(id);
+    b.onclick=()=>{ const on=!b.classList.contains('on');
+      b.classList.toggle('on',on); b.setAttribute('aria-pressed',on);
+      ents.forEach(e=>e.show=on); if(extra)extra(on); }; };
+  bindToggle('tgHot',towerEnts);
+  bindToggle('tgHeat',heatEnts,on=>{ if(!on){deselect(); tip.style.display="none";} });
+  bindToggle('tgLbl',labelEnts);
+  $('tgCB').onclick=()=>{ const b=$('tgCB'); cbMode=!cbMode;
+    b.classList.toggle('on',cbMode); b.setAttribute('aria-pressed',cbMode);
+    $('swHeat').classList.toggle('cb',cbMode);
+    $('heatTxt').textContent=cbMode?"Mobility Heatmap (Blue = High, Orange = Low)":"Mobility Heatmap (Green = High, Red = Low)";
+    tracts.forEach(t=>{ if(t!==selected)t.entity.polygon.material=tractColor(t.mob); });
+  };
+
+  /* toast + loader */
+  let toastTimer;
+  function toastMsg(s){ const t=$('toast'); t.textContent=s; t.style.opacity=1;
+    clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.style.opacity=0,4200); }
+  setTimeout(()=>{ $('toast').style.opacity=0; },7000);
+
+  // pre-select a mismatch tract near University City so the panel tells the story immediately
+  const demo=tracts.filter(t=>t.mismatch).sort((a,b)=>b.inn.idx-a.inn.idx)[0]||tracts[40];
+  scene.postRender.addEventListener(function done(){
+    scene.postRender.removeEventListener(done);
+    $('loader').style.opacity=0;
+    setTimeout(()=>$('loader').remove(),550);
+    select(demo);
+  });
+})();
+</script>
+</body>
+</html>

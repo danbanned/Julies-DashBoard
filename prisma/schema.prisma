@@ -12,12 +12,20 @@ datasource db {
 }
 
 model User {
-  id            String             @id
+  id            String             @id @default(cuid())
   name          String
   interactions  EventInteraction[]
   achievements  Achievement[]
   subscriptions PushSubscription[]
   createdAt     DateTime           @default(now())
+
+  // Auth (Phase 12a): credentials login + role. Julie's existing "julie" row
+  // becomes the ADMIN via the seed — her data stays attached to the same id.
+  email        String?     @unique
+  passwordHash String?
+  role         String      @default("VIEWER") // ADMIN | VIEWER
+  views        EventView[]
+  posts        Post[]
 
   // Google Calendar OAuth (Phase 9) — per-user tokens from the in-app consent
   // flow. The refresh token is AES-256-GCM encrypted at rest (lib/tokenCrypto).
@@ -48,6 +56,9 @@ model EventInteraction {
 
   saved   Boolean   @default(false)
   savedAt DateTime?
+
+  liked   Boolean   @default(false)
+  likedAt DateTime?
 
   // in-app planning calendar (8g); calendarEventId set once pushed to Google
   addedToCalendar   Boolean   @default(false)
@@ -84,6 +95,224 @@ model PushSubscription {
   @@index([userId])
 }
 
+// ---------------------------------------------------------------------------
+// Phase 12 — viewer platform
+// ---------------------------------------------------------------------------
+
+// One row per event click/open (12d). viewerId when logged in, anonId (cookie)
+// otherwise — anonymous clicks count for metrics without being "user data".
+model EventView {
+  id        String   @id @default(cuid())
+  eventId   String
+  viewerId  String?
+  viewer    User?    @relation(fields: [viewerId], references: [id])
+  anonId    String?
+  createdAt DateTime @default(now())
+
+  @@index([eventId])
+  @@index([createdAt])
+}
+
+// Julie's admin curation per feed event (12e/12f): suggest into "Julie's
+// Picks", hide from the viewer feed, attach a content idea. NEVER touches a
+// viewer's own saves/follows — separate lane by design.
+model EventMeta {
+  eventId        String   @id
+  suggested      Boolean  @default(false)
+  hidden         Boolean  @default(false)
+  contentIdeaKey String?
+  updatedAt      DateTime @updatedAt
+}
+
+// Content ideas (12g) — Julie's playbook themes, attachable to events and
+// browseable on the viewer side.
+model ContentIdea {
+  key       String  @id // e.g. "dog-lovers"
+  title     String
+  blurb     String
+  emoji     String  @default("✨")
+  coverUrl  String?
+  sortOrder Int     @default(0)
+}
+
+// Manual events Julie adds from the console (12e). published=false = Draft.
+model ManualEvent {
+  id        String   @id @default(cuid())
+  title     String
+  location  String?
+  address   String?
+  startDate String
+  endDate   String?
+  startTime String?
+  description String?
+  eventUrl  String?
+  imageUrl  String?
+  neighborhood String?
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// Family Group Chat posts (12i): Julie → community feed.
+model Post {
+  id            String   @id @default(cuid())
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id])
+  title         String
+  caption       String
+  coverImageUrl String?
+  createdAt     DateTime @default(now())
+
+  // 👇 Add this line
+  pollResponses PollResponse[]
+
+  @@index([createdAt])
+}
+
+model PollResponse {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  option    String   // "please_post" | "not_like" | "thank_you"
+  visitorId String
+  createdAt DateTime @default(now())
+
+  @@unique([postId, visitorId])
+  @@index([postId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 14 — Client CRM (ADMIN-ONLY: real client PII, never public)
+// ---------------------------------------------------------------------------
+
+model Client {
+  id      String  @id @default(cuid())
+  name    String
+  email   String?
+  // Placeholder rule: form emails are unreliable — only true when Julie has
+  // verified a live address. Quick Email is disabled when false.
+  emailIsReal Boolean @default(false)
+  phone    String?
+  partners String?
+
+  clientType String @default("RENTER") // RENTER | BUYER
+  source     String @default("FORM") // FORM | MANUAL | CALL | TEXT | REFERRAL
+
+  neighborhoods    String[]
+  moveMonth        DateTime?
+  creditBand       String    @default("UNKNOWN") // UNDER_650 | B650_699 | B700_749 | B750_PLUS | UNKNOWN
+  proofOfIncome    Boolean?
+  whoLiving        String?
+  outOfState       Boolean   @default(false)
+  notes            String? // Julie's sheet "Notes" column
+  specificProperty String?
+
+  // renter fields
+  maxRent     Int?
+  bedroomsMin Int?
+  bedroomsRaw String?
+  pets        Boolean @default(false)
+
+  // buyer fields
+  budget    Int?
+  financing String?
+
+  // workflow — stage set per clientType (see lib/crm.js)
+  stage          String    @default("NEW")
+  pinned         Boolean   @default(false)
+  takingOn       Boolean?
+  contactedRaw   String? // sheet "Contacted?" as-is
+  lastReachedOut DateTime?
+  followUpDue    DateTime?
+  snoozedUntil   DateTime?
+
+  formKey   String?  @unique // stable dedupe key for form rows
+  rawSource Json? // original ingested row, for audit/debug
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tags          Tag[]
+  clientNotes   ClientNote[]
+  notifications CrmNotification[]
+}
+
+// Julie's own descriptive labels — NEVER drive ranking.
+model Tag {
+  id      String   @id @default(cuid())
+  name    String   @unique
+  color   String?
+  clients Client[]
+}
+
+model ClientNote {
+  id        String    @id @default(cuid())
+  clientId  String
+  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  body      String
+  remindAt  DateTime? // a note can become a follow-up reminder
+  reminded  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+}
+
+// In-app notification center items (dropdown; NO push, NO email, NO ntfy).
+model CrmNotification {
+  id        String   @id @default(cuid())
+  type      String // new_lead | stage_change | follow_up_due | note_reminder
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title     String
+  body      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([read])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 15f — Content Playbook (ADMIN-only working tool, seeded from Notion)
+// ---------------------------------------------------------------------------
+model PlaybookPillar {
+  id       String            @id @default(cuid())
+  key      String            @unique // lifestyle | food | nature | community | getting_started
+  name     String
+  emoji    String            @default("📌")
+  order    Int               @default(0)
+  sections PlaybookSection[]
+}
+
+model PlaybookSection {
+  id            String          @id @default(cuid())
+  pillarId      String
+  pillar        PlaybookPillar  @relation(fields: [pillarId], references: [id], onDelete: Cascade)
+  title         String
+  subtitle      String?
+  coverImage    String?
+  neighborhoods String[] // ["Fairmount","Brewerytown"] — playbook covers both
+  order         Int             @default(0)
+  blocks        PlaybookBlock[]
+  createdAt     DateTime        @default(now())
+}
+
+model PlaybookBlock {
+  id        String            @id @default(cuid())
+  sectionId String
+  section   PlaybookSection   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  emoji     String?
+  heading   String
+  body      String?
+  order     Int               @default(0)
+  callouts  PlaybookCallout[]
+}
+
+model PlaybookCallout {
+  id      String        @id @default(cuid())
+  blockId String
+  block   PlaybookBlock @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  type    String // CONTENT_IDEA | REEL_IDEA | SHOOT_HERE | WHY_IT_WORKS | DONT_DO_THIS | PRO_TIP | NOTE
+  text    String
+  order   Int    @default(0)
+}
+
 // Weekly achievement records — one row per (user, key, weekStart Monday).
 // Each week is its own record, which doubles as the history archive.
 model Achievement {
@@ -99,3 +328,5 @@ model Achievement {
   @@unique([userId, key, weekStart])
   @@index([userId, weekStart])
 }
+
+

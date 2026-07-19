@@ -1,5 +1,31 @@
 # Google Map setup (Phase 6d)
 
+## Fixing `RefererNotAllowedMapError` (Phase 13.5)
+
+If the console shows `Google Maps JavaScript API error: RefererNotAllowedMapError`,
+the page's URL isn't on the key's allowlist. In Google Cloud Console →
+APIs & Services → Credentials → your Maps key → **Application restrictions →
+Websites**, add ALL of these referrers (Google does not support port
+wildcards, so each dev port needs its own line):
+
+```
+http://localhost:3000/*
+http://localhost:3001/*
+http://127.0.0.1:3000/*
+http://127.0.0.1:3001/*
+https://<your-production-domain>/*
+```
+
+Keep the key restricted (do NOT remove restrictions) — it ships to the
+browser. If dev and prod diverge, use two keys: a dev key allowing localhost
+and a prod key allowing only the deployed domain, each set via
+`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in the matching environment.
+
+Tip: the dev server normally runs on port 3000; if another process squats on
+it, `autoPort` moves the app to a random port that will NOT be on the
+allowlist. Free port 3000 (kill the orphaned `node` process) rather than
+adding random ports.
+
 The "What's Happening Where" panel embeds a real Google Map with a marker per
 event. Without an API key it gracefully falls back to the neighborhood-bubble
 panel — the page never breaks.

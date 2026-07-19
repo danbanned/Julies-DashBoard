@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import styles from "../app/Events.module.css";
 import EventsMap, { hasMapsKey } from "./EventsMap";
 import ProfileView from "./ProfileView";
@@ -9,6 +10,8 @@ import CalendarView from "./CalendarView";
 import AchievementsView from "./AchievementsView";
 import EventAlerts from "./EventAlerts";
 import PushSetup from "./PushSetup";
+import AdminConsole from "./AdminConsole";
+import AdminChat from "./AdminChat";
 import { ACHIEVEMENT_DEFS } from "../lib/achievementDefs";
 import { getImpactStats, getStreakData } from "../lib/stats";
 import { STREAK_IMAGE_COUNT, streakImagePath } from "../lib/config";
@@ -212,7 +215,7 @@ function EventCard({ ev, row, act }) {
   );
 }
 
-export default function EventsSection({ events, pastEvents = [], chips }) {
+export default function EventsSection({ events, pastEvents = [], chips, consoleData = null }) {
   const [active, setActive] = useState("All");
   const [linksOnly, setLinksOnly] = useState(false);
   const [range, setRange] = useState("all"); // date sub-filter (10a)
@@ -552,6 +555,18 @@ export default function EventsSection({ events, pastEvents = [], chips }) {
                 ✕
               </button>
             </div>
+            <button className={styles.drawerLink} onClick={() => { setView("calendar"); setMenuOpen(false); }}>
+              📆 My Calendar
+            </button>
+            <button className={styles.drawerLink} onClick={() => { setView("chat"); setMenuOpen(false); }}>
+              💬 Family Chat
+            </button>
+            <button className={styles.drawerLink} onClick={() => { setView("events"); setMenuOpen(false); }}>
+              ＋ Add / Manage Events
+            </button>
+            <a className={styles.drawerLink} href="/admin/crm">👥 Client CRM</a>
+            <a className={styles.drawerLink} href="/admin/playbook">📖 Content Playbook</a>
+            <a className={styles.drawerLink} href="/">🏙 View public site</a>
             <h4>About App</h4>
             <p>
               Julie&apos;s Dashboard surfaces upcoming events across Fairmount,
@@ -559,11 +574,22 @@ export default function EventsSection({ events, pastEvents = [], chips }) {
               content. Events sync automatically every morning at 9am from
               Ticketmaster, Visit Philly, the City of Philadelphia and more.
             </p>
-            <p className={styles.credits}>
-              <a target="_blank" rel="noopener noreferrer" href="https://icons8.com/icon/pVlzUsxgdINd/camper">Camper</a>
-              {" "}icon by{" "}
-              <a target="_blank" rel="noopener noreferrer" href="https://icons8.com">Icons8</a>
-            </p>
+            <div className={styles.drawerFoot}>
+              <button
+                className={styles.signOutBtn}
+                onClick={() => signOut({ callbackUrl: "/" })}
+              >
+                👋 Sign out
+              </button>
+              <p className={styles.credits}>
+                <a target="_blank" rel="noopener noreferrer" href="https://icons8.com/icon/pVlzUsxgdINd/camper">Camper</a>
+                {" "}icon by{" "}
+                <a target="_blank" rel="noopener noreferrer" href="https://icons8.com">Icons8</a>
+                {" · "}
+                Family Chat thumb icons by rukanicon, Magnific &amp; Md Tanvirul Haque —{" "}
+                <a target="_blank" rel="noopener noreferrer" href="https://www.flaticon.com">Flaticon</a>
+              </p>
+            </div>
           </aside>
         </div>
       )}
@@ -571,6 +597,8 @@ export default function EventsSection({ events, pastEvents = [], chips }) {
       <PushSetup />
       <EventAlerts onNewEvent={() => router.refresh()} onNotification={notif.add} />
 
+      {view === "events" && consoleData && <AdminConsole data={consoleData} />}
+      {view === "chat" && <AdminChat />}
       {view === "profile" && <ProfileView interactions={inter} act={act} />}
       {view === "calendar" && (
         <CalendarView
@@ -721,9 +749,10 @@ export default function EventsSection({ events, pastEvents = [], chips }) {
       {active !== "__attended" && ongoing.length > 0 && (
         <div className={styles.panel}>
           <div className={styles.panelHead}>
-            <h2>🔵 Happening Now</h2>
+            <h2>🔵 Ongoing Events</h2>
             <span className={styles.pastCount}>{ongoing.length}</span>
           </div>
+          <p className={styles.calBlurb}>Already running — end date is still ahead.</p>
           <div className={styles.scrollBox} data-kind="ongoing">
             <div className={styles.list}>
               {ongoing.map((ev) => (
@@ -885,12 +914,17 @@ export default function EventsSection({ events, pastEvents = [], chips }) {
         </button>
         <button
           className={styles.navItem}
-          data-active={view === "calendar"}
-          onClick={() => setView("calendar")}
+          data-active={view === "chat"}
+          onClick={() => setView("chat")}
         >
-          <span><img className={styles.navImg} src="/icons/calendar.png" alt="" /></span>Calendar
+          <span><img className={styles.navImg} src="/icons/bell.png" alt="" /></span>Family Chat
         </button>
-        <button className={styles.navAdd} aria-label="Add Event" title="Coming soon">
+        <button
+          className={styles.navAdd}
+          aria-label="Add Event"
+          onClick={() => setView("events")}
+          title="Create and manage events"
+        >
           <span className={styles.navAddCircle}>＋</span>
           <em>Add Event</em>
         </button>

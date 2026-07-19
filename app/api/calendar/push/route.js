@@ -3,12 +3,15 @@
 //   200 ok / alreadySynced      401 { reconnect: true } → run /api/auth/google
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/db";
-import { CURRENT_USER_ID } from "../../../../lib/user";
+import { requireAdmin } from "../../../../lib/session";
 import { insertCalendarEvent, ReconnectNeeded } from "../../../../lib/googleCalendar";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req) {
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ error: "admin only" }, { status: 403 });
+  const CURRENT_USER_ID = admin.id;
   const { eventId, startTime, endTime } = await req.json().catch(() => ({}));
   if (!eventId) return NextResponse.json({ error: "eventId required" }, { status: 400 });
 

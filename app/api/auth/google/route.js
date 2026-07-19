@@ -1,10 +1,13 @@
 // Start the in-app Google OAuth flow (9a). Optional ?eventId= is carried in
 // `state` so the callback can finish the add-to-calendar Julie clicked.
 import { NextResponse } from "next/server";
+import { requireAdmin } from "../../../../lib/session";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req) {
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.redirect(`${req.nextUrl.origin}/login`);
   const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
   if (!clientId) {
     return NextResponse.json(

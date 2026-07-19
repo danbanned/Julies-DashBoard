@@ -3,7 +3,7 @@
 // and bounce back to the dashboard with a status flag.
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/db";
-import { CURRENT_USER_ID } from "../../../../../lib/user";
+import { requireAdmin } from "../../../../../lib/session";
 import { storeTokensFromCode, insertCalendarEvent } from "../../../../../lib/googleCalendar";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +12,12 @@ export async function GET(req) {
   const origin = req.nextUrl.origin;
   const code = req.nextUrl.searchParams.get("code");
   const eventId = req.nextUrl.searchParams.get("state") || "";
-  const back = (flag) => NextResponse.redirect(`${origin}/?gcal=${flag}`);
+  // Julie's dashboard lives at /admin now (12b)
+  const back = (flag) => NextResponse.redirect(`${origin}/admin?gcal=${flag}`);
+
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.redirect(`${origin}/login`);
+  const CURRENT_USER_ID = admin.id;
 
   if (!code) return back("error");
 
