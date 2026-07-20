@@ -5,6 +5,8 @@
 // section detail with full CRUD on blocks/callouts, a "+ New Idea" composer,
 // and a print-optimized Export (15g).
 import { useCallback, useEffect, useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import styles from "../app/Events.module.css";
 
 const CALLOUT_META = {
@@ -23,6 +25,118 @@ const calloutBody = (t) => {
   const i = s.indexOf(":");
   return i > 0 && i < 30 ? s.slice(i + 1).trim() : s;
 };
+
+// Make Notion-exported markdown safe for GFM: (1) ensure a blank line before a
+// table/heading that follows other content, and (2) normalize every table row
+// to its header's column count (some export rows have an extra/missing cell,
+// which stops GFM from rendering the table). Used by the UI and the PDF export.
+// A table row whose cell holds a newline arrives split across lines (starts
+// with "|" but doesn't close with "|"). GFM — and our card parser — need each
+// row on ONE line, so fold continuation lines up until the row closes with "|".
+function stitchTableRows(raw) {
+  const lines = [];
+  for (let i = 0; i < raw.length; i++) {
+    let line = raw[i];
+    const t = line.trim();
+    if (t.startsWith("|") && !t.endsWith("|")) {
+      while (i + 1 < raw.length && !line.trim().endsWith("|")) {
+        i++;
+        line = line.replace(/\s+$/, "") + " " + raw[i].trim();
+      }
+    }
+    lines.push(line);
+  }
+  return lines;
+}
+
+export function normalizeMd(md) {
+  const lines = stitchTableRows(String(md || "").split("\n"));
+  const spaced = [];
+  for (const line of lines) {
+    const cur = line.trim();
+    const prev = spaced.length ? spaced[spaced.length - 1].trim() : "";
+    if (prev && prev !== "" && !prev.startsWith("|") && (cur.startsWith("|") || /^#{1,6}\s/.test(cur))) {
+      spaced.push("");
+    }
+    spaced.push(line);
+  }
+  // reconstruct table rows to a consistent column count
+  const out = [];
+  let cols = 0;
+  let inTable = false;
+  for (const line of spaced) {
+    const t = line.trim();
+    if (t.startsWith("|")) {
+      const cells = t.replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+      if (!inTable) { inTable = true; cols = cells.length; }
+      const isSep = cells.every((c) => /^:?-+:?$/.test(c) || c === "");
+      if (isSep) {
+        out.push("| " + Array.from({ length: cols }, () => "---").join(" | ") + " |");
+      } else {
+        while (cells.length < cols) cells.push("");
+        if (cells.length > cols) cells.splice(cols - 1, cells.length - cols + 1, cells.slice(cols - 1).join(" "));
+        out.push("| " + cells.join(" | ") + " |");
+      }
+    } else {
+      inTable = false;
+      cols = 0;
+      out.push(line);
+    }
+  }
+  return out.join("\n");
+}
+
+// GFM markdown renderer (16c). Tables get a horizontally-scrollable wrapper so
+// wide tables stay usable at 375px; lists/tables/bold all render as real HTML.
+const MD_COMPONENTS = {
+  table: (props) => (
+    <div className={styles.pbTableWrap}>
+      <table {...props} />
+    </div>
+  ),
+  a: (props) => <a {...props} target="_blank" rel="noopener noreferrer" />,
+};
+function Markdown({ children }) {
+  if (!children) return null;
+  return (
+    <div className={styles.pbMd}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
+        {normalizeMd(children)}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
+// Parse a GFM table out of a block body into header + data rows (each keeps
+// its exact source line so a single row can be deleted precisely, 16d).
+function tableFromBody(body) {
+  const lines = stitchTableRows(String(body || "").split("\n"));
+  const start = lines.findIndex((l) => l.trim().startsWith("|"));
+  if (start < 0) return null;
+  // first CONTIGUOUS run of table lines (a block may hold a 2nd table below)
+  let end = start;
+  while (end < lines.length && lines[end].trim().startsWith("|")) end++;
+  const tableLines = lines.slice(start, end);
+  if (tableLines.length < 2) return null;
+  const cells = (l) => l.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+  const isSeparator = (l) => /^\|?[\s:|-]+\|?$/.test(l.trim());
+  const headers = cells(tableLines[0]);
+  const rows = tableLines
+    .slice(1)
+    .filter((l) => !isSeparator(l))
+    .map((l) => ({ line: l, cells: cells(l) }))
+    .filter((r) => r.cells.some((c) => c));
+  if (!rows.length) return null;
+  const remainder = lines.slice(end).join("\n").trim();
+  return { headers, rows, remainder };
+}
+function priorityMeta(cell) {
+  const c = String(cell || "");
+  if (/🔴|high/i.test(c)) return { dot: "🔴", label: "High" };
+  if (/🟡|med/i.test(c)) return { dot: "🟡", label: "Med" };
+  if (/🟢|low/i.test(c)) return { dot: "🟢", label: "Low" };
+  return { dot: "", label: stripMd(c) };
+}
 
 const NEIGHBORHOOD_CARDS = [
   { key: "Fairmount", title: "FAIRMOUNT", tagline: "Historic Beauty. Natural Serenity.", cover: "/fallbacks/FairMount/fairmountpark.png" },
@@ -90,8 +204,21 @@ export default function PlaybookApp() {
   // ---- section detail ----
   if (openSectionData) {
     const s = openSectionData;
+    // frozen snapshot — render its tables as event cards (16c/16d)
+    const isEventsCalendar = /events calendar/i.test(s.title);
+    const asOf = (s.title.match(/as of ([^)]+)/i) || [])[1];
+
+    // delete one event row: strip its exact source line from the block body
+    const deleteEventRow = (blk, rowLine) => {
+      // stitch first so split rows match row.line, then drop the chosen row
+      const body = stitchTableRows(String(blk.body || "").split("\n"))
+        .filter((l) => l !== rowLine)
+        .join("\n");
+      api({ action: "updateBlock", id: blk.id, body });
+    };
+
     return (
-      <div className={styles.shell}>
+      <div className={`${styles.shell} ${styles.pbShell}`}>
         <button className={styles.crmBack} onClick={() => setOpenSection(null)}>‹ The Playbook</button>
         {s.coverImage && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -100,17 +227,61 @@ export default function PlaybookApp() {
         <div className={styles.panel}>
           <div className={styles.panelHead}>
             <h2>{s.pillar.emoji} {s.title}</h2>
+            <button
+              className={styles.pbDeleteSection}
+              title="Delete this whole section"
+              onClick={() => {
+                if (confirm(`Delete the entire "${s.title}" section and everything in it? This can't be undone.`)) {
+                  api({ action: "deleteSection", id: s.id });
+                  setOpenSection(null);
+                }
+              }}
+            >
+              🗑 Delete section
+            </button>
           </div>
+          {isEventsCalendar && asOf && (
+            <p className={styles.pbAsOf}>🗓 Frozen snapshot — as of {asOf}. Not your live events feed.</p>
+          )}
           {s.subtitle && <p className={styles.pbQuote}>&ldquo;{stripMd(s.subtitle)}&rdquo;</p>}
           {notice && <p className={styles.calNotice}>{notice}</p>}
 
-          {s.blocks.map((blk) => (
+          {s.blocks.map((blk) => {
+            const evTable = isEventsCalendar ? tableFromBody(blk.body) : null;
+            return (
             <div key={blk.id} className={styles.pbBlock}>
               <div className={styles.pbBlockHead}>
                 <h3>{blk.emoji} {stripMd(blk.heading)}</h3>
                 <button className={styles.pbTinyBtn} title="Delete block" onClick={() => { if (confirm("Delete this whole block?")) api({ action: "deleteBlock", id: blk.id }); }}>🗑</button>
               </div>
-              {blk.body && <p className={styles.pbBody}>{stripMd(blk.body)}</p>}
+
+              {/* Events Calendar: each table row → a labeled event card with delete */}
+              {evTable ? (
+                <div className={styles.pbEventCards}>
+                  {evTable.rows.map((row) => {
+                    const field = (name) => {
+                      const idx = evTable.headers.findIndex((h) => new RegExp(name, "i").test(h));
+                      return idx >= 0 ? row.cells[idx] : "";
+                    };
+                    const pri = priorityMeta(field("priority"));
+                    return (
+                      <div key={`${blk.id}:${row.line}`} className={styles.pbEventCard}>
+                        <div className={styles.pbEventTop}>
+                          {pri.dot && <span className={styles.pbEventPri}>{pri.dot} {pri.label}</span>}
+                          <span className={styles.pbEventDate}>{stripMd(field("date"))}{field("time") && field("time") !== "—" ? ` · ${stripMd(field("time"))}` : ""}</span>
+                          <button className={styles.pbTinyBtn} title="Delete this event" onClick={() => deleteEventRow(blk, row.line)}>✕</button>
+                        </div>
+                        <div className={styles.pbEventName}>{stripMd(field("event"))}</div>
+                        {field("description") && <div className={styles.pbEventDesc}><Markdown>{field("description")}</Markdown></div>}
+                      </div>
+                    );
+                  })}
+                  {evTable.remainder && <Markdown>{evTable.remainder}</Markdown>}
+                </div>
+              ) : (
+                <Markdown>{blk.body}</Markdown>
+              )}
+
               {blk.callouts.map((co) => {
                 const m = CALLOUT_META[co.type] || CALLOUT_META.NOTE;
                 return (
@@ -123,7 +294,8 @@ export default function PlaybookApp() {
               })}
               <IdeaAdder blockId={blk.id} onAdd={api} />
             </div>
-          ))}
+            );
+          })}
 
           <BlockAdder sectionId={s.id} onAdd={api} />
         </div>
@@ -135,7 +307,7 @@ export default function PlaybookApp() {
   const shownGettingStarted = tab === "inspiration" || tab === "all";
 
   return (
-    <div className={styles.shell}>
+    <div className={`${styles.shell} ${styles.pbShell}`}>
       {/* header */}
       <header className={styles.pbHeader}>
         <div>
@@ -199,6 +371,18 @@ export default function PlaybookApp() {
             </button>
           ))}
         </>
+      )}
+
+      {/* how to use this workspace — static guidance (matches the mockup) */}
+      {shownGettingStarted && (
+        <div className={styles.pbHowTo}>
+          <span className={styles.pbHowToIcon}>⭐</span>
+          <div className={styles.pbHowToBody}>
+            <strong>How to use this workspace:</strong> Start with Content Philosophy, plan the month with
+            {" "}Weekly Content Planner, then pull from the four pillars above.
+            {" "}🎉 Check <b>Events</b> every Monday.
+          </div>
+        </div>
       )}
 
       {/* neighborhood playbooks */}

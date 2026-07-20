@@ -54,6 +54,9 @@ function imgBasename(pathStr) {
   }
 }
 
+// Parse a section page, PRESERVING newlines in block bodies so GFM tables and
+// ordered/bulleted lists survive intact (Phase 16c — the old parser collapsed
+// everything to a single line, which broke every table and numbered list).
 function parseSection(md) {
   const lines = md.split(/\r?\n/);
   let title = null;
@@ -63,17 +66,18 @@ function parseSection(md) {
   let cur = null; // current block
   let sawHeading = false;
 
-  const flushBodyLine = (text) => {
-    if (!cur) return;
-    const t = text.trim();
-    if (!t) return;
-    cur.body = cur.body ? `${cur.body} ${t}` : t;
-  };
+  const pushBody = (text) => { if (cur) cur.bodyLines.push(text); };
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const raw = line.trim();
-    if (!raw) continue;
+
+    // blank line → paragraph break WITHIN a block (needed for GFM to separate
+    // a lead paragraph from a following table/list)
+    if (!raw) {
+      if (cur && cur.bodyLines.length) pushBody("");
+      continue;
+    }
 
     if (!title && raw.startsWith("# ")) {
       title = raw.replace(/^#\s+/, "").trim();
@@ -82,7 +86,7 @@ function parseSection(md) {
     if (/^Owner:/i.test(raw)) continue;
     if (raw === "---") continue;
 
-    // callouts
+    // callouts (blockquote leads with a typed emoji)
     const cm = raw.match(CALLOUT_LEAD);
     if (cm && cur) {
       cur.callouts.push({ type: CALLOUT_TYPE[cm[1]] || "NOTE", text: `${cm[2].trim()}: ${cm[3].trim()}`.trim() });
@@ -93,7 +97,7 @@ function parseSection(md) {
     const hm = line.match(HEADING);
     if (hm) {
       sawHeading = true;
-      cur = { emoji: (hm[1] || "").trim() || null, heading: hm[2].trim(), body: "", callouts: [] };
+      cur = { emoji: (hm[1] || "").trim() || null, heading: hm[2].trim(), bodyLines: [], callouts: [] };
       blocks.push(cur);
       continue;
     }
@@ -114,24 +118,31 @@ function parseSection(md) {
       continue;
     }
 
-    // toggle lists → fold into a NOTE callout on the current block
+    // toggle → bold label + preserved bullet sub-list (renders as a real list)
     if (/^-\s*▼/.test(raw) && cur) {
       const label = raw.replace(/^-\s*▼\s*/, "").trim();
-      const items = [];
+      if (cur.bodyLines.length) pushBody("");
+      pushBody(`**${label}**`);
       let j = i + 1;
       while (j < lines.length && /^\s+-\s+/.test(lines[j])) {
-        items.push(lines[j].replace(/^\s+-\s+/, "").trim());
+        pushBody(`- ${lines[j].replace(/^\s+-\s+/, "").trim()}`);
         j++;
       }
       i = j - 1;
-      cur.callouts.push({ type: "NOTE", text: `${label}: ${items.join(" · ")}` });
       continue;
     }
 
-    // plain paragraph / list item → body
-    if (cur && !raw.startsWith(">")) {
-      flushBodyLine(raw.replace(/^-\s+/, "• "));
-    }
+    // any other blockquote inside a block (rare captions) — skip
+    if (raw.startsWith(">")) continue;
+
+    // body line (paragraph, list item, or table row) — preserved verbatim
+    if (cur) pushBody(line.replace(/\s+$/, ""));
+  }
+
+  // finalize: join with newlines, collapse triple+ blanks, trim
+  for (const b of blocks) {
+    b.body = b.bodyLines.join("\n").replace(/\n{3,}/g, "\n\n").trim() || null;
+    delete b.bodyLines;
   }
 
   return { title, subtitle, coverImage, blocks };

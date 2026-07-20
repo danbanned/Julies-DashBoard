@@ -4,6 +4,9 @@
 // <style>) so the print output is a clean formatted handout, independent of
 // the app theme. Auto-opens the print dialog once.
 import { useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { normalizeMd } from "./PlaybookApp";
 
 const CALLOUT = {
   CONTENT_IDEA: "💡 Content Idea",
@@ -36,6 +39,12 @@ export default function PlaybookExport({ pillars, total }) {
         .pbExportDoc .desc { font-family: -apple-system, 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5; margin: 4px 0 8px; }
         .pbExportDoc .callout { font-family: -apple-system, 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5; margin: 5px 0; padding: 8px 12px; border-left: 3px solid #d8ccb6; background: #faf6ee; page-break-inside: avoid; }
         .pbExportDoc .callout b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8a7d6c; margin-bottom: 2px; }
+        .pbExportDoc .desc p { margin: 4px 0; }
+        .pbExportDoc .desc ol, .pbExportDoc .desc ul { margin: 4px 0 4px 18px; }
+        .pbExportDoc .desc li { margin: 2px 0; }
+        .pbExportDoc .desc table { border-collapse: collapse; width: 100%; margin: 6px 0; font-size: 12px; page-break-inside: avoid; }
+        .pbExportDoc .desc th, .pbExportDoc .desc td { border: 1px solid #d8ccb6; padding: 5px 8px; text-align: left; vertical-align: top; }
+        .pbExportDoc .desc th { background: #f3ece0; }
         .pbExportDoc .section { page-break-inside: avoid; }
         .pbExportDoc .printbar { position: fixed; top: 12px; right: 12px; }
         .pbExportDoc .printbar button { font-family: -apple-system, sans-serif; background: #b25e3f; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer; }
@@ -59,7 +68,11 @@ export default function PlaybookExport({ pillars, total }) {
               {s.blocks.map((b) => (
                 <div key={b.id}>
                   <h3 style={{ fontSize: 15 }}>{b.emoji} {strip(b.heading)}</h3>
-                  {b.body && <p className="desc">{strip(b.body)}</p>}
+                  {b.body && (
+                    <div className="desc">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{normalizeMd(b.body)}</ReactMarkdown>
+                    </div>
+                  )}
                   {b.callouts.map((c) => (
                     <div key={c.id} className="callout">
                       <b>{CALLOUT[c.type] || "Note"}</b>

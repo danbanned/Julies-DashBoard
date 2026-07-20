@@ -416,7 +416,7 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
   const toggleBell = useCallback(() => {
     setBellOpen((open) => {
       if (!open) notif.markAllRead(); // opening the popout clears the badge
-      return !open;
+      return !open; 
     });
   }, [notif]);
 
@@ -516,7 +516,7 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
                   </button>
                 </div>
                 {notif.items.length === 0 ? (
-                  <p className={styles.notifEmpty}>No new notifications</p>
+                  <p className={styles.notifEmpty}> No new notifications</p>
                 ) : (
                   <div className={styles.notifList}>
                     {notif.items.map((n) => (
@@ -534,8 +534,11 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
                       </div>
                     ))}
                   </div>
-                )}
+                )}   
+                 <div className={styles.notifFooter}>
+                <PushSetup className={styles.pushInline} />
               </div>
+              </div>             
             </>
           )}
         </div>
@@ -594,7 +597,6 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
         </div>
       )}
 
-      <PushSetup />
       <EventAlerts onNewEvent={() => router.refresh()} onNotification={notif.add} />
 
       {view === "events" && consoleData && <AdminConsole data={consoleData} />}

@@ -1,23 +1,17 @@
 "use client";
 
-// Web Push setup (Phase 11): registers the service worker on mount and shows
-// an "Enable notifications" button until this browser has a stored push
-// subscription. This replaces the old EventSource-based OS notifications —
-// push works with the tab closed.
 import { useEffect, useState } from "react";
-import styles from "../app/Events.module.css";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "";
 
-// PushManager.subscribe wants the VAPID key as a Uint8Array.
 function urlBase64ToUint8Array(base64) {
   const padding = "=".repeat((4 - (base64.length % 4)) % 4);
   const raw = atob((base64 + padding).replace(/-/g, "+").replace(/_/g, "/"));
   return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
 }
 
-export default function PushSetup() {
-  const [state, setState] = useState("hidden"); // hidden | ready | busy | done | denied | error
+export default function PushSetup({ className = "" }) {
+  const [state, setState] = useState("hidden");
 
   useEffect(() => {
     if (
@@ -41,9 +35,7 @@ export default function PushSetup() {
         console.warn("service worker registration failed", e);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   async function enable() {
@@ -71,16 +63,21 @@ export default function PushSetup() {
     }
   }
 
+  // hidden or done → render nothing
   if (state === "hidden" || state === "done") return null;
+
+  // denied → render a <div> with the passed className
   if (state === "denied") {
     return (
-      <p className={styles.pushNote}>
-        Notifications are blocked in this browser — allow them in site settings to get event alerts.
-      </p>
+      <div className={className}>
+        Notifications are blocked — allow them in site settings to get event alerts.
+      </div>
     );
   }
+
+  // ready / busy / error → render a <button> with the passed className
   return (
-    <button className={styles.alertsBtn} onClick={enable} disabled={state === "busy"}>
+    <button className={className} onClick={enable} disabled={state === "busy"}>
       {state === "busy"
         ? "Setting up…"
         : state === "error"
