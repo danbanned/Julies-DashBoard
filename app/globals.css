@@ -51,6 +51,11 @@
 
 html {
   background-color: #f5efe4; /* canvas fallback before the photo loads */
+  /* Never let the page render wider than the device or drift sideways. */
+  overflow-x: hidden;
+  /* Keep iOS/Android from silently re-scaling type (which reads as a zoom). */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 /* body must stay TRANSPARENT — an opaque body background paints ABOVE the
    fixed ::before layer and hides the backdrop photo entirely (this was the
@@ -60,6 +65,10 @@ html, body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   min-height: 100%;
+  /* Lock to the viewport width — the global guard against horizontal scroll. */
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 body { background: transparent; }
 

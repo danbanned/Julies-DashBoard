@@ -7,8 +7,18 @@
   flex-direction: column;
   min-height: 100vh;
   position: relative;
-  /* 16a: clear the fixed bottom nav so the last card is always reachable */
-  padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  width: 100%;
+  max-width: 100%;
+  /* Mobile-first gutters. Every full-bleed element (.vHeader, .topBar,
+     .vPhotoHero, .evHero, .crmBanner) uses `margin: -20px -16px` to escape
+     exactly these gutters and reach the viewport edge — without this padding
+     those negative margins overflow the screen and cause the sideways drift +
+     clipped header. The desktop @media(min-width:720px) block bumps this to
+     32px/24px and the bleed margins track it. */
+  padding: 20px 16px calc(104px + env(safe-area-inset-bottom));
+  /* 16a: the bottom value clears the fixed bottom nav so the last card is
+     always reachable above it. */
+  overflow-x: hidden;
 }
 
 /* Ensure components sit flush and don't create vertical gap collapse issues */
@@ -16,9 +26,11 @@
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  /* 16a: clear the fixed bottom nav (raised + button + labels) */
-  padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  /* Nav clearance is owned by .shell's padding-bottom; keeping it here too
+     double-spaced the last card. Just fill the width and never exceed it. */
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .viewContainer {
@@ -26,6 +38,8 @@
   flex-direction: column;
   gap: 0rem; /* Explicit gap between interior panels instead of random margins */
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 /* ---------- 1. top header bar ---------- */
@@ -1042,8 +1056,12 @@
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 10px;
+  /* Anchored to the bottom, lifted clear of the iOS home indicator, and
+     centered via left:50% + translateX. calc(100% - 20px) keeps a 10px gutter
+     on each side at every width so it can never touch or exceed the edges. */
+  bottom: calc(10px + env(safe-area-inset-bottom));
   width: min(788px, calc(100% - 20px));
+  max-width: calc(100vw - 20px);
   z-index: 80;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -1606,7 +1624,16 @@
   border-color: var(--purple, #6b4f8c);
 }
 
-.vHero { padding: 8px 0 18px; text-align: center; color: var(--ink); }
+/* Family Group Chat header: full-bleed so the brand row / "← Events" top nav
+   and the header band span the entire viewport width instead of being cut off
+   inside the shell gutters. Negative side margins cancel the .shell 16px
+   gutters; the padding puts the content back where it was. */
+.vHero {
+  margin: -20px -16px 0;
+  padding: 28px 16px 18px;
+  text-align: center;
+  color: var(--ink);
+}
 .vBrandRow {
   display: flex;
   align-items: center;
@@ -3118,6 +3145,7 @@ textarea.authInput {
     padding: 20px 24px 16px;
   }
   .vHeader { margin: -32px -24px 0; padding: 18px 24px 14px; }
+  .vHero { margin: -32px -24px 0; padding: 34px 24px 20px; }
   .vPhotoHero { margin: 0 -24px 18px; min-height: 400px; border-radius: 0 0 24px 24px; }
   .vPhotoTitle { font-size: 44px; }
   .hello h1 { font-size: 32px; }

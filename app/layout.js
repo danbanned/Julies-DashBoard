@@ -17,6 +17,12 @@ export const metadata = {
 };
 
 export const viewport = {
+  // Lock every page to a true 1:1 mobile scale so nothing ever opens zoomed in.
+  width: "device-width",
+  initialScale: 1,
+  // Extend the layout into the notch/home-indicator area so the CSS
+  // env(safe-area-inset-*) values used by the shell + bottom nav resolve.
+  viewportFit: "cover",
   themeColor: "#b25e3f",
 };
 
