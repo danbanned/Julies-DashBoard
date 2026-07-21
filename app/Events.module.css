@@ -1819,7 +1819,12 @@
 
 /* ---------- Family Chat ---------- */
 .chatContainer {
+  width: 100%;
   max-width: 720px;
+  /* min-width:0 lets this shrink to the viewport when it's a flex item —
+     without it the tab row's min-content ballooned the whole column past the
+     screen edge (which overflow-x:hidden then clipped: the "half page" bug). */
+  min-width: 0;
   margin: 0 auto;
   /* 16a: clear the fixed bottom nav */
   padding: 16px 0 calc(104px + env(safe-area-inset-bottom));
@@ -1852,10 +1857,12 @@
   font-size: 14px;
   background: var(--card, #fffdf9);
   color: rgb(0, 0, 0);
-  margin: 10px auto -25px auto;   /* -12px pulls the composer up to overlap */
-  padding: 9px;
+  margin: 10px auto -25px auto;   /* -25px pulls the composer up to overlap */
+  padding: 9px 14px;
   border-radius: 10px;
-  width: 50%;
+  /* hug the text and center it; never wider than the screen on mobile */
+  width: fit-content;
+  max-width: 100%;
   position: relative;            /* needed for z-index layering */
   z-index: 2;                    /* lifts it above the card */
 }
@@ -1895,17 +1902,25 @@
 /* Tabs */
 .chatTabs {
   display: flex;
+  /* wrap on narrow screens instead of forcing a row wider than the viewport */
+  flex-wrap: wrap;
   gap: 1px;
   margin-bottom: 2px;
   border-bottom: 1px solid var(--line);
   padding-bottom: 1px;
+  min-width: 0;
 }
 
 
 .chatTabs button {
   background: var(--purple);
   border: none;
-  padding: 9px 46px;
+  /* grow to share the row; the generous side padding scales down on mobile so
+     four tabs fit the screen (they wrap to a second row when they can't). */
+  flex: 1 1 auto;
+  padding: 9px 20px;
+  min-width: 0;
+  white-space: nowrap;
   font-size: 14px;
   font-weight: 600;
   color: white;
