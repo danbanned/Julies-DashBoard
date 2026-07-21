@@ -52,7 +52,12 @@
   align-items: center;
   gap: 10px;
   margin: -20px -16px 18px;
-  padding: 16px 16px 14px;
+  /* Background bleeds to the true viewport edge (incl. under the notch when
+     viewport-fit=cover); safe-area insets keep the controls/text clear of the
+     status bar and side cutouts. */
+  padding:
+    calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    14px calc(16px + env(safe-area-inset-left));
   /* solid enough that small text never fights the backdrop photo */
   background: var(--red);
   backdrop-filter: blur(8px);
@@ -1377,7 +1382,11 @@
   align-items: center;
   gap: 10px;
   margin: -20px -16px 0;
-  padding: 14px 16px 12px;
+  /* Safe-area insets keep the menu/logo/bell clear of the notch + side cutouts
+     while the band background still bleeds to the true viewport edge. */
+  padding:
+    calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    12px calc(16px + env(safe-area-inset-left));
   background: rgba(251, 246, 236, 0.97);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(8px);
@@ -1630,7 +1639,11 @@
    gutters; the padding puts the content back where it was. */
 .vHero {
   margin: -20px -16px 0;
-  padding: 28px 16px 18px;
+  /* Safe-area insets keep the "← Events" nav + title clear of the notch /
+     side cutouts while the header spans the full viewport width. */
+  padding:
+    calc(28px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    18px calc(16px + env(safe-area-inset-left));
   text-align: center;
   color: var(--ink);
 }
