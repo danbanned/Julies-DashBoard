@@ -7,8 +7,18 @@
   flex-direction: column;
   min-height: 100vh;
   position: relative;
-  /* 16a: clear the fixed bottom nav so the last card is always reachable */
-  padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  width: 100%;
+  max-width: 100%;
+  /* Mobile-first gutters. Every full-bleed element (.vHeader, .topBar,
+     .vPhotoHero, .evHero, .crmBanner) uses `margin: -20px -16px` to escape
+     exactly these gutters and reach the viewport edge — without this padding
+     those negative margins overflow the screen and cause the sideways drift +
+     clipped header. The desktop @media(min-width:720px) block bumps this to
+     32px/24px and the bleed margins track it. */
+  padding: 20px 16px calc(104px + env(safe-area-inset-bottom));
+  /* 16a: the bottom value clears the fixed bottom nav so the last card is
+     always reachable above it. */
+  overflow-x: hidden;
 }
 
 /* Ensure components sit flush and don't create vertical gap collapse issues */
@@ -16,9 +26,11 @@
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  /* 16a: clear the fixed bottom nav (raised + button + labels) */
-  padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  /* Nav clearance is owned by .shell's padding-bottom; keeping it here too
+     double-spaced the last card. Just fill the width and never exceed it. */
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .viewContainer {
@@ -26,6 +38,8 @@
   flex-direction: column;
   gap: 0rem; /* Explicit gap between interior panels instead of random margins */
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 /* ---------- 1. top header bar ---------- */
@@ -38,7 +52,12 @@
   align-items: center;
   gap: 10px;
   margin: -20px -16px 18px;
-  padding: 16px 16px 14px;
+  /* Background bleeds to the true viewport edge (incl. under the notch when
+     viewport-fit=cover); safe-area insets keep the controls/text clear of the
+     status bar and side cutouts. */
+  padding:
+    calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    14px calc(16px + env(safe-area-inset-left));
   /* solid enough that small text never fights the backdrop photo */
   background: var(--red);
   backdrop-filter: blur(8px);
@@ -1042,8 +1061,12 @@
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 10px;
+  /* Anchored to the bottom, lifted clear of the iOS home indicator, and
+     centered via left:50% + translateX. calc(100% - 20px) keeps a 10px gutter
+     on each side at every width so it can never touch or exceed the edges. */
+  bottom: calc(10px + env(safe-area-inset-bottom));
   width: min(788px, calc(100% - 20px));
+  max-width: calc(100vw - 20px);
   z-index: 80;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -1359,7 +1382,11 @@
   align-items: center;
   gap: 10px;
   margin: -20px -16px 0;
-  padding: 14px 16px 12px;
+  /* Safe-area insets keep the menu/logo/bell clear of the notch + side cutouts
+     while the band background still bleeds to the true viewport edge. */
+  padding:
+    calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    12px calc(16px + env(safe-area-inset-left));
   background: rgba(251, 246, 236, 0.97);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(8px);
@@ -1606,7 +1633,20 @@
   border-color: var(--purple, #6b4f8c);
 }
 
-.vHero { padding: 8px 0 18px; text-align: center; color: var(--ink); }
+/* Family Group Chat header: full-bleed so the brand row / "← Events" top nav
+   and the header band span the entire viewport width instead of being cut off
+   inside the shell gutters. Negative side margins cancel the .shell 16px
+   gutters; the padding puts the content back where it was. */
+.vHero {
+  margin: -20px -16px 0;
+  /* Safe-area insets keep the "← Events" nav + title clear of the notch /
+     side cutouts while the header spans the full viewport width. */
+  padding:
+    calc(28px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    18px calc(16px + env(safe-area-inset-left));
+  text-align: center;
+  color: var(--ink);
+}
 .vBrandRow {
   display: flex;
   align-items: center;
@@ -1779,7 +1819,12 @@
 
 /* ---------- Family Chat ---------- */
 .chatContainer {
+  width: 100%;
   max-width: 720px;
+  /* min-width:0 lets this shrink to the viewport when it's a flex item —
+     without it the tab row's min-content ballooned the whole column past the
+     screen edge (which overflow-x:hidden then clipped: the "half page" bug). */
+  min-width: 0;
   margin: 0 auto;
   /* 16a: clear the fixed bottom nav */
   padding: 16px 0 calc(104px + env(safe-area-inset-bottom));
@@ -1812,10 +1857,12 @@
   font-size: 14px;
   background: var(--card, #fffdf9);
   color: rgb(0, 0, 0);
-  margin: 10px auto -25px auto;   /* -12px pulls the composer up to overlap */
-  padding: 9px;
+  margin: 10px auto -25px auto;   /* -25px pulls the composer up to overlap */
+  padding: 9px 14px;
   border-radius: 10px;
-  width: 50%;
+  /* hug the text and center it; never wider than the screen on mobile */
+  width: fit-content;
+  max-width: 100%;
   position: relative;            /* needed for z-index layering */
   z-index: 2;                    /* lifts it above the card */
 }
@@ -1855,17 +1902,25 @@
 /* Tabs */
 .chatTabs {
   display: flex;
+  /* wrap on narrow screens instead of forcing a row wider than the viewport */
+  flex-wrap: wrap;
   gap: 1px;
   margin-bottom: 2px;
   border-bottom: 1px solid var(--line);
   padding-bottom: 1px;
+  min-width: 0;
 }
 
 
 .chatTabs button {
   background: var(--purple);
   border: none;
-  padding: 9px 46px;
+  /* grow to share the row; the generous side padding scales down on mobile so
+     four tabs fit the screen (they wrap to a second row when they can't). */
+  flex: 1 1 auto;
+  padding: 9px 20px;
+  min-width: 0;
+  white-space: nowrap;
   font-size: 14px;
   font-weight: 600;
   color: white;
@@ -3118,6 +3173,7 @@ textarea.authInput {
     padding: 20px 24px 16px;
   }
   .vHeader { margin: -32px -24px 0; padding: 18px 24px 14px; }
+  .vHero { margin: -32px -24px 0; padding: 34px 24px 20px; }
   .vPhotoHero { margin: 0 -24px 18px; min-height: 400px; border-radius: 0 0 24px 24px; }
   .vPhotoTitle { font-size: 44px; }
   .hello h1 { font-size: 32px; }
