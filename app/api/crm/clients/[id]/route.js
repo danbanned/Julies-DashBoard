@@ -47,6 +47,40 @@ export async function PATCH(req, { params }) {
   }
   if ("phone" in b) data.phone = b.phone?.trim() || null;
   if ("notes" in b) data.notes = b.notes?.trim() || null;
+
+  // 18a: full edit-in-place — every standard profile field is patchable.
+  const trimOrNull = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
+  const intOrNull = (v) => {
+    if (v === "" || v === null || v === undefined) return null;
+    const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10);
+    return Number.isFinite(n) ? n : null;
+  };
+  if ("name" in b) {
+    if (!String(b.name || "").trim()) return NextResponse.json({ error: "name can't be empty" }, { status: 400 });
+    data.name = String(b.name).trim().slice(0, 200);
+  }
+  if ("partners" in b) data.partners = trimOrNull(b.partners);
+  if ("whoLiving" in b) data.whoLiving = trimOrNull(b.whoLiving);
+  if ("specificProperty" in b) data.specificProperty = trimOrNull(b.specificProperty);
+  if ("financing" in b) data.financing = trimOrNull(b.financing);
+  if ("bedroomsRaw" in b) data.bedroomsRaw = trimOrNull(b.bedroomsRaw);
+  if ("neighborhoods" in b && Array.isArray(b.neighborhoods)) {
+    data.neighborhoods = b.neighborhoods.map((s) => String(s).trim()).filter(Boolean);
+  }
+  if ("moveMonth" in b) data.moveMonth = b.moveMonth ? new Date(b.moveMonth) : null;
+  if ("maxRent" in b) data.maxRent = intOrNull(b.maxRent);
+  if ("bedroomsMin" in b) data.bedroomsMin = intOrNull(b.bedroomsMin);
+  if ("budget" in b) data.budget = intOrNull(b.budget);
+  if (typeof b.pets === "boolean") data.pets = b.pets;
+  if (typeof b.outOfState === "boolean") data.outOfState = b.outOfState;
+  if (typeof b.takingOn === "boolean") data.takingOn = b.takingOn;
+  if ("proofOfIncome" in b) data.proofOfIncome = b.proofOfIncome === null ? null : Boolean(b.proofOfIncome);
+  if ("creditBand" in b) {
+    const BANDS = ["UNDER_650", "B650_699", "B700_749", "B750_PLUS", "UNKNOWN"];
+    if (BANDS.includes(b.creditBand)) data.creditBand = b.creditBand;
+  }
+  if ("clientType" in b && ["RENTER", "BUYER"].includes(b.clientType)) data.clientType = b.clientType;
+
   if (b.stage) {
     const stages = stagesFor(client.clientType);
     if (!stages.includes(b.stage)) {

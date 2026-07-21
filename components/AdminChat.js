@@ -2,6 +2,16 @@
 
 import { useEffect, useState, useRef } from "react";
 import styles from "../app/Events.module.css";
+import { useSaveFeedback } from "./Feedback";
+
+// 18d: post types match the filter tab labels. "All Posts" carries no type.
+const POST_TYPES = [
+  { key: "CONTENT_IDEAS", label: "Content Ideas" },
+  { key: "NEIGHBORHOODS", label: "Neighborhoods" },
+  { key: "LISTINGS", label: "Listings" },
+];
+const TYPE_LABEL = { CONTENT_IDEAS: "Content Ideas", NEIGHBORHOODS: "Neighborhoods", LISTINGS: "Listings" };
+const FILTER_TABS = [{ key: "all", label: "All Posts" }, ...POST_TYPES];
 
 // Helper for stable visitor ID
 function getVisitorId() {
@@ -15,10 +25,13 @@ function getVisitorId() {
 
 export default function AdminChat() {
   const [posts, setPosts] = useState(null);
-  const [post, setPost] = useState({ title: "", caption: "", coverImageUrl: "" });
+  const [post, setPost] = useState({ title: "", caption: "", coverImageUrl: "", postType: "" });
   const [notice, setNotice] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [filter, setFilter] = useState("all"); // 18d: active filter tab
+  const [editing, setEditing] = useState(null); // 18a: post being edited (draft object)
   const fileInputRef = useRef(null);
+  const fb = useSaveFeedback();
 
   // Track selected option per post: { [postId]: option }
   const [selected, setSelected] = useState({});
@@ -45,17 +58,50 @@ export default function AdminChat() {
       setNotice("Post needs a title and a caption.");
       return;
     }
+    if (!post.postType) {
+      setNotice("Pick a post type first.");
+      return;
+    }
     const res = await fetch("/api/posts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(post),
     });
     if (res.ok) {
-      setNotice("✅ Posted to the family.");
-      setPost({ title: "", caption: "", coverImageUrl: "" });
-      load();
+      setNotice("");
+      setPost({ title: "", caption: "", coverImageUrl: "", postType: "" });
+      await load();
+      fb.fireCelebration("Posted to the family! 🎉"); // deliberate "Post" → celebrate
     } else {
       setNotice((await res.json()).error || "Couldn't post.");
+    }
+  }
+
+  // 18a: edit an existing post (title/caption/cover/type). Silent — no "edited"
+  // marker on the card — but the save itself still confirms (18b/18c).
+  async function saveEdit() {
+    if (!editing) return;
+    if (!editing.title.trim() || !editing.caption.trim()) {
+      setNotice("Title and caption can't be empty.");
+      return;
+    }
+    const res = await fetch("/api/posts", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: editing.id,
+        title: editing.title,
+        caption: editing.caption,
+        coverImageUrl: editing.coverImageUrl || null,
+        postType: editing.postType,
+      }),
+    });
+    if (res.ok) {
+      setEditing(null);
+      await load();
+      fb.fireCelebration("Post updated!");
+    } else {
+      setNotice((await res.json()).error || "Couldn't save the edit.");
     }
   }
 
@@ -172,6 +218,23 @@ export default function AdminChat() {
               style={{ display: "none" }}
             />
           </div>
+          {/* 18d: required post-type picker */}
+          <div className={styles.typePicker}>
+            <span className={styles.typePickerLabel}>Post type *</span>
+            <div className={styles.typePickerBtns}>
+              {POST_TYPES.map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  className={styles.typeChip}
+                  data-active={post.postType === t.key}
+                  onClick={() => setPost({ ...post, postType: t.key })}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <button className={styles.syncBtn} onClick={send} disabled={uploading}>
             Post
           </button>
@@ -179,12 +242,17 @@ export default function AdminChat() {
         {notice && <p className={styles.calNotice}>{notice}</p>}
       </div>
 
-      {/* ---- Tabs ---- */}
+      {/* ---- Tabs (18d: wired to postType) ---- */}
       <div className={styles.chatTabs}>
-        <button className={styles.tabActive}>All Posts</button>
-        <button className={styles.tab}>Content Ideas</button>
-        <button className={styles.tab}>Neighborhoods</button>
-        <button className={styles.tab}>Listings</button>
+        {FILTER_TABS.map((t) => (
+          <button
+            key={t.key}
+            className={filter === t.key ? styles.tabActive : styles.tab}
+            onClick={() => setFilter(t.key)}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {/* ---- Feed ---- */}
@@ -196,8 +264,13 @@ export default function AdminChat() {
             <h3>No posts yet</h3>
             <p>Write your first update to engage the family!</p>
           </div>
+        ) : posts.filter((p) => filter === "all" || p.postType === filter).length === 0 ? (
+          <div className={styles.empty}>
+            <h3>Nothing under {FILTER_TABS.find((t) => t.key === filter)?.label}</h3>
+            <p>No posts match this filter yet.</p>
+          </div>
         ) : (
-          posts.map((p) => {
+          posts.filter((p) => filter === "all" || p.postType === filter).map((p) => {
             const stats = localStats[p.id] || { please_post: 0, not_like: 0, thank_you: 0 };
             const total = stats.total || stats.please_post + stats.not_like + stats.thank_you;
             return (
@@ -219,6 +292,14 @@ export default function AdminChat() {
                   </div>
                   <button
                     className={styles.postDelete}
+                    title="Edit this post"
+                    aria-label="Edit post"
+                    onClick={() => setEditing({ id: p.id, title: p.title, caption: p.caption, coverImageUrl: p.coverImageUrl || "", postType: p.postType || "CONTENT_IDEAS" })}
+                  >
+                    ✎
+                  </button>
+                  <button
+                    className={styles.postDelete}
                     title="Delete this post"
                     aria-label="Delete post"
                     onClick={() => deletePost(p.id, p.title)}
@@ -227,8 +308,54 @@ export default function AdminChat() {
                   </button>
                 </div>
 
-                {/* Content: title + caption */}
+                {/* Content: edit form (18a) OR title + caption */}
+                {editing?.id === p.id ? (
+                  <div className={styles.postContent}>
+                    <div className={styles.composerInputs}>
+                      <input
+                        className={styles.authInput}
+                        placeholder="Post title *"
+                        value={editing.title}
+                        onChange={(e) => setEditing({ ...editing, title: e.target.value })}
+                      />
+                      <textarea
+                        className={styles.authInput}
+                        rows={3}
+                        placeholder="Caption *"
+                        value={editing.caption}
+                        onChange={(e) => setEditing({ ...editing, caption: e.target.value })}
+                      />
+                      <input
+                        className={styles.authInput}
+                        placeholder="Cover image URL"
+                        value={editing.coverImageUrl}
+                        onChange={(e) => setEditing({ ...editing, coverImageUrl: e.target.value })}
+                      />
+                      <div className={styles.typePicker}>
+                        <span className={styles.typePickerLabel}>Post type</span>
+                        <div className={styles.typePickerBtns}>
+                          {POST_TYPES.map((t) => (
+                            <button
+                              key={t.key}
+                              type="button"
+                              className={styles.typeChip}
+                              data-active={editing.postType === t.key}
+                              onClick={() => setEditing({ ...editing, postType: t.key })}
+                            >
+                              {t.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button className={styles.syncBtn} onClick={saveEdit}>Save</button>
+                        <button className={styles.pbTinyBtn} onClick={() => setEditing(null)}>Cancel</button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
                 <div className={styles.postContent}>
+                  <span className={styles.postTypeBadge} data-type={p.postType}>{TYPE_LABEL[p.postType] || "Content Ideas"}</span>
                   <h4>{p.title}</h4>
                   <p>{p.caption}</p>
                   {p.coverImageUrl && (
@@ -243,6 +370,7 @@ export default function AdminChat() {
                     ))}
                   </div>
                 </div>
+                )}
 
                 {/* Stats: responses, likes, saves */}
                 <div className={styles.postStats}>
@@ -310,6 +438,7 @@ export default function AdminChat() {
           })
         )}
       </div>
+      {fb.node}
     </div>
   );
 }

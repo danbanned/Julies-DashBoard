@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import styles from "../app/Events.module.css";
+import { useSaveFeedback } from "./Feedback";
 
 // Julie's in-app planning calendar (8g): events she added via 📅 live here
 // until she pushes them to Google Calendar (8e). Simple month grid — clean,
@@ -13,7 +14,35 @@ export default function CalendarView({
   onGcalChange,
   initialNotice = "",
   showGoogle = true, // viewers get the planning calendar without Google sync
+  editable = false, // 18a: admin can edit calendar entries in place
 }) {
+  const fb = useSaveFeedback();
+  const [editEntry, setEditEntry] = useState(null); // { eventId, eventTitle, eventStartDate, location }
+
+  async function saveEntry() {
+    if (!editEntry) return;
+    if (!editEntry.eventTitle.trim()) return;
+    const res = await fetch("/api/interactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        eventId: editEntry.eventId,
+        action: "edit",
+        value: {
+          eventTitle: editEntry.eventTitle,
+          eventStartDate: editEntry.eventStartDate || null,
+          location: editEntry.location || null,
+        },
+      }),
+    });
+    if (res.ok) {
+      setEditEntry(null);
+      refresh();
+      fb.fireCelebration("Calendar entry saved!");
+    } else {
+      setNotice("Couldn't save the entry.");
+    }
+  }
   const [month, setMonth] = useState(() => {
     const n = new Date();
     return new Date(n.getFullYear(), n.getMonth(), 1);
@@ -156,7 +185,35 @@ export default function CalendarView({
             <p>Tap 📅 on an event card to add it to your calendar.</p>
           </div>
         ) : (
-          planned.map((r) => (
+          planned.map((r) =>
+            editable && editEntry?.eventId === r.eventId ? (
+              <div key={r.eventId} className={styles.savedRow} style={{ flexDirection: "column", alignItems: "stretch", gap: 8 }}>
+                <input
+                  className={styles.authInput}
+                  placeholder="Event title *"
+                  value={editEntry.eventTitle}
+                  onChange={(e) => setEditEntry({ ...editEntry, eventTitle: e.target.value })}
+                />
+                <div className={styles.calEditRow}>
+                  <input
+                    className={styles.authInput}
+                    type="date"
+                    value={editEntry.eventStartDate || ""}
+                    onChange={(e) => setEditEntry({ ...editEntry, eventStartDate: e.target.value })}
+                  />
+                  <input
+                    className={styles.authInput}
+                    placeholder="Location"
+                    value={editEntry.location || ""}
+                    onChange={(e) => setEditEntry({ ...editEntry, location: e.target.value })}
+                  />
+                </div>
+                <div className={styles.calEditRow}>
+                  <button className={styles.syncBtn} onClick={saveEntry}>Save</button>
+                  <button className={styles.gcalLink} onClick={() => setEditEntry(null)}>Cancel</button>
+                </div>
+              </div>
+            ) : (
             <div key={r.eventId} className={styles.savedRow}>
               <div className={styles.savedInfo}>
                 <div className={styles.savedTitle}>{r.eventTitle}</div>
@@ -165,6 +222,15 @@ export default function CalendarView({
                 </div>
               </div>
               <div className={styles.savedActions}>
+                {editable && (
+                  <button
+                    className={styles.gcalLink}
+                    title="Edit this entry"
+                    onClick={() => setEditEntry({ eventId: r.eventId, eventTitle: r.eventTitle || "", eventStartDate: r.eventStartDate || "", location: r.location || "" })}
+                  >
+                    ✎ Edit
+                  </button>
+                )}
                 {!showGoogle ? null : r.calendarEventId ? (
                   <span className={styles.syncedTag}>✓ Synced</span>
                 ) : (
@@ -182,9 +248,11 @@ export default function CalendarView({
                 )}
               </div>
             </div>
-          ))
+            )
+          )
         )}
       </div>
+      {fb.node}
     </div>
   );
 }

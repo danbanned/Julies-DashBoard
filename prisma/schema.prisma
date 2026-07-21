@@ -160,12 +160,22 @@ model Post {
   title         String
   caption       String
   coverImageUrl String?
+  // 18d: post type drives the Family Chat filter tabs. Existing posts default
+  // to CONTENT_IDEAS (the sensible catch-all); the composer requires a pick.
+  postType      PostType @default(CONTENT_IDEAS)
   createdAt     DateTime @default(now())
 
-  // 👇 Add this line
   pollResponses PollResponse[]
 
   @@index([createdAt])
+}
+
+// 18d: matches the Family Chat filter labels (All Posts is the show-everything
+// default and carries no type).
+enum PostType {
+  CONTENT_IDEAS
+  NEIGHBORHOODS
+  LISTINGS
 }
 
 model PollResponse {

@@ -218,6 +218,7 @@ function EventCard({ ev, row, act }) {
 export default function EventsSection({ events, pastEvents = [], chips, consoleData = null }) {
   const [active, setActive] = useState("All");
   const [linksOnly, setLinksOnly] = useState(false);
+  const [highOnly, setHighOnly] = useState(false); // 18e: High Priority tier filter
   const [range, setRange] = useState("all"); // date sub-filter (10a)
   const [sortBy, setSortBy] = useState("soonest"); // soonest | newest (10b)
   const [menuOpen, setMenuOpen] = useState(false);
@@ -343,8 +344,14 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
   // "Has Links" = events with a REAL per-event link (source-default links
   // make every card tappable, so they don't count here). ANDs with the chip.
   const base = useMemo(
-    () => (linksOnly ? notAttended.filter((e) => e.has_real_url) : notAttended),
-    [linksOnly, notAttended]
+    () => {
+      let list = linksOnly ? notAttended.filter((e) => e.has_real_url) : notAttended;
+      // 18e: High Priority = the derived neighborhood tier (Fairmount/Brewerytown
+      // → "high"). Composes with the other filters via AND, like Has Links.
+      if (highOnly) list = list.filter((e) => e.priority === "high");
+      return list;
+    },
+    [linksOnly, highOnly, notAttended]
   );
 
   const windows = useMemo(() => rangeWindows(), []);
@@ -402,6 +409,12 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
   const linkableCount = useMemo(
     () => events.filter((e) => e.has_real_url).length,
     [events]
+  );
+
+  // 18e: count of high-priority (not-yet-attended) events for the chip badge
+  const highCount = useMemo(
+    () => notAttended.filter((e) => e.priority === "high").length,
+    [notAttended]
   );
 
   const counts = useMemo(() => {
@@ -609,6 +622,7 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
           gcalConnected={gcalConnected}
           onGcalChange={refreshGcal}
           initialNotice={gcalNotice}
+          editable
         />
       )}
       {view === "achievements" && <AchievementsView achievements={ach} />}
@@ -707,6 +721,15 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
         >
           🔗 Has Links
           <span className={styles.chipCount}>{linkableCount}</span>
+        </button>
+        <button
+          className={styles.chip}
+          data-active={highOnly}
+          onClick={() => setHighOnly((v) => !v)}
+          title="Only show high-priority events (Fairmount / Brewerytown tier)"
+        >
+          🔴 High Priority
+          <span className={styles.chipCount}>{highCount}</span>
         </button>
         {events.some((e) => attendedIds.has(e.id)) && (
           <button

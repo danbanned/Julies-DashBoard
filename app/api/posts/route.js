@@ -15,6 +15,7 @@ export async function GET() {
       title: true,
       caption: true,
       coverImageUrl: true,
+      postType: true,
       createdAt: true,
       author: { select: { name: true } },
       pollResponses: { select: { option: true } },
@@ -69,11 +70,13 @@ export async function POST(req) {
   let title = "";
   let caption = "";
   let coverImageUrl = null;
+  let postType = "CONTENT_IDEAS";
 
   if (contentType.includes("multipart/form-data")) {
     const form = await req.formData();
     title = String(form.get("title") || "");
     caption = String(form.get("caption") || "");
+    postType = String(form.get("postType") || "CONTENT_IDEAS");
     const file = form.get("cover");
     if (file && typeof file === "object" && file.size > 0) {
       if (!process.env.BLOB_READ_WRITE_TOKEN) {
@@ -91,16 +94,53 @@ export async function POST(req) {
     title = String(b.title || "");
     caption = String(b.caption || "");
     coverImageUrl = b.coverImageUrl || null;
+    postType = String(b.postType || "CONTENT_IDEAS");
   }
 
   if (!title.trim() || !caption.trim()) {
     return NextResponse.json({ error: "title and caption required" }, { status: 400 });
   }
+  const VALID_TYPES = ["CONTENT_IDEAS", "NEIGHBORHOODS", "LISTINGS"];
+  if (!VALID_TYPES.includes(postType)) postType = "CONTENT_IDEAS";
 
   const post = await prisma.post.create({
-    data: { authorId: admin.id, title: title.slice(0, 200), caption: caption.slice(0, 4000), coverImageUrl },
+    data: { authorId: admin.id, title: title.slice(0, 200), caption: caption.slice(0, 4000), coverImageUrl, postType },
   });
   return NextResponse.json({ ok: true, post });
+}
+
+// PATCH – edit an existing post (18a, admin only). Silent edit — no "edited"
+// marker (this is Julie's own community feed, not a public audit trail).
+export async function PATCH(req) {
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ error: "admin only" }, { status: 403 });
+
+  const b = await req.json().catch(() => ({}));
+  const { id } = b;
+  if (!id) return NextResponse.json({ error: "post id required" }, { status: 400 });
+
+  const data = {};
+  if (typeof b.title === "string") {
+    if (!b.title.trim()) return NextResponse.json({ error: "title can't be empty" }, { status: 400 });
+    data.title = b.title.slice(0, 200);
+  }
+  if (typeof b.caption === "string") {
+    if (!b.caption.trim()) return NextResponse.json({ error: "caption can't be empty" }, { status: 400 });
+    data.caption = b.caption.slice(0, 4000);
+  }
+  if ("coverImageUrl" in b) data.coverImageUrl = b.coverImageUrl || null;
+  if (typeof b.postType === "string") {
+    const VALID_TYPES = ["CONTENT_IDEAS", "NEIGHBORHOODS", "LISTINGS"];
+    if (VALID_TYPES.includes(b.postType)) data.postType = b.postType;
+  }
+  if (!Object.keys(data).length) return NextResponse.json({ error: "nothing to update" }, { status: 400 });
+
+  try {
+    const post = await prisma.post.update({ where: { id }, data });
+    return NextResponse.json({ ok: true, post });
+  } catch (e) {
+    return NextResponse.json({ error: "post not found" }, { status: 404 });
+  }
 }
 
 // DELETE – remove a post (admin only). Poll responses have no cascade, so

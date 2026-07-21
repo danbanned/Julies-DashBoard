@@ -6,12 +6,67 @@
 // Bell = in-app notification DROPDOWN (14e): no push, no email, ever.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "../app/Events.module.css";
+import { useSaveFeedback } from "./Feedback";
 import {
   stagesFor,
   STAGE_LABELS,
   CREDIT_WORDING,
   ACTIVE_CONTRACT_STAGES,
 } from "../lib/crm";
+
+const CREDIT_BANDS = [
+  { key: "UNKNOWN", label: "Unknown" },
+  { key: "UNDER_650", label: "Under 650" },
+  { key: "B650_699", label: "650–699" },
+  { key: "B700_749", label: "700–749" },
+  { key: "B750_PLUS", label: "750+" },
+];
+
+// 18a — click-to-edit field. Renders the value; click turns it into the right
+// input; Enter/blur or Save commits via onSave(value) and reverts on Escape.
+function EditableField({ label, value, display, type = "text", options, fullWidth, onSave }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const start = () => { setDraft(value == null ? "" : String(value)); setEditing(true); };
+  const commit = async () => { setEditing(false); await onSave(draft); };
+  const cancel = () => setEditing(false);
+  const shown = display != null ? display : (value == null || value === "" ? "—" : String(value));
+  return (
+    <div className={styles.detailGroup} style={fullWidth ? { gridColumn: "1 / -1" } : undefined}>
+      <span className={styles.detailLabel}>{label}</span>
+      {!editing ? (
+        <button type="button" className={styles.detailEditable} onClick={start} title="Click to edit">
+          <span className={styles.detailValue}>{shown}</span>
+          <span className={styles.detailPencil} aria-hidden="true">✎</span>
+        </button>
+      ) : type === "select" ? (
+        <div className={styles.detailEditRow}>
+          <select className={styles.authInput} value={draft} onChange={(e) => setDraft(e.target.value)} autoFocus>
+            {options.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+          </select>
+          <button className={styles.detailSaveBtn} onMouseDown={(e) => e.preventDefault()} onClick={commit}>Save</button>
+          <button className={styles.detailCancelBtn} onMouseDown={(e) => e.preventDefault()} onClick={cancel}>✕</button>
+        </div>
+      ) : type === "textarea" ? (
+        <div className={styles.detailEditRow}>
+          <textarea className={styles.authInput} rows={3} value={draft} autoFocus
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Escape") cancel(); }} />
+          <button className={styles.detailSaveBtn} onMouseDown={(e) => e.preventDefault()} onClick={commit}>Save</button>
+          <button className={styles.detailCancelBtn} onMouseDown={(e) => e.preventDefault()} onClick={cancel}>✕</button>
+        </div>
+      ) : (
+        <div className={styles.detailEditRow}>
+          <input className={styles.authInput} type={type} value={draft} autoFocus
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") cancel(); }} />
+          <button className={styles.detailSaveBtn} onMouseDown={(e) => e.preventDefault()} onClick={commit}>Save</button>
+          <button className={styles.detailCancelBtn} onMouseDown={(e) => e.preventDefault()} onClick={cancel}>✕</button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const fmtDate = (d) =>
   d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—";
@@ -48,6 +103,7 @@ export default function CrmApp() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [notice, setNotice] = useState("");
+  const fb = useSaveFeedback();
   const [noteDraft, setNoteDraft] = useState({ body: "", remindAt: "" });
   const [add, setAdd] = useState({ clientType: "RENTER", source: "MANUAL", name: "", email: "", emailIsReal: false, phone: "", neighborhoods: "", maxRent: "", bedroomsMin: "", budget: "", financing: "", creditBand: "UNKNOWN", moveMonth: "", notes: "", pets: false });
 
@@ -80,7 +136,7 @@ export default function CrmApp() {
   }, []);
 
   const patchClient = useCallback(
-    async (id, patch) => {
+    async (id, patch, toastMsg) => {
       const res = await fetch(`/api/crm/clients/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -91,10 +147,13 @@ export default function CrmApp() {
         setDetail((prev) => (prev && prev.id === id ? d.client : prev));
         loadClients();
         loadNotif();
+        if (toastMsg) fb.fireToast(toastMsg); // 18c: confirm every inline save
+      } else if (d.error) {
+        setNotice(d.error);
       }
       return d;
     },
-    [loadClients, loadNotif]
+    [loadClients, loadNotif, fb]
   );
 
   // ---- metrics (all real; zero when empty) ----
@@ -164,10 +223,12 @@ export default function CrmApp() {
       setNotice(d.error || "Couldn't add client.");
       return;
     }
-    setNotice(`✅ ${add.name.trim()} added.`);
+    const savedName = add.name.trim();
+    setNotice("");
     setAdd({ ...add, name: "", email: "", phone: "", neighborhoods: "", maxRent: "", bedroomsMin: "", budget: "", financing: "", notes: "" });
     loadClients();
     setView("clients");
+    fb.fireCelebration(`${savedName} added! 🎉`); // 18b: explicit Add → celebrate
   }
 
   const clientRow = (c) => (
@@ -410,6 +471,7 @@ export default function CrmApp() {
                             setNoteDraft({ body: '', remindAt: '' });
                             openClient(detail.id);
                             loadClients();
+                            fb.fireToast(noteDraft.remindAt ? "Note + reminder added" : "Note added");
                           }}
                         >
                           Add note{noteDraft.remindAt ? ' + reminder' : ''}
@@ -436,81 +498,68 @@ export default function CrmApp() {
                   {/* RIGHT: All Details (Personal, Housing, Financial) */}
                   <div className={styles.crmDetailsCol}>
                     <h4 className={styles.colTitle}>📋 Client Details</h4>
+                    {/* 18a: every field click-to-edit; each save toasts */}
                     <div className={styles.detailGrid}>
-                      {/* Personal */}
-                      <div className={styles.detailGroup}>
-                        <span className={styles.detailLabel}>Email</span>
-                        <span className={styles.detailValue}>{detail.email || '—'}</span>
-                      </div>
-                      <div className={styles.detailGroup}>
-                        <span className={styles.detailLabel}>Phone</span>
-                        <span className={styles.detailValue}>{detail.phone || '—'}</span>
-                      </div>
-                      <div className={styles.detailGroup}>
-                        <span className={styles.detailLabel}>Partners</span>
-                        <span className={styles.detailValue}>{detail.partners || '—'}</span>
-                      </div>
-                      <div className={styles.detailGroup}>
-                        <span className={styles.detailLabel}>Household</span>
-                        <span className={styles.detailValue}>{detail.whoLiving || '—'}</span>
-                      </div>
-                      <div className={styles.detailGroup}>
-                        <span className={styles.detailLabel}>Neighborhoods</span>
-                        <span className={styles.detailValue}>{detail.neighborhoods.join(', ') || '—'}</span>
-                      </div>
-                      <div className={styles.detailGroup}>
-                        <span className={styles.detailLabel}>Move month</span>
-                        <span className={styles.detailValue}>
-                          {detail.moveMonth ? new Date(detail.moveMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—'}
-                        </span>
-                      </div>
+                      <EditableField label="Name" value={detail.name}
+                        onSave={(v) => patchClient(detail.id, { name: v }, "Name saved")} />
+                      <EditableField label="Client type" type="select" value={detail.clientType}
+                        options={[{ key: "RENTER", label: "Renter" }, { key: "BUYER", label: "Buyer" }]}
+                        display={detail.clientType === "BUYER" ? "Buyer" : "Renter"}
+                        onSave={(v) => patchClient(detail.id, { clientType: v }, "Client type saved")} />
+                      <EditableField label="Email" type="email" value={detail.email}
+                        onSave={(v) => patchClient(detail.id, { email: v, emailIsReal: Boolean(v.trim()) }, "Email saved")} />
+                      <EditableField label="Phone" type="tel" value={detail.phone}
+                        onSave={(v) => patchClient(detail.id, { phone: v }, "Phone saved")} />
+                      <EditableField label="Partners" value={detail.partners}
+                        onSave={(v) => patchClient(detail.id, { partners: v }, "Saved")} />
+                      <EditableField label="Household" value={detail.whoLiving}
+                        onSave={(v) => patchClient(detail.id, { whoLiving: v }, "Saved")} />
+                      <EditableField label="Neighborhoods" value={(detail.neighborhoods || []).join(', ')}
+                        display={(detail.neighborhoods || []).join(', ') || '—'}
+                        onSave={(v) => patchClient(detail.id, { neighborhoods: v.split(',').map((s) => s.trim()).filter(Boolean) }, "Neighborhoods saved")} />
+                      <EditableField label="Move month" type="month"
+                        value={detail.moveMonth ? new Date(detail.moveMonth).toISOString().slice(0, 7) : ''}
+                        display={detail.moveMonth ? new Date(detail.moveMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—'}
+                        onSave={(v) => patchClient(detail.id, { moveMonth: v || null }, "Move month saved")} />
                       {detail.clientType === 'RENTER' ? (
                         <>
-                          <div className={styles.detailGroup}>
-                            <span className={styles.detailLabel}>Max rent</span>
-                            <span className={styles.detailValue}>{detail.maxRent ? `$${detail.maxRent.toLocaleString()}/mo` : '—'}</span>
-                          </div>
-                          <div className={styles.detailGroup}>
-                            <span className={styles.detailLabel}>Bedrooms</span>
-                            <span className={styles.detailValue}>{detail.bedroomsRaw || detail.bedroomsMin || '—'}</span>
-                          </div>
-                          <div className={styles.detailGroup}>
-                            <span className={styles.detailLabel}>Pets</span>
-                            <span className={styles.detailValue}>{detail.pets ? 'Yes' : 'No'}</span>
-                          </div>
+                          <EditableField label="Max rent" type="number" value={detail.maxRent}
+                            display={detail.maxRent ? `$${detail.maxRent.toLocaleString()}/mo` : '—'}
+                            onSave={(v) => patchClient(detail.id, { maxRent: v }, "Max rent saved")} />
+                          <EditableField label="Bedrooms" value={detail.bedroomsRaw}
+                            display={detail.bedroomsRaw || detail.bedroomsMin || '—'}
+                            onSave={(v) => patchClient(detail.id, { bedroomsRaw: v }, "Bedrooms saved")} />
+                          <EditableField label="Pets" type="select" value={detail.pets ? 'true' : 'false'}
+                            options={[{ key: "false", label: "No" }, { key: "true", label: "Yes" }]}
+                            display={detail.pets ? 'Yes' : 'No'}
+                            onSave={(v) => patchClient(detail.id, { pets: v === 'true' }, "Pets saved")} />
                         </>
                       ) : (
                         <>
-                          <div className={styles.detailGroup}>
-                            <span className={styles.detailLabel}>Budget</span>
-                            <span className={styles.detailValue}>{detail.budget ? `$${detail.budget.toLocaleString()}` : '—'}</span>
-                          </div>
-                          <div className={styles.detailGroup}>
-                            <span className={styles.detailLabel}>Financing</span>
-                            <span className={styles.detailValue}>{detail.financing || '—'}</span>
-                          </div>
+                          <EditableField label="Budget" type="number" value={detail.budget}
+                            display={detail.budget ? `$${detail.budget.toLocaleString()}` : '—'}
+                            onSave={(v) => patchClient(detail.id, { budget: v }, "Budget saved")} />
+                          <EditableField label="Financing" value={detail.financing}
+                            onSave={(v) => patchClient(detail.id, { financing: v }, "Financing saved")} />
                         </>
                       )}
-                      <div className={styles.detailGroup}>
-                        <span className={styles.detailLabel}>Proof of income</span>
-                        <span className={styles.detailValue}>
-                          {detail.proofOfIncome === true ? 'Yes' : detail.proofOfIncome === false ? 'No' : '—'}
-                        </span>
-                      </div>
-                      <div className={styles.detailGroup}>
-                        <span className={styles.detailLabel}>Out of state</span>
-                        <span className={styles.detailValue}>{detail.outOfState ? 'Yes' : 'No'}</span>
-                      </div>
-                      <div className={styles.detailGroup}>
-                        <span className={styles.detailLabel}>Property of interest</span>
-                        <span className={styles.detailValue}>{detail.specificProperty || '—'}</span>
-                      </div>
-                      {detail.notes && (
-                        <div className={styles.detailGroup} style={{ gridColumn: '1 / -1' }}>
-                          <span className={styles.detailLabel}>Notes</span>
-                          <span className={styles.detailValue} style={{ whiteSpace: 'pre-wrap' }}>{detail.notes}</span>
-                        </div>
-                      )}
+                      <EditableField label="Credit" type="select" value={detail.creditBand}
+                        options={CREDIT_BANDS} display={CREDIT_WORDING[detail.creditBand]}
+                        onSave={(v) => patchClient(detail.id, { creditBand: v }, "Credit saved")} />
+                      <EditableField label="Proof of income" type="select"
+                        value={detail.proofOfIncome === true ? 'true' : detail.proofOfIncome === false ? 'false' : 'null'}
+                        options={[{ key: "null", label: "—" }, { key: "true", label: "Yes" }, { key: "false", label: "No" }]}
+                        display={detail.proofOfIncome === true ? 'Yes' : detail.proofOfIncome === false ? 'No' : '—'}
+                        onSave={(v) => patchClient(detail.id, { proofOfIncome: v === 'null' ? null : v === 'true' }, "Saved")} />
+                      <EditableField label="Out of state" type="select" value={detail.outOfState ? 'true' : 'false'}
+                        options={[{ key: "false", label: "No" }, { key: "true", label: "Yes" }]}
+                        display={detail.outOfState ? 'Yes' : 'No'}
+                        onSave={(v) => patchClient(detail.id, { outOfState: v === 'true' }, "Saved")} />
+                      <EditableField label="Property of interest" value={detail.specificProperty}
+                        onSave={(v) => patchClient(detail.id, { specificProperty: v }, "Saved")} />
+                      <EditableField label="Notes" type="textarea" value={detail.notes} fullWidth
+                        display={detail.notes ? detail.notes : '—'}
+                        onSave={(v) => patchClient(detail.id, { notes: v }, "Notes saved")} />
                     </div>
                   </div>
                 </div>
@@ -520,14 +569,14 @@ export default function CrmApp() {
                 {/* Action buttons — row wrapping */}
                 <div className={styles.crmActions} style={{ marginTop: 16, flexWrap: 'wrap', gap: 8, padding: 0 }}>
                   <EmailChip client={detail} />
-                  <button className={styles.conToggle} onClick={() => patchClient(detail.id, { markContacted: true })}>
+                  <button className={styles.conToggle} onClick={() => patchClient(detail.id, { markContacted: true }, "Marked contacted")}>
                     ✓ Mark contacted
                   </button>
-                  <button className={styles.conToggle} data-on={detail.pinned} onClick={() => patchClient(detail.id, { pinned: !detail.pinned })}>
+                  <button className={styles.conToggle} data-on={detail.pinned} onClick={() => patchClient(detail.id, { pinned: !detail.pinned }, detail.pinned ? "Unpinned" : "Pinned to top")}>
                     📌 {detail.pinned ? 'Unpin' : 'Pin to top'}
                   </button>
-                  <button className={styles.conToggle} onClick={() => patchClient(detail.id, { snoozeDays: 3 })}>💤 Snooze 3d</button>
-                  <button className={styles.conToggle} onClick={() => patchClient(detail.id, { followUpDue: new Date(Date.now() + 7 * 86400000).toISOString() })}>⏰ Follow up +7d</button>
+                  <button className={styles.conToggle} onClick={() => patchClient(detail.id, { snoozeDays: 3 }, "Snoozed 3 days")}>💤 Snooze 3d</button>
+                  <button className={styles.conToggle} onClick={() => patchClient(detail.id, { followUpDue: new Date(Date.now() + 7 * 86400000).toISOString() }, "Follow-up set +7d")}>⏰ Follow up +7d</button>
                 </div>
 
                 {/* Verify email row */}
@@ -544,8 +593,7 @@ export default function CrmApp() {
                     className={styles.syncBtn}
                     onClick={async () => {
                       const v = document.getElementById('crm-email-input').value;
-                      await patchClient(detail.id, { email: v, emailIsReal: Boolean(v.trim()) });
-                      setNotice(v.trim() ? '✅ Email saved as verified — Quick Email is live.' : 'Email cleared.');
+                      await patchClient(detail.id, { email: v, emailIsReal: Boolean(v.trim()) }, v.trim() ? "Email verified — Quick Email is live" : "Email cleared");
                     }}
                     style={{ flex: '0 0 auto' }}
                   >
@@ -570,17 +618,27 @@ export default function CrmApp() {
                         .split(',')
                         .map((s) => s.trim())
                         .filter(Boolean);
-                      await patchClient(detail.id, { tags });
-                      setNotice(tags.length ? `✅ Tags saved: ${tags.join(', ')}` : 'Tags cleared.');
+                      await patchClient(detail.id, { tags }, tags.length ? "Tag added" : "Tags cleared");
                     }}
                     style={{ flex: '0 0 auto' }}
                   >
                     Save tags
                   </button>
                 </div>
+
+                {/* 18b: explicit "Done" → the big checkmark + confetti moment */}
+                <div className={styles.crmDoneRow}>
+                  <button
+                    className={styles.syncBtn}
+                    onClick={() => {
+                      fb.fireCelebration("Client saved! 🎉");
+                      setTimeout(() => { setOpenId(null); setDetail(null); setView("clients"); }, 1400);
+                    }}
+                  >
+                    ✓ Done
+                  </button>
+                </div>
               </div>
-            
-    
 
               </div>
             )}
@@ -809,6 +867,7 @@ export default function CrmApp() {
         </button>
         {/* eslint-enable @next/next/no-img-element */}
       </nav>
+      {fb.node}
     </div>
   );
 }

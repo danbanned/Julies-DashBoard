@@ -1256,6 +1256,121 @@
 }
 .toast strong { font-size: 14px; }
 
+/* ---------- Phase 18b/18c — save feedback (confetti + toast) ---------- */
+/* Small inline confirmation ("Tag added") — quiet, bottom-center, auto-hides */
+.saveToast {
+  position: fixed;
+  left: 50%;
+  bottom: 110px;
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  max-width: calc(100vw - 32px);
+  animation: saveToastIn 0.22s ease-out;
+}
+.saveToastCheck {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+@keyframes saveToastIn {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Big "Done!" moment — dimmed overlay, green checkmark that draws itself, confetti */
+.celebrate {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(43, 38, 32, 0.28);
+  animation: celebrateFade 0.2s ease-out;
+  pointer-events: none;
+}
+@keyframes celebrateFade { from { opacity: 0; } to { opacity: 1; } }
+.celebrateCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 28px 40px;
+  box-shadow: var(--shadow);
+  animation: celebratePop 0.35s cubic-bezier(0.18, 0.9, 0.32, 1.4);
+}
+@keyframes celebratePop {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.celebrateMsg {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+}
+.celebrateCheck { width: 72px; height: 72px; }
+.celebrateCheck svg { width: 100%; height: 100%; }
+.celebrateCheckCircle {
+  stroke: var(--green);
+  stroke-width: 3;
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: celebrateCircle 0.5s ease-out forwards;
+}
+.celebrateCheckMark {
+  stroke: var(--green);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 44;
+  stroke-dashoffset: 44;
+  animation: celebrateMark 0.35s 0.4s ease-out forwards;
+}
+@keyframes celebrateCircle { to { stroke-dashoffset: 0; } }
+@keyframes celebrateMark { to { stroke-dashoffset: 0; } }
+.celebrateConfetti { position: absolute; inset: 0; overflow: hidden; }
+.confettiPiece {
+  position: absolute;
+  top: -16px;
+  border-radius: 2px;
+  opacity: 0;
+  animation-name: confettiFall;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translate(0, -10px) rotate(0deg); }
+  100% { opacity: 0.9; transform: translate(var(--drift, 0), 100vh) rotate(540deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .confettiPiece { display: none; }
+  .celebrateCheckCircle, .celebrateCheckMark { animation-duration: 0.01s; }
+}
+/* 18a — calendar entry edit row */
+.calEditRow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.calEditRow .authInput { flex: 1 1 120px; min-width: 0; }
+
 /* ---------- in-app calendar (8g) ---------- */
 .calBlurb { font-size: 13px; color: var(--ink-soft); margin: 4px 0 12px; }
 .calNav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -1913,28 +2028,63 @@
 
 
 .chatTabs button {
-  background: var(--purple);
-  border: none;
+  background: rgba(255, 252, 247, 0.72);
+  border: 1px solid var(--line);
   /* grow to share the row; the generous side padding scales down on mobile so
      four tabs fit the screen (they wrap to a second row when they can't). */
   flex: 1 1 auto;
-  padding: 9px 20px;
+  padding: 9px 16px;
   min-width: 0;
   white-space: nowrap;
-  font-size: 14px;
-  font-weight: 600;
-  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: 999px;
   transition: background 0.15s, color 0.15s;
 }
 .chatTabs button:hover {
   background: var(--card-soft);
 }
 .tabActive {
-  background: var(--purple-soft, #ede5f3);
-  color:white !important;
+  background: var(--purple) !important;
+  border-color: var(--purple) !important;
+  color: #fff !important;
 }
+
+/* 18d — post-type picker (composer + edit form) */
+.typePicker { display: flex; flex-direction: column; gap: 6px; }
+.typePickerLabel { font-size: 12px; font-weight: 700; color: var(--ink-soft); }
+.typePickerBtns { display: flex; flex-wrap: wrap; gap: 8px; }
+.typeChip {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 252, 247, 0.72);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.typeChip[data-active="true"] { background: var(--purple); border-color: var(--purple); color: #fff; }
+/* type badge shown on each post card */
+.postTypeBadge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+  background: var(--green-soft);
+  color: var(--green);
+}
+.postTypeBadge[data-type="NEIGHBORHOODS"] { background: var(--blue-soft); color: var(--blue); }
+.postTypeBadge[data-type="LISTINGS"] { background: var(--amber-soft); color: var(--amber); }
 
 /* Feed */
 .chatFeed {
@@ -3043,6 +3193,32 @@ textarea.authInput {
   word-break: break-word;
 }
 
+/* 18a — click-to-edit affordance on profile fields */
+.detailEditable {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border-radius: 8px;
+  cursor: pointer;
+  max-width: 62%;
+  text-align: right;
+  transition: background 0.12s;
+}
+.detailEditable:hover { background: var(--card-soft); }
+.detailEditable .detailValue { max-width: none; }
+.detailPencil { font-size: 11px; color: var(--ink-soft); opacity: 0; transition: opacity 0.12s; flex: 0 0 auto; }
+.detailEditable:hover .detailPencil { opacity: 0.7; }
+.detailEditRow { display: flex; align-items: center; gap: 6px; flex: 1 1 auto; min-width: 0; justify-content: flex-end; }
+.detailEditRow .authInput { flex: 1 1 auto; min-width: 0; padding: 6px 8px; font-size: 13px; }
+.detailSaveBtn { flex: 0 0 auto; border: none; background: var(--purple); color: #fff; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+.detailCancelBtn { flex: 0 0 auto; border: 1px solid var(--line); background: var(--card); color: var(--ink-soft); font-size: 12px; padding: 6px 9px; border-radius: 8px; cursor: pointer; }
+.crmDoneRow { display: flex; justify-content: flex-end; margin-top: 16px; }
+.crmDoneRow .syncBtn { font-size: 14px; padding: 10px 26px; }
+
 
 /* ---------- Content Playbook (15f) ---------- */
 .pbHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 6px 0 14px; flex-wrap: wrap; }
@@ -3136,6 +3312,10 @@ textarea.authInput {
 /* 16d: delete-section button */
 .pbDeleteSection { border: 1px solid var(--red); background: none; color: var(--red); font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
 .pbDeleteSection:hover { background: var(--red-soft); }
+/* 18a: neutral "Edit" pill (section head) + callout edit-pencil offset */
+.pbTextBtn { border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.pbTextBtn:hover { background: var(--card-soft); }
+.pbCallout .pbTinyBtn[data-pos="edit"] { right: 26px; }
 .pbCallout { display: flex; flex-direction: column; gap: 2px; padding: 9px 12px; margin: 6px 0; border-left: 3px solid var(--line); background: var(--card-soft); border-radius: 8px; position: relative; }
 .pbCallout[data-type="DONT_DO_THIS"] { border-left-color: var(--red); }
 .pbCallout[data-type="PRO_TIP"] { border-left-color: var(--amber); }

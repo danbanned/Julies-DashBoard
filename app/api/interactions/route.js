@@ -58,6 +58,13 @@ export async function POST(req) {
       data.posted = true;
       data.postedAt = now;
       break;
+    case "edit": // 18a: edit a calendar entry's own fields (title/date/location)
+      if (value && typeof value === "object") {
+        if ("eventTitle" in value) data.eventTitle = String(value.eventTitle || "").slice(0, 200);
+        if ("eventStartDate" in value) data.eventStartDate = value.eventStartDate || null;
+        if ("location" in value) data.location = String(value.location || "").slice(0, 200) || null;
+      }
+      break;
     default:
       return NextResponse.json({ error: `unknown action "${action}"` }, { status: 400 });
   }

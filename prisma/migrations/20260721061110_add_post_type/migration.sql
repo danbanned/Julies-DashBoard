@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "PostType" AS ENUM ('CONTENT_IDEAS', 'NEIGHBORHOODS', 'LISTINGS');
+
+-- AlterTable
+ALTER TABLE "Post" ADD COLUMN     "postType" "PostType" NOT NULL DEFAULT 'CONTENT_IDEAS';

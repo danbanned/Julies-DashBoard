@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import styles from "../app/Events.module.css";
+import { useSaveFeedback } from "./Feedback";
 
 const CALLOUT_META = {
   CONTENT_IDEA: { icon: "💡", label: "Content Idea" },
@@ -149,6 +150,8 @@ export default function PlaybookApp() {
   const [openSection, setOpenSection] = useState(null);
   const [notice, setNotice] = useState("");
   const [showNewIdea, setShowNewIdea] = useState(false);
+  const [editingId, setEditingId] = useState(null); // 18a: "section:id" | "block:id" | "callout:id"
+  const fb = useSaveFeedback();
 
   const load = useCallback(() => {
     fetch("/api/playbook")
@@ -159,18 +162,22 @@ export default function PlaybookApp() {
   useEffect(() => { load(); }, [load]);
 
   const api = useCallback(
-    async (body) => {
+    async (body, opts = {}) => {
       const res = await fetch("/api/playbook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const d = await res.json();
-      if (res.ok) load();
-      else setNotice(d.error || "Something went wrong.");
+      if (res.ok) {
+        load();
+        // 18b/18c: explicit edit-saves celebrate; small adds get a quiet toast
+        if (opts.celebrate) fb.fireCelebration(opts.celebrate);
+        else if (opts.toast) fb.fireToast(opts.toast);
+      } else setNotice(d.error || "Something went wrong.");
       return d;
     },
-    [load]
+    [load, fb]
   );
 
   const pillars = data?.pillars || [];
@@ -227,23 +234,36 @@ export default function PlaybookApp() {
         <div className={styles.panel}>
           <div className={styles.panelHead}>
             <h2>{s.pillar.emoji} {s.title}</h2>
-            <button
-              className={styles.pbDeleteSection}
-              title="Delete this whole section"
-              onClick={() => {
-                if (confirm(`Delete the entire "${s.title}" section and everything in it? This can't be undone.`)) {
-                  api({ action: "deleteSection", id: s.id });
-                  setOpenSection(null);
-                }
-              }}
-            >
-              🗑 Delete section
-            </button>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button
+                className={styles.pbTextBtn}
+                title="Edit section title & subtitle"
+                onClick={() => setEditingId(editingId === `section:${s.id}` ? null : `section:${s.id}`)}
+              >
+                ✎ Edit
+              </button>
+              <button
+                className={styles.pbDeleteSection}
+                title="Delete this whole section"
+                onClick={() => {
+                  if (confirm(`Delete the entire "${s.title}" section and everything in it? This can't be undone.`)) {
+                    api({ action: "deleteSection", id: s.id });
+                    setOpenSection(null);
+                  }
+                }}
+              >
+                🗑 Delete section
+              </button>
+            </div>
           </div>
           {isEventsCalendar && asOf && (
             <p className={styles.pbAsOf}>🗓 Frozen snapshot — as of {asOf}. Not your live events feed.</p>
           )}
-          {s.subtitle && <p className={styles.pbQuote}>&ldquo;{stripMd(s.subtitle)}&rdquo;</p>}
+          {editingId === `section:${s.id}` ? (
+            <SectionHeadEditor section={s} onSave={api} onCancel={() => setEditingId(null)} />
+          ) : (
+            s.subtitle && <p className={styles.pbQuote}>&ldquo;{stripMd(s.subtitle)}&rdquo;</p>
+          )}
           {notice && <p className={styles.calNotice}>{notice}</p>}
 
           {s.blocks.map((blk) => {
@@ -252,11 +272,15 @@ export default function PlaybookApp() {
             <div key={blk.id} className={styles.pbBlock}>
               <div className={styles.pbBlockHead}>
                 <h3>{blk.emoji} {stripMd(blk.heading)}</h3>
-                <button className={styles.pbTinyBtn} title="Delete block" onClick={() => { if (confirm("Delete this whole block?")) api({ action: "deleteBlock", id: blk.id }); }}>🗑</button>
+                <div style={{ display: "flex", gap: 4, marginLeft: "auto" }}>
+                  <button className={styles.pbTinyBtn} title="Edit block" onClick={() => setEditingId(editingId === `block:${blk.id}` ? null : `block:${blk.id}`)}>✎</button>
+                  <button className={styles.pbTinyBtn} title="Delete block" onClick={() => { if (confirm("Delete this whole block?")) api({ action: "deleteBlock", id: blk.id }); }}>🗑</button>
+                </div>
               </div>
 
-              {/* Events Calendar: each table row → a labeled event card with delete */}
-              {evTable ? (
+              {editingId === `block:${blk.id}` ? (
+                <BlockEditor blk={blk} onSave={api} onCancel={() => setEditingId(null)} />
+              ) : evTable ? (
                 <div className={styles.pbEventCards}>
                   {evTable.rows.map((row) => {
                     const field = (name) => {
@@ -284,10 +308,14 @@ export default function PlaybookApp() {
 
               {blk.callouts.map((co) => {
                 const m = CALLOUT_META[co.type] || CALLOUT_META.NOTE;
+                if (editingId === `callout:${co.id}`) {
+                  return <CalloutEditor key={co.id} co={co} onSave={api} onCancel={() => setEditingId(null)} />;
+                }
                 return (
                   <div key={co.id} className={styles.pbCallout} data-type={co.type}>
                     <span className={styles.pbCalloutLabel}>{m.icon} {m.label}</span>
                     <span className={styles.pbCalloutText}>{calloutBody(co.text)}</span>
+                    <button className={styles.pbTinyBtn} data-pos="edit" title="Edit idea" onClick={() => setEditingId(`callout:${co.id}`)}>✎</button>
                     <button className={styles.pbTinyBtn} title="Delete idea" onClick={() => api({ action: "deleteCallout", id: co.id })}>✕</button>
                   </div>
                 );
@@ -299,6 +327,7 @@ export default function PlaybookApp() {
 
           <BlockAdder sectionId={s.id} onAdd={api} />
         </div>
+        {fb.node}
       </div>
     );
   }
@@ -410,7 +439,7 @@ export default function PlaybookApp() {
 
       {/* new idea composer */}
       {showNewIdea && (
-        <NewIdeaModal pillars={pillars} onClose={() => setShowNewIdea(false)} onDone={(msg) => { setShowNewIdea(false); setNotice(msg); load(); }} />
+        <NewIdeaModal pillars={pillars} onClose={() => setShowNewIdea(false)} onDone={(msg) => { setShowNewIdea(false); load(); fb.fireCelebration(msg); }} />
       )}
 
       {/* nav back to admin */}
@@ -421,6 +450,7 @@ export default function PlaybookApp() {
         <button className={styles.navItem} data-active="true"><span><img className={styles.navImg} src="/icons/achievements.png" alt="" /></span>Playbook</button>
         {/* eslint-enable @next/next/no-img-element */}
       </nav>
+      {fb.node}
     </div>
   );
 }
@@ -440,7 +470,7 @@ function IdeaAdder({ blockId, onAdd }) {
       </div>
       <textarea className={styles.authInput} rows={2} placeholder="Idea text…" value={text} onChange={(e) => setText(e.target.value)} />
       <div className={styles.conFormRow}>
-        <button className={styles.syncBtn} onClick={async () => { if (!text.trim()) return; await onAdd({ action: "createCallout", blockId, type, text }); setText(""); setOpen(false); }}>Add</button>
+        <button className={styles.syncBtn} onClick={async () => { if (!text.trim()) return; await onAdd({ action: "createCallout", blockId, type, text }, { toast: "Idea added" }); setText(""); setOpen(false); }}>Add</button>
         <button className={styles.conToggle} onClick={() => { setOpen(false); setText(""); }}>Cancel</button>
       </div>
     </div>
@@ -462,8 +492,65 @@ function BlockAdder({ sectionId, onAdd }) {
       </div>
       <textarea className={styles.authInput} rows={2} placeholder="Description (optional)" value={body} onChange={(e) => setBody(e.target.value)} />
       <div className={styles.conFormRow}>
-        <button className={styles.syncBtn} onClick={async () => { if (!heading.trim()) return; await onAdd({ action: "createBlock", sectionId, emoji, heading, body }); setOpen(false); setEmoji(""); setHeading(""); setBody(""); }}>Add block</button>
+        <button className={styles.syncBtn} onClick={async () => { if (!heading.trim()) return; await onAdd({ action: "createBlock", sectionId, emoji, heading, body }, { toast: "Block added" }); setOpen(false); setEmoji(""); setHeading(""); setBody(""); }}>Add block</button>
         <button className={styles.conToggle} onClick={() => setOpen(false)}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+// 18a — edit an existing block's emoji / heading / body (markdown). Explicit
+// Save → celebration (a deliberate "I edited the playbook" moment).
+function BlockEditor({ blk, onSave, onCancel }) {
+  const [emoji, setEmoji] = useState(blk.emoji || "");
+  const [heading, setHeading] = useState(blk.heading || "");
+  const [body, setBody] = useState(blk.body || "");
+  return (
+    <div className={styles.conForm} style={{ marginTop: 8 }}>
+      <div className={styles.conFormRow}>
+        <input className={styles.authInput} style={{ flex: "0 0 70px" }} placeholder="Emoji" value={emoji} onChange={(e) => setEmoji(e.target.value)} />
+        <input className={styles.authInput} placeholder="Heading *" value={heading} onChange={(e) => setHeading(e.target.value)} />
+      </div>
+      <textarea className={styles.authInput} rows={6} placeholder="Body (markdown — tables & lists supported)" value={body} onChange={(e) => setBody(e.target.value)} />
+      <div className={styles.conFormRow}>
+        <button className={styles.syncBtn} onClick={async () => { if (!heading.trim()) return; await onSave({ action: "updateBlock", id: blk.id, emoji, heading, body }, { celebrate: "Playbook saved!" }); onCancel(); }}>Save</button>
+        <button className={styles.conToggle} onClick={onCancel}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+// 18a — edit an existing callout ("idea") type + text.
+function CalloutEditor({ co, onSave, onCancel }) {
+  const [type, setType] = useState(co.type);
+  const [text, setText] = useState(co.text || "");
+  return (
+    <div className={styles.conForm} style={{ marginTop: 6 }}>
+      <div className={styles.conFormRow}>
+        <select className={styles.authInput} value={type} onChange={(e) => setType(e.target.value)}>
+          {Object.entries(CALLOUT_META).map(([k, m]) => <option key={k} value={k}>{m.icon} {m.label}</option>)}
+        </select>
+      </div>
+      <textarea className={styles.authInput} rows={3} value={text} onChange={(e) => setText(e.target.value)} />
+      <div className={styles.conFormRow}>
+        <button className={styles.syncBtn} onClick={async () => { if (!text.trim()) return; await onSave({ action: "updateCallout", id: co.id, type, text }, { celebrate: "Idea saved!" }); onCancel(); }}>Save</button>
+        <button className={styles.conToggle} onClick={onCancel}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+// 18a — edit a section's title + subtitle.
+function SectionHeadEditor({ section, onSave, onCancel }) {
+  const [title, setTitle] = useState(section.title || "");
+  const [subtitle, setSubtitle] = useState(section.subtitle || "");
+  return (
+    <div className={styles.conForm} style={{ marginTop: 8 }}>
+      <input className={styles.authInput} placeholder="Section title *" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <input className={styles.authInput} placeholder="Subtitle / tagline" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
+      <div className={styles.conFormRow}>
+        <button className={styles.syncBtn} onClick={async () => { if (!title.trim()) return; await onSave({ action: "updateSection", id: section.id, title, subtitle }, { celebrate: "Section saved!" }); onCancel(); }}>Save</button>
+        <button className={styles.conToggle} onClick={onCancel}>Cancel</button>
       </div>
     </div>
   );
@@ -488,13 +575,13 @@ function NewIdeaModal({ pillars, onClose, onDone }) {
       const res = await fetch("/api/playbook", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "createSection", pillarId, title, subtitle }) });
       const d = await res.json();
       setBusy(false);
-      if (res.ok) onDone(`✅ New section "${title}" added.`);
+      if (res.ok) onDone(`New section added!`);
     } else {
       const sec = sections.find((s) => s.id === sectionId);
       if (!sec?.blockId) { setBusy(false); return; }
       const res = await fetch("/api/playbook", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "createCallout", blockId: sec.blockId, type, text }) });
       setBusy(false);
-      if (res.ok) onDone("✅ Idea added.");
+      if (res.ok) onDone("Idea added!");
     }
   }
 
