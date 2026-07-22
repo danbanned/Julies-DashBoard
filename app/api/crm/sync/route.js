@@ -32,8 +32,9 @@ export async function POST(req) {
     const existing = await prisma.client.findUnique({ where: { formKey: data.formKey } });
     if (existing) {
       // re-syncs refresh sheet-owned fields but never clobber Julie's
-      // workflow state (stage, pins, follow-ups, lastReachedOut)
-      const { stage, lastReachedOut, ...refresh } = data;
+      // workflow state (stage, pins, follow-ups, lastReachedOut) or the
+      // original createdAt timestamp
+      const { stage, lastReachedOut, createdAt, ...refresh } = data;
       await prisma.client.update({ where: { id: existing.id }, data: refresh });
       updated++;
     } else {

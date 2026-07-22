@@ -519,9 +519,11 @@ export default function CrmApp() {
                         onSave={(v) => patchClient(detail.id, { neighborhoods: v.split(',').map((s) => s.trim()).filter(Boolean) }, "Neighborhoods saved")} />
                       <EditableField label="Move month" type="month"
                         value={detail.moveMonth ? new Date(detail.moveMonth).toISOString().slice(0, 7) : ''}
-                        display={detail.moveMonth ? new Date(detail.moveMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—'}
-                        onSave={(v) => patchClient(detail.id, { moveMonth: v || null }, "Move month saved")} />
-                      {detail.clientType === 'RENTER' ? (
+                        display={detail.moveMonth ? new Date(detail.moveMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }) : '—'}
+                        onSave={(v) => patchClient(detail.id, { moveMonth: v ? `${v}-01` : null }, "Move month saved")} />
+                      {/* Renter-focused CRM: show renter fields unless the client
+                          is EXPLICITLY a buyer (defensive against bad clientType) */}
+                      {detail.clientType !== 'BUYER' ? (
                         <>
                           <EditableField label="Max rent" type="number" value={detail.maxRent}
                             display={detail.maxRent ? `$${detail.maxRent.toLocaleString()}/mo` : '—'}

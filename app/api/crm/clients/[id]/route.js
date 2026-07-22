@@ -67,7 +67,14 @@ export async function PATCH(req, { params }) {
   if ("neighborhoods" in b && Array.isArray(b.neighborhoods)) {
     data.neighborhoods = b.neighborhoods.map((s) => String(s).trim()).filter(Boolean);
   }
-  if ("moveMonth" in b) data.moveMonth = b.moveMonth ? new Date(b.moveMonth) : null;
+  if ("moveMonth" in b) {
+    // normalize "YYYY-MM" / "YYYY-MM-DD" to noon UTC so tz shifts never move the month
+    if (!b.moveMonth) data.moveMonth = null;
+    else {
+      const m = String(b.moveMonth).match(/^(\d{4})-(\d{2})/);
+      data.moveMonth = m ? new Date(Date.UTC(+m[1], +m[2] - 1, 1, 12, 0, 0)) : new Date(b.moveMonth);
+    }
+  }
   if ("maxRent" in b) data.maxRent = intOrNull(b.maxRent);
   if ("bedroomsMin" in b) data.bedroomsMin = intOrNull(b.bedroomsMin);
   if ("budget" in b) data.budget = intOrNull(b.budget);
