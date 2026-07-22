@@ -396,7 +396,8 @@ export default function CrmApp() {
                   </div>
                 </div>
 
-                {/* STATS ROW (matching mockup: Last contact, Follow-up due, Credit, Stage) */}
+                {/* STATS ROW (matching mockup: Last contact, Follow-up due, Credit, Stage,
+                    + Julie's own sheet workflow columns: Taking on, Contacted) */}
                 <div className={styles.profileStats}>
                   <div className={styles.statItem}>
                     <span className={styles.statLabel}>Last contact</span>
@@ -415,6 +416,21 @@ export default function CrmApp() {
                   <div className={styles.statItem}>
                     <span className={styles.statLabel}>Stage</span>
                     <span className={styles.statValue}>{stageLabel(detail.stage)}</span>
+                  </div>
+                  {/* Julie's own sheet workflow columns ("Taking on" / "Contacted?") —
+                      grouped with the rest of her at-a-glance status here, not mixed
+                      in with the client-provided fields in Client Details below. */}
+                  <div className={styles.statItem} title="From Julie's sheet: Taking on?">
+                    <span className={styles.statLabel}>Taking on</span>
+                    <span className={styles.statValue} style={{ color: detail.takingOn === false ? '#b33a34' : detail.takingOn === true ? 'var(--green)' : 'inherit' }}>
+                      {detail.takingOn === true ? 'Yes' : detail.takingOn === false ? 'No' : '—'}
+                    </span>
+                  </div>
+                  <div className={styles.statItem} title="From Julie's sheet: Contacted?">
+                    <span className={styles.statLabel}>Contacted</span>
+                    <span className={styles.statValue}>
+                      {detail.contactedRaw ? String(detail.contactedRaw).trim().toLowerCase() : '—'}
+                    </span>
                   </div>
                 </div>
 
