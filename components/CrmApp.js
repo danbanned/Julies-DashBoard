@@ -359,7 +359,7 @@ export default function CrmApp() {
 
        {/* ---------- PROFILE (redesigned to match mockup) ---------- */}
         {openId && (
-          <div className={styles.panel} style={{ padding: 0, overflow: 'hidden', background: '#fff' }}>
+          <div className={styles.panel} style={{ padding: 0, overflow: 'hidden', background: 'var(--card)' }}>
             {/* 15c: back button — returns to the client list */}
             <button
               className={styles.crmBack}
@@ -405,7 +405,7 @@ export default function CrmApp() {
                   </div>
                   <div className={styles.statItem}>
                     <span className={styles.statLabel}>Follow-up due</span>
-                    <span className={styles.statValue} style={{ color: detail.followUpDue && new Date(detail.followUpDue) <= new Date() ? '#b33a34' : 'inherit' }}>
+                    <span className={styles.statValue} style={{ color: detail.followUpDue && new Date(detail.followUpDue) <= new Date() ? 'var(--red)' : 'inherit' }}>
                       {fmtDate(detail.followUpDue)}
                     </span>
                   </div>
@@ -422,7 +422,7 @@ export default function CrmApp() {
                       in with the client-provided fields in Client Details below. */}
                   <div className={styles.statItem} title="From Julie's sheet: Taking on?">
                     <span className={styles.statLabel}>Taking on</span>
-                    <span className={styles.statValue} style={{ color: detail.takingOn === false ? '#b33a34' : detail.takingOn === true ? 'var(--green)' : 'inherit' }}>
+                    <span className={styles.statValue} style={{ color: detail.takingOn === false ? 'var(--red)' : detail.takingOn === true ? 'var(--green)' : 'inherit' }}>
                       {detail.takingOn === true ? 'Yes' : detail.takingOn === false ? 'No' : '—'}
                     </span>
                   </div>

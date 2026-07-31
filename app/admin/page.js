@@ -8,6 +8,7 @@ import {
   eventMetaMap,
   contentIdeas,
   manualEventsAsFeed,
+  applyImageOverrides,
 } from "../../lib/platform";
 import { prisma } from "../../lib/db";
 
@@ -36,7 +37,7 @@ export default async function AdminPage() {
     prisma.post.count(),
   ]);
 
-  const allEvents = [...events, ...manual.filter((m) => !m._draft)];
+  const allEvents = applyImageOverrides([...events, ...manual.filter((m) => !m._draft)], meta);
   const consoleData = {
     events: [...allEvents, ...manual.filter((m) => m._draft)],
     meta,

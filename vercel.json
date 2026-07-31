@@ -13,5 +13,11 @@
       "source": "/manifest.json",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/weekly-digest",
+      "schedule": "0 13 * * 1"
+    }
   ]
 }

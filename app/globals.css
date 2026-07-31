@@ -1,65 +1,77 @@
 :root {
-  /* palette — Phase 10 warm editorial re-theme ("romanticize the everyday"):
-     cream backdrop, terracotta/clay primary, olive/sage secondary, earth-tone
-     priority colors. Variable NAMES kept from the navy theme so every
-     component recolors from here alone. */
-  --navy-900: #2b2620; /* warm near-black — darkest panel base */
-  --navy-800: #3a332b; /* deep warm brown (dark panels, nav) */
-  --navy-700: #4c4237; /* lighter warm brown */
-  --navy-600: #8a8071; /* scrollbar thumb / muted chrome */
-  --card: rgba(255, 252, 247, 0.94); /* translucent cream card */
-  --card-soft: #f3ecdf;
-  --ink: #2b2620; /* warm near-black text */
-  --ink-soft: #6e6357;
-  --line: #e6dccb;
+  /* palette — Phase 20 re-theme: dark charcoal canvas + Fairmount green
+     accent, replacing Phase 10's warm cream/terracotta/photo-backdrop look.
+     Variable NAMES kept from that theme (and the navy theme before it) so
+     every component recolors from here alone. */
+  --navy-900: #1a1a1a; /* app background — page canvas, header, bottom nav */
+  --navy-800: #242424; /* card/surface fill */
+  --navy-700: #2e2e2e; /* slightly-raised surface (hover, nested panels) */
+  --navy-600: #545454; /* scrollbar thumb / muted chrome */
+  --card: #242424; /* solid dark surface — no more translucency, no photo behind it */
+  --card-soft: #2b2b2b; /* hover / secondary-surface tint */
+  --ink: #f2f2f2; /* primary text */
+  --ink-soft: #a6a6a6; /* secondary text — captions, placeholders */
+  --ink-muted: #7a7a7a; /* muted text — timestamps, disabled-adjacent */
+  --line: #313131; /* borders / dividers */
+  --disabled: #454545; /* disabled controls */
 
-  --purple: #b25e3f; /* primary accent: terracotta / clay */
-  --purple-soft: #f3e2d8;
-  --green: #7d8a5c; /* secondary accent: olive / sage */
-  --green-soft: #ecefe2;
-  --amber: #c08a3e; /* warm ochre (medium priority) */
-  --amber-soft: #f6ecd9;
-  --red: #b4543e; /* clay red (high priority) */
-  --red-soft: #f5e3de;
-  --blue: #5f7470; /* muted eucalyptus (Brewerytown tag) */
-  --blue-soft: #e6edeb;
+  /* Primary accent: Fairmount green. Used sparingly (~10-15%) — primary
+     buttons, active tabs/icons, success states — never a dominant fill. */
+  --purple: #3e5f46;
+  --purple-soft: rgba(62, 95, 70, 0.18);
+  /* Secondary tint: lighter green — hover states, subtle fills, active icon bg. */
+  --green: #6f8f79;
+  --green-soft: rgba(111, 143, 121, 0.16);
+  /* Brighter accent text for the many badge/pill/tag spots that pair a
+     translucent accent-tinted background (--purple-soft/--green-soft) with
+     accent-colored text — --purple/--green are too dark for 4.5:1 against
+     their own soft tints on this charcoal canvas, so text uses this instead. */
+  --accent-text: #8fbf9f;
 
-  /* Backdrop photo (Phase 10e) — swappable here, not hardcoded in components.
-     public/ is served from the site root, so public/theme/Backdropp.png is
-     referenced as /theme/Backdropp.png (exact casing matters on deploy).
-     Available options:
-       url("/theme/Backdropp.png")  — current (3.1MB PNG — consider compressing)
-       url("/theme/backdrop.png")   — 2MB PNG
-       url("/theme/backdrop.jpg")   — 187KB JPEG (web-compressed original) */
-  --theme-backdrop: url("/theme/Backdropp.png");
-  /* Overlay: a vertical FADE — the photo shows clearly at the top of the
-     page, then dissolves into solid cream so the lower content sits on a
-     calm plain background. Tune the stops to move the fade point. */
-  --theme-overlay-top: rgba(248, 242, 231, 0.35);
-  --theme-overlay-mid: rgba(247, 240, 228, 0.251);
-  --theme-overlay-bottom: #f5efe4;
+  /* Priority/status tones (Events high/med/low, credit bands, etc.) —
+     brightened from the Phase 10 clay/ochre palette so they still read
+     clearly as light-on-dark against the new charcoal surfaces. */
+  --amber: #cf9c5e;
+  --amber-soft: rgba(207, 156, 94, 0.16);
+  --red: #cc7867;
+  --red-soft: rgba(204, 120, 103, 0.16);
+  --blue: #7fa39c;
+  --blue-soft: rgba(127, 163, 156, 0.16);
+  /* Darker solid-fill variants for small badges that pair a colored fill with
+     WHITE text — --red/--amber above read fine as TEXT on a dark surface but
+     are too light for white text at small sizes once they're the fill itself. */
+  --red-fill: #994f42;
+  --amber-fill: #996c3f;
 
-  --radius: 20px;
+  --radius: 18px;
   --radius-sm: 14px;
-  --shadow: 0 18px 40px -22px rgba(58, 45, 32, 0.45);
+  /* Flat by default (Phase 20 removes heavy drop shadows) — surfaces rely on
+     the --line border instead. The one exception (center nav "+" button)
+     uses --shadow-float, defined below, not this. */
+  --shadow: none;
+  --shadow-float: 0 10px 24px -6px rgba(0, 0, 0, 0.55);
 
-  --font-display: "Georgia", "Times New Roman", serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* 21c: event-card image slot ratio. Julie's real fallback photography is a
+     mix of portrait and landscape; this taller-than-16:9 default avoids badly
+     cropping the portrait shots. TBD from Julie — she'll confirm an exact
+     target ratio later; until then this is a single constant to tweak, not a
+     layout rebuild. */
+  --fallback-ratio: 4 / 5;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  background-color: #f5efe4; /* canvas fallback before the photo loads */
+  background-color: var(--navy-900);
   /* Never let the page render wider than the device or drift sideways. */
   overflow-x: hidden;
   /* Keep iOS/Android from silently re-scaling type (which reads as a zoom). */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
-/* body must stay TRANSPARENT — an opaque body background paints ABOVE the
-   fixed ::before layer and hides the backdrop photo entirely (this was the
-   "background is still beige" bug). */
 html, body {
   color: var(--ink);
   font-family: var(--font-body);
@@ -70,25 +82,15 @@ html, body {
   max-width: 100%;
   overflow-x: hidden;
 }
-body { background: transparent; }
+body { background: var(--navy-900); }
 
-/* Blurred photo backdrop under a warm cream overlay — ADMIN pages only.
-   Rendered as an explicit <div className="pageBackdrop"> so the viewer
-   surface stays on plain cream (its photo lives in the hero banner only). */
+/* Phase 20 retired the photographic backdrop entirely — this class is kept
+   (some pages still render the div) but now just matches the flat canvas. */
 .pageBackdrop {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image:
-    linear-gradient(
-      to bottom,
-      var(--theme-overlay-top) 0%,
-      var(--theme-overlay-mid) 45%,
-      var(--theme-overlay-bottom) 85%
-    ),
-    var(--theme-backdrop);
-  background-size: cover;
-  background-position: center top;
+  background: var(--navy-900);
 }
 
 @media (prefers-reduced-motion: reduce) {

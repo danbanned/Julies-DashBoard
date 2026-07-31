@@ -1,65 +1,26 @@
-// Family Group Chat (12i) — PUBLIC page: anonymous visitors can read.
-// Posts are created by Julie from the admin console.
+// Newsletter subscribe page (Phase 19 — was the public Family Chat feed).
+// Two audiences, handled by the client component: a logged-in viewer only
+// picks neighborhood preferences (we already have their email from login);
+// an anonymous visitor gets the full "give us your email" pitch.
+import { sessionUser } from "../../lib/session";
 import { prisma } from "../../lib/db";
-import styles from "../Events.module.css";
+import SubscribePage from "../../components/SubscribePage";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Family Group Chat — Julie's Event" };
+export const metadata = { title: "Weekly Neighborhood Events — Julie Tours Philly" };
 
 export default async function ChatPage() {
-  const posts = await prisma.post.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 50,
-    select: {
-      id: true,
-      title: true,
-      caption: true,
-      coverImageUrl: true,
-      createdAt: true,
-      author: { select: { name: true } },
-    },
-  });
+  const user = await sessionUser();
+  let subscriber = null;
+  if (user) {
+    subscriber = await prisma.subscriber.findUnique({ where: { userId: user.id } });
+  }
 
   return (
-    <div className={styles.shell}>
-      <header className={styles.vHero}>
-        <div className={styles.vBrandRow}>
-          <a className={styles.vSignIn} href="/">← Events</a>
-          <span className={styles.vBrand}>Julie&apos;s Event</span>
-          <span />
-        </div>
-        <h1 className={styles.vHeroTitle}>💬 Family Group Chat</h1>
-        <p className={styles.vHeroSub}>Updates from Julie to the community.</p>
-      </header>
-
-      {posts.length === 0 ? (
-        <div className={styles.panel}>
-          <div className={styles.empty}>
-            <h3>No posts yet</h3>
-            <p>When Julie shares an update, it lands here.</p>
-          </div>
-        </div>
-      ) : (
-        posts.map((p) => (
-          <article key={p.id} className={styles.panel}>
-            {p.coverImageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img className={styles.postCover} src={p.coverImageUrl} alt="" />
-            )}
-            <div className={styles.panelHead}><h2>{p.title}</h2></div>
-            <p className={styles.postCaption}>{p.caption}</p>
-            <p className={styles.postMeta}>
-              {p.author?.name || "Julie"} ·{" "}
-              {new Date(p.createdAt).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </p>
-          </article>
-        ))
-      )}
-    </div>
+    <SubscribePage
+      viewerEmail={user?.email || null}
+      initialSubscriber={subscriber ? { neighborhoods: subscriber.neighborhoods, emailVerified: subscriber.emailVerified } : null}
+    />
   );
 }

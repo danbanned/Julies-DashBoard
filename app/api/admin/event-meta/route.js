@@ -18,6 +18,10 @@ export async function POST(req) {
   if (typeof body.suggested === "boolean") patch.suggested = body.suggested;
   if (typeof body.hidden === "boolean") patch.hidden = body.hidden;
   if ("contentIdeaKey" in body) patch.contentIdeaKey = body.contentIdeaKey || null;
+  // 21d: per-event cover photo override
+  if ("imageUrl" in body) patch.imageUrl = String(body.imageUrl || "").trim() || null;
+  // 21b: subscriber-exclusive perk flag
+  if (typeof body.subscriberExclusive === "boolean") patch.subscriberExclusive = body.subscriberExclusive;
   if (Object.keys(patch).length === 0) {
     return NextResponse.json({ error: "nothing to update" }, { status: 400 });
   }

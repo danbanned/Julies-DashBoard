@@ -20,6 +20,8 @@ export default function AdminConsole({ data }) {
   const [notice, setNotice] = useState("");
   const [drafts, setDrafts] = useState(data.events.filter((e) => e._draft));
   const [addForm, setAddForm] = useState({ title: "", startDate: "", endDate: "", location: "", neighborhood: "", eventUrl: "", description: "" });
+  const [editingImageId, setEditingImageId] = useState(null); // 21d: cover-photo override row being edited
+  const [imageDraft, setImageDraft] = useState("");
 
   const counts = data.counts || {};
   const ideas = data.ideas || [];
@@ -160,9 +162,44 @@ export default function AdminConsole({ data }) {
                       <button className={styles.conToggle} data-on={Boolean(m.hidden)} onClick={() => patchMeta(ev.id, { hidden: !m.hidden })} title="Hide from the viewer feed">
                         {m.hidden ? "🙈 Hidden" : "👁 Hide"}
                       </button>
+                      <button
+                        className={styles.conToggle}
+                        data-on={Boolean(m.subscriberExclusive)}
+                        onClick={() => patchMeta(ev.id, { subscriberExclusive: !m.subscriberExclusive })}
+                        title="Tease this to anonymous visitors; show it normally to signed-up viewers"
+                      >
+                        🌟 {m.subscriberExclusive ? "Exclusive" : "Make exclusive"}
+                      </button>
+                      <button
+                        className={styles.conToggle}
+                        data-on={Boolean(m.imageUrl)}
+                        title="Set/override this event's cover photo"
+                        onClick={() => {
+                          setEditingImageId(editingImageId === ev.id ? null : ev.id);
+                          setImageDraft(m.imageUrl || "");
+                        }}
+                      >
+                        🖼 {m.imageUrl ? "Custom photo" : "Cover photo"}
+                      </button>
                     </>
                   )}
                 </div>
+                {/* 21d: per-event cover photo override — falls back to the
+                    neighborhood photo (21c) when cleared */}
+                {editingImageId === ev.id && (
+                  <div className={styles.conFormRow} style={{ marginTop: 8, width: "100%" }}>
+                    <input
+                      className={styles.authInput}
+                      placeholder="Cover image URL (blank = use neighborhood fallback)"
+                      value={imageDraft}
+                      onChange={(e) => setImageDraft(e.target.value)}
+                    />
+                    <button className={styles.syncBtn} onClick={() => { patchMeta(ev.id, { imageUrl: imageDraft }); setEditingImageId(null); }}>Save</button>
+                    {m.imageUrl && (
+                      <button className={styles.conToggle} onClick={() => { patchMeta(ev.id, { imageUrl: "" }); setEditingImageId(null); }}>Clear</button>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}

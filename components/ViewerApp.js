@@ -120,6 +120,36 @@ function ViewerCard({ ev, count, row, act, user, onOpen, onTag, activeTags }) {
     ? { href: ev.event_url, target: "_blank", rel: "noopener noreferrer", onClick: () => onOpen(ev) }
     : { onClick: () => onOpen(ev) };
 
+  // 21b: subscriber-exclusive events tease anonymous visitors instead of
+  // showing the real card — a simple flag (EventMeta.subscriberExclusive),
+  // not a whole gated-content system. Any signed-in viewer (magic-link login
+  // always creates the linked Subscriber — 21a) counts as "signed up."
+  if (ev.subscriberExclusive && !user) {
+    return (
+      <div className={styles.wCard}>
+        <a className={styles.wMain} href="/login" style={{ cursor: "pointer" }}>
+          <div className={styles.wThumb} data-teased="true">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={ev.image_url} alt="" loading="lazy" />
+            <span className={styles.wTeaseLock}>🔒</span>
+          </div>
+          <div className={styles.wDateBlock}>
+            <span>{mo}</span>
+            <b>{day}</b>
+            <span>{dow}</span>
+          </div>
+          <div className={styles.wBody}>
+            <div className={styles.wTopRow}>
+              <span className={styles.wPriority} data-p="high">🌟 subscriber exclusive</span>
+            </div>
+            <div className={styles.wTitle}>Sign in to see this event</div>
+            <div className={styles.wMeta}>Free — takes 10 seconds, no password needed</div>
+          </div>
+        </a>
+      </div>
+    );
+  }
+
   const actBtn = (action, on, icon, label) => (
     <button
       className={styles.wActBtn}
@@ -142,6 +172,11 @@ function ViewerCard({ ev, count, row, act, user, onOpen, onTag, activeTags }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={ev.image_url} alt="" loading="lazy" />
           {badge && <span className={styles.vViews}>👁 {badge}</span>}
+          {/* 21c: neighborhood label — CSS overlay, only on fallback photos,
+              and only for a recognized neighborhood ("Other" isn't a place) */}
+          {ev.usedFallback && ev.neighborhood && ev.neighborhood !== "Other" && (
+            <span className={styles.wThumbHoodLabel}>{ev.neighborhood}</span>
+          )}
         </div>
         <div className={styles.wDateBlock}>
           <span>{mo}</span>
@@ -378,7 +413,7 @@ export default function ViewerApp({ events, suggestedIds, ideas, ideaKeyByEvent,
             <a className={styles.vGreetingLink} href="/login">Sign in · it&apos;s free</a>
           )}
         </div>
-        <a className={styles.iconBtn} aria-label="Community updates" href="/chat" title="Family Group Chat">
+        <a className={styles.iconBtn} aria-label="Weekly neighborhood event emails" href="/chat" title="Weekly Neighborhood Events">
           <img className={styles.iconImg} src="/icons/bell.png" alt="" />
         </a>
       </header>
@@ -391,12 +426,12 @@ export default function ViewerApp({ events, suggestedIds, ideas, ideaKeyByEvent,
               <h3>Menu</h3>
               <button className={styles.iconBtn} aria-label="Close menu" onClick={() => setMenuOpen(false)}>✕</button>
             </div>
-            <a className={styles.drawerLink} href="/chat">💬 Family Group Chat</a>
+            <a className={styles.drawerLink} href="/chat">📬 Weekly Neighborhood Events</a>
             {user?.role === "ADMIN" && <a className={styles.drawerLink} href="/admin">🗂 Admin dashboard</a>}
             {user ? (
               <button className={styles.drawerLink} onClick={() => signOut({ callbackUrl: "/" })}>👋 Sign out</button>
             ) : (
-              <a className={styles.drawerLink} href="/login">👤 Sign in / create account</a>
+              <a className={styles.drawerLink} href="/login">👤 Sign in</a>
             )}
             <h4>About App</h4>
             <p>
@@ -700,7 +735,7 @@ export default function ViewerApp({ events, suggestedIds, ideas, ideaKeyByEvent,
                 <div className={styles.empty}>
                   <h3>Browse freely</h3>
                   <p>No account needed to explore. Sign in to save favorites.</p>
-                  <p style={{ marginTop: 10 }}><a className={styles.vChatLink} href="/login">Sign in / create account</a></p>
+                  <p style={{ marginTop: 10 }}><a className={styles.vChatLink} href="/login">Sign in with email</a></p>
                 </div>
               )}
             </section>

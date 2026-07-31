@@ -11,7 +11,7 @@ import AchievementsView from "./AchievementsView";
 import EventAlerts from "./EventAlerts";
 import PushSetup from "./PushSetup";
 import AdminConsole from "./AdminConsole";
-import AdminChat from "./AdminChat";
+import NewsletterAdmin from "./NewsletterAdmin";
 import { ACHIEVEMENT_DEFS } from "../lib/achievementDefs";
 import { getImpactStats, getStreakData } from "../lib/stats";
 import { STREAK_IMAGE_COUNT, streakImagePath } from "../lib/config";
@@ -93,10 +93,12 @@ const RANGE_CHIPS = [
 // achievements are now live from the weekly engine (Phase 8h).
 const IMPACT = getImpactStats();
 // Core neighborhoods pinned on the "What's Happening Where" panel (mockup).
+// darker "-fill"/solid variants so white circle text clears WCAG contrast
+// (--green/--red/--amber are calibrated as TEXT color, too light as a fill)
 const MAP_HOODS = [
-  { name: "Fairmount", color: "var(--green)" },
-  { name: "Brewerytown", color: "var(--red)" },
-  { name: "Spring Garden", color: "var(--amber)" },
+  { name: "Fairmount", color: "var(--purple)" },
+  { name: "Brewerytown", color: "var(--red-fill)" },
+  { name: "Spring Garden", color: "var(--amber-fill)" },
 ];
 
 // pretty date: "2026-07-19" -> { mo: "JUL", day: "19", dow: "SAT", yr: "2026" }
@@ -176,6 +178,11 @@ function EventCard({ ev, row, act }) {
           {ev.priority} priority
         </span>
         {ev.new_since_last && <span className={styles.newDot}>NEW</span>}
+        {/* 21c: neighborhood label — CSS overlay, only on fallback photos,
+            and only for a recognized neighborhood ("Other" isn't a place) */}
+        {ev.usedFallback && ev.neighborhood && ev.neighborhood !== "Other" && (
+          <span className={styles.thumbHoodLabel}>{ev.neighborhood}</span>
+        )}
       </div>
       <div className={styles.dateCol} data-p={ev.priority}>
         <span className={styles.dateMo}>{mo}</span>
@@ -575,7 +582,7 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
               📆 My Calendar
             </button>
             <button className={styles.drawerLink} onClick={() => { setView("chat"); setMenuOpen(false); }}>
-              💬 Family Chat
+              📬 Newsletter
             </button>
             <button className={styles.drawerLink} onClick={() => { setView("events"); setMenuOpen(false); }}>
               ＋ Add / Manage Events
@@ -613,7 +620,7 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
       <EventAlerts onNewEvent={() => router.refresh()} onNotification={notif.add} />
 
       {view === "events" && consoleData && <AdminConsole data={consoleData} />}
-      {view === "chat" && <AdminChat />}
+      {view === "chat" && <NewsletterAdmin />}
       {view === "profile" && <ProfileView interactions={inter} act={act} />}
       {view === "calendar" && (
         <CalendarView
@@ -942,7 +949,7 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
           data-active={view === "chat"}
           onClick={() => setView("chat")}
         >
-          <span><img className={styles.navImg} src="/icons/bell.png" alt="" /></span>Family Chat
+          <span><img className={styles.navImg} src="/icons/bell.png" alt="" /></span>Newsletter
         </button>
         <button
           className={styles.navAdd}

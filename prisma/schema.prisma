@@ -21,11 +21,19 @@ model User {
 
   // Auth (Phase 12a): credentials login + role. Julie's existing "julie" row
   // becomes the ADMIN via the seed — her data stays attached to the same id.
+  // passwordHash is ADMIN-ONLY going forward (21a) — viewers authenticate via
+  // magic link (loginToken below); the credentials provider is untouched so
+  // Julie's own login never changes.
   email        String?     @unique
   passwordHash String?
   role         String      @default("VIEWER") // ADMIN | VIEWER
   views        EventView[]
   posts        Post[]
+  subscriber   Subscriber?
+
+  // 21a: viewer magic-link login. One-time token + expiry; cleared on use.
+  loginToken          String?   @unique
+  loginTokenExpiresAt DateTime?
 
   // Google Calendar OAuth (Phase 9) — per-user tokens from the in-app consent
   // flow. The refresh token is AES-256-GCM encrypted at rest (lib/tokenCrypto).
@@ -121,6 +129,13 @@ model EventMeta {
   suggested      Boolean  @default(false)
   hidden         Boolean  @default(false)
   contentIdeaKey String?
+  // 21d: per-event cover photo override — takes priority over the feed's own
+  // image_url and the neighborhood fallback (21c) when set.
+  imageUrl       String?
+  // 21b: "subscriber-exclusive" perk — a simple flag, not a whole gated-
+  // content system. Signed-in (subscribed) viewers see it normally; everyone
+  // else sees a teased/blurred card.
+  subscriberExclusive Boolean @default(false)
   updatedAt      DateTime @updatedAt
 }
 
@@ -176,6 +191,24 @@ enum PostType {
   CONTENT_IDEAS
   NEIGHBORHOODS
   LISTINGS
+}
+
+// ---------------------------------------------------------------------------
+// Phase 19 — Newsletter subscribers (weekly neighborhood event emails).
+// Deliberately SEPARATE from Client/CRM: a newsletter signup is not a rental/
+// buying lead, and must never enter the CRM's actionability ranking.
+// ---------------------------------------------------------------------------
+model Subscriber {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  emailVerified    Boolean   @default(false)
+  verifyToken      String?   @unique // set on signup/resend, cleared once verified
+  neighborhoods    String[] // ["Fairmount","Brewerytown","University City"] or ["All"]
+  userId           String?   @unique // set if a logged-in viewer subscribed; null = anonymous signup
+  user             User?     @relation(fields: [userId], references: [id])
+  unsubscribeToken String    @unique @default(cuid())
+  unsubscribedAt   DateTime?
+  createdAt        DateTime  @default(now())
 }
 
 model PollResponse {
