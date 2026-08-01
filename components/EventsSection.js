@@ -592,10 +592,10 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
             <a className={styles.drawerLink} href="/">🏙 View public site</a>
             <h4>About App</h4>
             <p>
-              Julie&apos;s Dashboard surfaces upcoming events across Fairmount,
-              Brewerytown and Spring Garden that are perfect for real-estate
-              content. Events sync automatically every morning at 9am from
-              Ticketmaster, Visit Philly, the City of Philadelphia and more.
+              Julie&apos;s Dashboard surfaces upcoming events across Philadelphia
+              that are perfect for real-estate content. Events sync
+              automatically every morning at 9am from Visit Philly, the City
+              of Philadelphia and more.
             </p>
             <div className={styles.drawerFoot}>
               <button
