@@ -403,7 +403,7 @@ export default function ViewerApp({ events, suggestedIds, ideas, ideaKeyByEvent,
       {/* eslint-disable @next/next/no-img-element */}
       <header className={styles.vHeader}>
         <button className={styles.iconBtn} aria-label="Open menu" onClick={() => setMenuOpen(true)}>
-          <img className={styles.iconImg} src="/icons/menu.png" alt="" />
+          <img className={`${styles.iconImg} ${styles.menuIcon}`} src="/icons/menu.png" alt="" />
         </button>
         <div className={styles.vHeadCenter}>
           <span className={styles.vLogo}>Julie&apos;s Event</span>

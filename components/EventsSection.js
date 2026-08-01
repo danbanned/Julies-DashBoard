@@ -465,7 +465,7 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
           onClick={() => setMenuOpen(true)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.iconImg} src="/icons/menu.png" alt="" />
+          <img className={`${styles.iconImg} ${styles.menuIcon}`} src="/icons/menu.png" alt="" />
         </button>
         <div className={styles.hello}>
           <h1>{greeting()}</h1>

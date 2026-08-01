@@ -74,6 +74,13 @@
   place-items: center;
 }
 .iconImg { width: 24px; height: 24px; display: block; }
+/* menu.png is baked as solid black pixels — invisible against the dark
+   theme's #1A1A1A/#242424 header. invert(1) maps black -> white; the
+   brightness(0.95) nudges pure white down to match --ink (#f2f2f2)
+   rather than overshooting to #ffffff. Scoped to the hamburger icon only
+   — bell.png is a different (mid-gray, already visible) asset and would
+   go the wrong direction under the same filter. */
+.menuIcon { filter: invert(1) brightness(0.95); }
 .bellBadge {
   position: absolute;
   top: -6px;
