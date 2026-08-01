@@ -130,64 +130,70 @@ export default function AdminConsole({ data }) {
             const m = meta[ev.id] || {};
             return (
               <div key={ev.id} className={styles.conRow} data-hidden={m.hidden}>
-                <div className={styles.conInfo}>
-                  <div className={styles.conTitle}>{ev.title}</div>
-                  <div className={styles.conMeta}>
-                    {ev.start_date}
-                    {ev.neighborhood && ev.neighborhood !== "Other" ? ` · ${ev.neighborhood}` : ""}
-                    {" · "}
-                    <b>{counts[ev.id] || 0} views</b>
-                    {ev._draft && " · DRAFT"}
+                {/* 22-fix: title/idea-select and the action pills share a row
+                    that wraps/stacks on its own — the cover-photo form below
+                    is a SEPARATE row in .conRow's column stack, never a third
+                    item squeezed into this same line. */}
+                <div className={styles.conRowTop}>
+                  <div className={styles.conInfo}>
+                    <div className={styles.conTitle}>{ev.title}</div>
+                    <div className={styles.conMeta}>
+                      {ev.start_date}
+                      {ev.neighborhood && ev.neighborhood !== "Other" ? ` · ${ev.neighborhood}` : ""}
+                      {" · "}
+                      <b>{counts[ev.id] || 0} views</b>
+                      {ev._draft && " · DRAFT"}
+                    </div>
+                    <select
+                      className={styles.conIdea}
+                      value={m.contentIdeaKey || ""}
+                      onChange={(e) => patchMeta(ev.id, { contentIdeaKey: e.target.value || null })}
+                      aria-label="Content idea"
+                    >
+                      <option value="">— content idea —</option>
+                      {ideas.map((i) => (
+                        <option key={i.key} value={i.key}>{i.emoji} {i.title}</option>
+                      ))}
+                    </select>
                   </div>
-                  <select
-                    className={styles.conIdea}
-                    value={m.contentIdeaKey || ""}
-                    onChange={(e) => patchMeta(ev.id, { contentIdeaKey: e.target.value || null })}
-                    aria-label="Content idea"
-                  >
-                    <option value="">— content idea —</option>
-                    {ideas.map((i) => (
-                      <option key={i.key} value={i.key}>{i.emoji} {i.title}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className={styles.conActions}>
-                  {ev._draft ? (
-                    <button className={styles.syncBtn} onClick={() => publishDraft(ev)}>Publish</button>
-                  ) : (
-                    <>
-                      <button className={styles.conToggle} data-on={Boolean(m.suggested)} onClick={() => patchMeta(ev.id, { suggested: !m.suggested })} title="Feature in Julie's Picks">
-                        ⭐ {m.suggested ? "Suggested" : "Suggest"}
-                      </button>
-                      <button className={styles.conToggle} data-on={Boolean(m.hidden)} onClick={() => patchMeta(ev.id, { hidden: !m.hidden })} title="Hide from the viewer feed">
-                        {m.hidden ? "🙈 Hidden" : "👁 Hide"}
-                      </button>
-                      <button
-                        className={styles.conToggle}
-                        data-on={Boolean(m.subscriberExclusive)}
-                        onClick={() => patchMeta(ev.id, { subscriberExclusive: !m.subscriberExclusive })}
-                        title="Tease this to anonymous visitors; show it normally to signed-up viewers"
-                      >
-                        🌟 {m.subscriberExclusive ? "Exclusive" : "Make exclusive"}
-                      </button>
-                      <button
-                        className={styles.conToggle}
-                        data-on={Boolean(m.imageUrl)}
-                        title="Set/override this event's cover photo"
-                        onClick={() => {
-                          setEditingImageId(editingImageId === ev.id ? null : ev.id);
-                          setImageDraft(m.imageUrl || "");
-                        }}
-                      >
-                        🖼 {m.imageUrl ? "Custom photo" : "Cover photo"}
-                      </button>
-                    </>
-                  )}
+                  <div className={styles.conActions}>
+                    {ev._draft ? (
+                      <button className={styles.syncBtn} onClick={() => publishDraft(ev)}>Publish</button>
+                    ) : (
+                      <>
+                        <button className={styles.conToggle} data-on={Boolean(m.suggested)} onClick={() => patchMeta(ev.id, { suggested: !m.suggested })} title="Feature in Julie's Picks">
+                          ⭐ {m.suggested ? "Suggested" : "Suggest"}
+                        </button>
+                        <button className={styles.conToggle} data-on={Boolean(m.hidden)} onClick={() => patchMeta(ev.id, { hidden: !m.hidden })} title="Hide from the viewer feed">
+                          {m.hidden ? "🙈 Hidden" : "👁 Hide"}
+                        </button>
+                        <button
+                          className={styles.conToggle}
+                          data-on={Boolean(m.subscriberExclusive)}
+                          onClick={() => patchMeta(ev.id, { subscriberExclusive: !m.subscriberExclusive })}
+                          title="Tease this to anonymous visitors; show it normally to signed-up viewers"
+                        >
+                          🌟 {m.subscriberExclusive ? "Exclusive" : "Make exclusive"}
+                        </button>
+                        <button
+                          className={styles.conToggle}
+                          data-on={Boolean(m.imageUrl)}
+                          title="Set/override this event's cover photo"
+                          onClick={() => {
+                            setEditingImageId(editingImageId === ev.id ? null : ev.id);
+                            setImageDraft(m.imageUrl || "");
+                          }}
+                        >
+                          🖼 {m.imageUrl ? "Custom photo" : "Cover photo"}
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
                 {/* 21d: per-event cover photo override — falls back to the
                     neighborhood photo (21c) when cleared */}
                 {editingImageId === ev.id && (
-                  <div className={styles.conFormRow} style={{ marginTop: 8, width: "100%" }}>
+                  <div className={styles.conFormRow}>
                     <input
                       className={styles.authInput}
                       placeholder="Cover image URL (blank = use neighborhood fallback)"

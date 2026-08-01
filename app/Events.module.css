@@ -1929,16 +1929,24 @@
 .conMetric b { font-size: 24px; color: var(--ink); margin-top: 2px; }
 .conMetric em { font-style: normal; font-size: 11px; color: var(--ink-soft); }
 .conList { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; max-height: 480px; overflow-y: auto; }
+/* 22-fix: .conRow stacks vertically — the title/idea band, the action pills,
+   and (when open) the cover-photo form each get their OWN full-width row.
+   Previously all three were flex siblings in a single non-wrapping row, so
+   opening the cover-photo form squeezed a third item into that same line
+   instead of appearing below it (the reported overlap/cutoff bug). */
 .conRow {
   display: flex;
+  flex-direction: column;
   gap: 10px;
-  align-items: flex-start;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   padding: 12px;
 }
 .conRow[data-hidden="true"] { opacity: 0.55; }
-.conInfo { flex: 1; min-width: 0; }
+/* the title/idea-select column + the action pills, side by side on wide
+   screens, stacking on narrow ones so the title always gets full width */
+.conRowTop { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+.conInfo { flex: 1 1 200px; min-width: 0; }
 .conTitle { font-weight: 700; font-size: 14px; color: var(--ink); }
 .conMeta { font-size: 12px; color: var(--ink-soft); margin: 2px 0 6px; }
 .conIdea {
@@ -1950,7 +1958,9 @@
   padding: 6px 8px;
   max-width: 220px;
 }
-.conActions { display: flex; flex-direction: column; gap: 6px; }
+/* pills wrap in a row instead of stacking in a tall rigid column — takes
+   less width per pill and never forces the title column to near-zero */
+.conActions { display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; flex: 1 1 240px; min-width: 0; justify-content: flex-end; }
 .conToggle {
   border: 1px solid var(--line);
   background: var(--card-soft);
@@ -1964,8 +1974,9 @@
 }
 .conToggle[data-on="true"] { background: var(--green-soft); border-color: var(--accent-text); color: var(--accent-text); }
 .conForm { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-.conFormRow { display: flex; gap: 8px; }
-.conFormRow > * { flex: 1; }
+.conFormRow { display: flex; gap: 8px; flex-wrap: wrap; }
+.conFormRow input { flex: 1 1 200px; min-width: 0; }
+.conFormRow button { flex: 0 0 auto; }
 .profileTab { border: none; cursor: pointer; }
 
 .perfList { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
