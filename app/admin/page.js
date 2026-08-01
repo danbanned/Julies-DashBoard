@@ -18,11 +18,25 @@ export default async function AdminPage() {
   const admin = await requireAdmin();
   if (!admin) redirect("/login");
 
-  const { events, pastEvents, chips, dropped } = loadEvents();
+  const { events, pastEvents, chips, dropped, perSource, sourceErrors } = loadEvents();
   console.log(
     `[events] upcoming=${events.length} past=${pastEvents.length} dropped:`,
-    JSON.stringify(dropped)
+    JSON.stringify(dropped),
+    "perSource:",
+    JSON.stringify(perSource)
   );
+  // 22d: a source stuck at 0 (and not just having a quiet day) or a file
+  // read/parse error needs to be obvious in logs immediately, not discovered
+  // days later when Julie asks why a feed feels stale.
+  const zeroSources = Object.entries(perSource)
+    .filter(([, count]) => count === 0)
+    .map(([id]) => id);
+  if (zeroSources.length) {
+    console.warn(`[events] ZERO events from source(s): ${zeroSources.join(", ")}`);
+  }
+  if (Object.keys(sourceErrors).length) {
+    console.warn(`[events] SOURCE FILE ERRORS:`, JSON.stringify(sourceErrors));
+  }
 
   // Admin console data (12e) — all real or zero, never fabricated.
   const [counts, meta, ideas, manual, totalViews, weekViews, posts] = await Promise.all([
