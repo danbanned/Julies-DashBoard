@@ -578,7 +578,7 @@
 
 /* ── Scroll containers ── */
 .scrollBox {
-  max-height: 420px;
+  max-height: 800px;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -591,9 +591,9 @@
 }
 
 /* Happening Now is a compact side-section, not the main feed */
-.scrollBox[data-kind="ongoing"] { max-height: 340px; }
+.scrollBox[data-kind="ongoing"] { max-height: 500px; }
 .scrollBox[data-kind="upcoming"] {
-  max-height: 620px;
+  max-height: 900px;
 }
 
 /* ── Event Cards ── */
@@ -1928,7 +1928,7 @@
 .conMetric span { font-size: 12px; font-weight: 700; color: var(--ink-soft); }
 .conMetric b { font-size: 24px; color: var(--ink); margin-top: 2px; }
 .conMetric em { font-style: normal; font-size: 11px; color: var(--ink-soft); }
-.conList { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; max-height: 480px; overflow-y: auto; }
+.conList { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; max-height: 900px; overflow-y: auto; }
 /* 22-fix: .conRow stacks vertically — the title/idea band, the action pills,
    and (when open) the cover-photo form each get their OWN full-width row.
    Previously all three were flex siblings in a single non-wrapping row, so
@@ -3416,5 +3416,5 @@ textarea.authInput {
   .vPhotoTitle { font-size: 44px; }
   .hello h1 { font-size: 32px; }
   .card { grid-template-columns: 150px 64px 1fr; }
-  .scrollBox { max-height: 600px; }
+  .scrollBox { max-height: 1000px; }
 }
