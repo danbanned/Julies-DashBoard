@@ -4,7 +4,7 @@
 // suggest/hide toggles, content-idea tags, drafts, Add New Event, Content
 // Theme Performance (12h), and Family Group Chat posting (12i).
 // Every number is real tracked data or an honest zero.
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import styles from "../app/Events.module.css";
 
 function fmtK(n) {
@@ -22,10 +22,42 @@ export default function AdminConsole({ data }) {
   const [addForm, setAddForm] = useState({ title: "", startDate: "", endDate: "", location: "", neighborhood: "", eventUrl: "", description: "" });
   const [editingImageId, setEditingImageId] = useState(null); // 21d: cover-photo override row being edited
   const [imageDraft, setImageDraft] = useState("");
+  const [uploadingImageId, setUploadingImageId] = useState(null); // 22.1b
+  const imageFileInputRef = useRef(null);
 
   const counts = data.counts || {};
   const ideas = data.ideas || [];
   const published = data.events.filter((e) => !e._draft);
+
+  // 22.1b: cover-photo override via a real file picker (uploads to Vercel
+  // Blob through the existing /api/upload route — same pattern as Family
+  // Chat's cover-image upload in AdminChat.js) instead of only pasting a
+  // URL. Uploading auto-saves and closes the row; the file input is shared
+  // across rows and only ever open for whichever row's form is showing, so
+  // editingImageId is still the right target when this fires.
+  const openImageFilePicker = () => imageFileInputRef.current?.click();
+  const handleImageFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    if (!file || !editingImageId) return;
+    const targetId = editingImageId;
+    try {
+      setUploadingImageId(targetId);
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      patchMeta(targetId, { imageUrl: data.url });
+      setNotice("✅ Cover photo uploaded!");
+      setEditingImageId(null);
+    } catch (err) {
+      console.error(err);
+      setNotice("❌ Failed to upload image.");
+    } finally {
+      setUploadingImageId(null);
+    }
+  };
 
   const patchMeta = (eventId, patch) => {
     setMeta((prev) => ({ ...prev, [eventId]: { eventId, ...prev[eventId], ...patch } }));
@@ -190,13 +222,23 @@ export default function AdminConsole({ data }) {
                     )}
                   </div>
                 </div>
-                {/* 21d: per-event cover photo override — falls back to the
-                    neighborhood photo (21c) when cleared */}
+                {/* 21d/22.1b: per-event cover photo override — falls back to
+                    the neighborhood photo (21c) when cleared. Uploading a
+                    file (primary) auto-saves; pasting a URL (secondary/
+                    fallback) still needs the explicit Save click. */}
                 {editingImageId === ev.id && (
                   <div className={styles.conFormRow}>
+                    <button
+                      className={styles.iconBtn}
+                      onClick={openImageFilePicker}
+                      disabled={uploadingImageId === ev.id}
+                      title="Upload a photo from your device"
+                    >
+                      {uploadingImageId === ev.id ? "⏳" : "📌"}
+                    </button>
                     <input
                       className={styles.authInput}
-                      placeholder="Cover image URL (blank = use neighborhood fallback)"
+                      placeholder="…or paste a cover image URL (blank = use neighborhood fallback)"
                       value={imageDraft}
                       onChange={(e) => setImageDraft(e.target.value)}
                     />
@@ -210,6 +252,15 @@ export default function AdminConsole({ data }) {
             );
           })}
         </div>
+        {/* 22.1b: single shared file input for whichever row's cover-photo
+            form is currently open */}
+        <input
+          ref={imageFileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageFileChange}
+          style={{ display: "none" }}
+        />
 
         <button className={styles.mapBtn} style={{ marginTop: 12 }} onClick={() => setShowAdd((v) => !v)}>
           ＋ Add New Event

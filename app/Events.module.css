@@ -3015,6 +3015,12 @@
   flex: 1;
   min-width: 120px;
 }
+/* 22.1b: the upload icon button in a .conFormRow (cover-photo picker) stays
+   a compact square instead of stretching to the 120px min-width above */
+.conFormRow .iconBtn {
+  flex: 0 0 44px;
+  min-width: 44px;
+}
 .authInput {
   border: 1px solid var(--line);
   border-radius: 12px;

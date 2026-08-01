@@ -39,17 +39,20 @@ export default async function AdminPage() {
   }
 
   // Admin console data (12e) — all real or zero, never fabricated.
-  const [counts, meta, ideas, manual, totalViews, weekViews, posts] = await Promise.all([
+  // 22.1a: "Total Views"/"Engagement" cards must reflect distinct viewers
+  // too, not raw EventView rows, same as viewCountsByEvent() — otherwise a
+  // handful of people refreshing the page would read as a traffic spike.
+  const [counts, meta, ideas, manual, totalViewsRows, weekViewsRows, posts] = await Promise.all([
     viewCountsByEvent(),
     eventMetaMap(),
     contentIdeas(),
     manualEventsAsFeed(true),
-    prisma.eventView.count(),
-    prisma.eventView.count({
-      where: { createdAt: { gte: new Date(Date.now() - 7 * 86400000) } },
-    }),
+    prisma.$queryRaw`SELECT COUNT(DISTINCT COALESCE("viewerId", "anonId")) AS count FROM "EventView"`,
+    prisma.$queryRaw`SELECT COUNT(DISTINCT COALESCE("viewerId", "anonId")) AS count FROM "EventView" WHERE "createdAt" >= ${new Date(Date.now() - 7 * 86400000)}`,
     prisma.post.count(),
   ]);
+  const totalViews = Number(totalViewsRows[0]?.count || 0);
+  const weekViews = Number(weekViewsRows[0]?.count || 0);
 
   const allEvents = applyImageOverrides([...events, ...manual.filter((m) => !m._draft)], meta);
   const consoleData = {
