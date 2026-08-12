@@ -427,6 +427,7 @@ export default function ViewerApp({ events, suggestedIds, ideas, ideaKeyByEvent,
               <button className={styles.iconBtn} aria-label="Close menu" onClick={() => setMenuOpen(false)}>✕</button>
             </div>
             <a className={styles.drawerLink} href="/chat">📬 Weekly Neighborhood Events</a>
+            <a className={styles.drawerLink} href="/work-with-julie">📞 Work with Julie</a>
             {user?.role === "ADMIN" && <a className={styles.drawerLink} href="/admin">🗂 Admin dashboard</a>}
             {user ? (
               <button className={styles.drawerLink} onClick={() => signOut({ callbackUrl: "/" })}>👋 Sign out</button>
