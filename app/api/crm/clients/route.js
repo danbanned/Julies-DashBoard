@@ -11,14 +11,19 @@ export const fetchCache = "force-no-store";
 // no-store response headers so the browser/CDN never caches this PII read
 const NO_CACHE = { "Cache-Control": "no-store, max-age=0, must-revalidate" };
 
-export async function GET() {
+// Phase 25 correction — soft delete. Active views (Today/Clients/dashboard
+// metrics) never see a deleted client; ?deleted=true is the "Recently
+// Deleted" recovery list's own read path, the only place that does.
+export async function GET(req) {
   noStore();
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: "admin only" }, { status: 403 });
 
+  const wantDeleted = new URL(req.url).searchParams.get("deleted") === "true";
   const clients = await prisma.client.findMany({
+    where: wantDeleted ? { deletedAt: { not: null } } : { deletedAt: null },
     include: { tags: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: wantDeleted ? { deletedAt: "desc" } : { createdAt: "desc" },
   });
   const now = new Date();
   const withAction = clients.map((c) => ({ ...c, action: actionability(c, now) }));

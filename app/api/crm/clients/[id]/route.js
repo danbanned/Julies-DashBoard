@@ -1,6 +1,7 @@
 // Client detail + workflow updates (14d). ADMIN ONLY.
 import { NextResponse } from "next/server";
 import { unstable_noStore as noStore } from "next/cache";
+import { cookies } from "next/headers";
 import { prisma } from "../../../../../lib/db";
 import { requireAdmin } from "../../../../../lib/session";
 import { stagesFor, STAGE_LABELS } from "../../../../../lib/crm";
@@ -30,6 +31,8 @@ export async function PATCH(req, { params }) {
   if (!client) return NextResponse.json({ error: "not found" }, { status: 404 });
 
   const data = {};
+  // Phase 25 correction — restores a soft-deleted client (see DELETE below).
+  if (b.restore === true) data.deletedAt = null;
   if (typeof b.pinned === "boolean") data.pinned = b.pinned;
   if (b.markContacted) {
     data.lastReachedOut = new Date();
@@ -124,4 +127,40 @@ export async function PATCH(req, { params }) {
     });
   }
   return NextResponse.json({ ok: true, client: updated });
+}
+
+// Phase 25 — CRM Data Lock: deleting a client is one of the two gated
+// actions (the other is full email/phone PII display, enforced client-side
+// in CrmApp.js).
+//
+// Correction pass — soft delete by default: a misclick on real lead data
+// must be recoverable. This sets deletedAt (excluded from every normal
+// query — see GET /api/crm/clients) rather than removing the row. The
+// "Recently Deleted" recovery view is the only caller that ever passes
+// { permanent: true }, for a deliberate, separately-confirmed forever-purge;
+// ClientNote/CrmNotification cascade on delete (schema) for that path, so it
+// can't orphan rows.
+export async function DELETE(req, { params }) {
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ error: "admin only" }, { status: 403 });
+
+  const user = await prisma.user.findUnique({ where: { id: admin.id }, select: { lockEnabled: true } });
+  if (user?.lockEnabled) {
+    const jar = await cookies();
+    if (!jar.get("crm_unlock")?.value) {
+      return NextResponse.json({ error: "CRM is locked — unlock before deleting a client" }, { status: 403 });
+    }
+  }
+
+  const client = await prisma.client.findUnique({ where: { id: params.id } });
+  if (!client) return NextResponse.json({ error: "not found" }, { status: 404 });
+
+  const b = await req.json().catch(() => ({}));
+  if (b.permanent === true) {
+    await prisma.client.delete({ where: { id: params.id } });
+    return NextResponse.json({ ok: true, permanent: true });
+  }
+
+  await prisma.client.update({ where: { id: params.id }, data: { deletedAt: new Date() } });
+  return NextResponse.json({ ok: true, permanent: false });
 }

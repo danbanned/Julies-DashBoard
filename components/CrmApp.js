@@ -11,7 +11,7 @@ import {
   stagesFor,
   STAGE_LABELS,
   CREDIT_WORDING,
-  ACTIVE_CONTRACT_STAGES,
+  isActiveContract,
 } from "../lib/crm";
 
 const CREDIT_BANDS = [
@@ -68,6 +68,20 @@ function EditableField({ label, value, display, type = "text", options, fullWidt
   );
 }
 
+// Phase 25 — CRM Data Lock: stands in for EditableField on Email/Phone while
+// locked. onUnlock is requireUnlock(...) from the parent — entering the
+// correct password reveals the real field in place, no page change.
+function MaskedField({ label, onUnlock }) {
+  return (
+    <div className={styles.detailGroup}>
+      <span className={styles.detailLabel}>{label}</span>
+      <button type="button" className={styles.detailEditable} onClick={onUnlock} title="CRM is locked">
+        <span className={styles.detailValue}>•••• 🔒</span>
+      </button>
+    </div>
+  );
+}
+
 const fmtDate = (d) =>
   d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—";
 
@@ -91,7 +105,7 @@ function EmailChip({ client }) {
   );
 }
 
-export default function CrmApp() {
+export default function CrmApp({ layoutPref = "column" }) {
   const [view, setView] = useState("today"); // today | clients | add | settings
   const [openId, setOpenId] = useState(null);
   const [resetConfirm, setResetConfirm] = useState("");
@@ -102,6 +116,86 @@ export default function CrmApp() {
   const [bellOpen, setBellOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
+  // Phase 25 — dashboard card filters. Single-select, like typeFilter:
+  // clicking the active card again clears it.
+  const [cardFilter, setCardFilter] = useState(null); // null | priorities | followUps | newLeads | contracts
+
+  // Phase 25 — CRM Data Lock. `unlockPrompt` holds the callback to run once
+  // the right password is entered; the inline prompt (rendered near fb.node)
+  // is generic so any gated action (delete, PII reveal) can reuse it.
+  const [lock, setLock] = useState({ lockEnabled: false, unlocked: false });
+  const [unlockPrompt, setUnlockPrompt] = useState(null); // { password, busy, error, onSuccess } | null
+  const [lockSettings, setLockSettings] = useState({ mode: null, password: "", confirm: "", adminPassword: "", newPassword: "", busy: false, error: "" });
+
+  const refreshLock = useCallback(() => {
+    fetch("/api/crm/lock", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setLock({ lockEnabled: Boolean(d.lockEnabled), unlocked: Boolean(d.unlocked) }))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => { refreshLock(); }, [refreshLock]);
+
+  // Any gated action calls this instead of acting directly. Already-unlocked
+  // (or lock disabled) sessions run `onSuccess` immediately; otherwise it
+  // opens the inline password prompt.
+  const requireUnlock = useCallback((onSuccess) => {
+    if (!lock.lockEnabled || lock.unlocked) { onSuccess(); return; }
+    setUnlockPrompt({ password: "", busy: false, error: "", onSuccess });
+  }, [lock]);
+
+  async function submitUnlockPrompt() {
+    if (!unlockPrompt) return;
+    setUnlockPrompt((p) => ({ ...p, busy: true, error: "" }));
+    const res = await fetch("/api/crm/lock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "unlock", password: unlockPrompt.password }),
+    });
+    const d = await res.json();
+    if (!res.ok) {
+      setUnlockPrompt((p) => ({ ...p, busy: false, error: d.error || "Wrong password." }));
+      return;
+    }
+    setLock((l) => ({ ...l, unlocked: true }));
+    const onSuccess = unlockPrompt.onSuccess;
+    setUnlockPrompt(null);
+    onSuccess();
+  }
+
+  function relock() {
+    fetch("/api/crm/lock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "relock" }),
+    }).then(() => setLock((l) => ({ ...l, unlocked: false })));
+  }
+
+  async function submitLockSettings() {
+    const { mode, password, confirm, adminPassword, newPassword } = lockSettings;
+    if (mode === "setup" && password !== confirm) {
+      setLockSettings((s) => ({ ...s, error: "Passwords don't match." }));
+      return;
+    }
+    setLockSettings((s) => ({ ...s, busy: true, error: "" }));
+    const body =
+      mode === "setup" ? { action: "setup", password } :
+      mode === "disable" ? { action: "disable", password } :
+      { action: "reset", adminPassword, newLockPassword: newPassword };
+    const res = await fetch("/api/crm/lock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const d = await res.json();
+    if (!res.ok) {
+      setLockSettings((s) => ({ ...s, busy: false, error: d.error || "Something went wrong." }));
+      return;
+    }
+    setLock({ lockEnabled: d.lockEnabled ?? true, unlocked: Boolean(d.unlocked) });
+    setLockSettings({ mode: null, password: "", confirm: "", adminPassword: "", newPassword: "", busy: false, error: "" });
+    fb.fireToast(mode === "disable" ? "Data Lock disabled" : mode === "setup" ? "Data Lock enabled" : "Lock password reset");
+  }
   const [notice, setNotice] = useState("");
   const fb = useSaveFeedback();
   const [noteDraft, setNoteDraft] = useState({ body: "", remindAt: "" });
@@ -156,19 +250,74 @@ export default function CrmApp() {
     [loadClients, loadNotif, fb]
   );
 
+  // Phase 25 — CRM Data Lock's other gated action (besides PII display).
+  // requireUnlock() runs this immediately if already unlocked/lock disabled,
+  // otherwise prompts first. Correction pass: soft delete — the client moves
+  // to Recently Deleted, recoverable, not gone.
+  function deleteClient(id, name) {
+    requireUnlock(async () => {
+      const res = await fetch(`/api/crm/clients/${id}`, { method: "DELETE" });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { setNotice(d.error || "Couldn't delete client."); return; }
+      setOpenId(null);
+      setDetail(null);
+      setView("clients");
+      loadClients();
+      fb.fireToast(`${name} moved to Recently Deleted`);
+    });
+  }
+
+  const [trash, setTrash] = useState(null);
+  const loadTrash = useCallback(() => {
+    fetch("/api/crm/clients?deleted=true", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setTrash(d.clients || []))
+      .catch(() => setTrash([]));
+  }, []);
+  useEffect(() => { loadTrash(); }, [loadTrash]);
+
+  function restoreClient(id, name) {
+    fetch(`/api/crm/clients/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ restore: true }),
+    }).then(async (res) => {
+      if (!res.ok) { setNotice("Couldn't restore client."); return; }
+      loadTrash();
+      loadClients();
+      fb.fireToast(`${name} restored`);
+    });
+  }
+
+  function purgeClient(id, name) {
+    requireUnlock(async () => {
+      const res = await fetch(`/api/crm/clients/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ permanent: true }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { setNotice(d.error || "Couldn't permanently delete client."); return; }
+      loadTrash();
+      fb.fireToast(`${name} permanently deleted`);
+    });
+  }
+
   // ---- metrics (all real; zero when empty) ----
+  // Phase 25: newLeads/contracts now match the confirmed card-filter
+  // definitions exactly (was source==="FORM"&&!lastReachedOut / buyer-only)
+  // so the displayed count always matches what clicking the card filters to.
   const metrics = useMemo(() => {
     const list = clients || [];
     const now = new Date();
     return {
       priorities: list.filter((c) => c.action?.score > 0).length,
       followUps: list.filter((c) => c.followUpDue && new Date(c.followUpDue) <= now).length,
-      newLeads: list.filter((c) => c.source === "FORM" && !c.lastReachedOut).length,
-      contracts: list.filter(
-        (c) => c.clientType === "BUYER" && ACTIVE_CONTRACT_STAGES.includes(c.stage)
-      ).length,
+      newLeads: list.filter((c) => c.stage === "NEW").length,
+      contracts: list.filter(isActiveContract).length,
     };
   }, [clients]);
+
 
   const queue = useMemo(
     () =>
@@ -205,8 +354,15 @@ export default function CrmApp() {
     if (typeFilter !== "ALL") list = list.filter((c) => c.clientType === typeFilter);
     const q = search.trim().toLowerCase();
     if (q) list = list.filter((c) => `${c.name} ${c.neighborhoods.join(" ")}`.toLowerCase().includes(q));
+    // Phase 25 — dashboard card filter, AND'd with the above (combinable, not
+    // a full-page replace).
+    const now = new Date();
+    if (cardFilter === "priorities") list = list.filter((c) => c.action?.score > 0);
+    else if (cardFilter === "followUps") list = list.filter((c) => c.followUpDue && new Date(c.followUpDue) <= now);
+    else if (cardFilter === "newLeads") list = list.filter((c) => c.stage === "NEW");
+    else if (cardFilter === "contracts") list = list.filter(isActiveContract);
     return list;
-  }, [clients, typeFilter, search]);
+  }, [clients, typeFilter, search, cardFilter]);
 
   async function submitAdd() {
     if (!add.name.trim()) {
@@ -344,17 +500,6 @@ export default function CrmApp() {
         </div>
       </header>
 
-      {/* real metric cards — mockup style, honest numbers.
-          15b: DASHBOARD ONLY — never on the individual profile view. */}
-      {!openId && (
-        <div className={styles.conMetrics} data-cols="4">
-          <div className={styles.conMetric}><span>⭐ My Priorities</span><b>{clients ? metrics.priorities : "…"}</b><em>need action</em></div>
-          <div className={styles.conMetric}><span>🗓 Follow-ups</span><b>{clients ? metrics.followUps : "…"}</b><em>due now</em></div>
-          <div className={styles.conMetric}><span>👤 New Leads</span><b>{clients ? metrics.newLeads : "…"}</b><em>never contacted</em></div>
-          <div className={styles.conMetric}><span>💼 Active Contracts</span><b>{clients ? metrics.contracts : "…"}</b><em>buyers in play</em></div>
-        </div>
-      )}
-
       {notice && <p className={styles.calNotice}>{notice}</p>}
 
        {/* ---------- PROFILE (redesigned to match mockup) ---------- */}
@@ -367,6 +512,21 @@ export default function CrmApp() {
             >
               ‹ {detail ? detail.name : "Back to clients"}
             </button>
+            {/* Phase 25 — CRM Data Lock's other gated action */}
+            {detail && (
+              <button
+                type="button"
+                className={styles.pbDeleteSection}
+                style={{ float: "right", margin: "12px 16px 0 0" }}
+                onClick={() => {
+                  if (window.confirm(`Delete ${detail.name}? They'll move to Recently Deleted and can be restored later.`)) {
+                    deleteClient(detail.id, detail.name);
+                  }
+                }}
+              >
+                🗑 Delete client
+              </button>
+            )}
             {!detail ? (
               <p className={styles.calBlurb} style={{ padding: 24 }}>Loading…</p>
             ) : (
@@ -454,8 +614,10 @@ export default function CrmApp() {
                   ))}
                 </div>
 
-                {/* TWO-COLUMN LAYOUT: NOTES & REMINDERS | DETAILS */}
-                <div className={styles.crmTwoCol}>
+                {/* TWO-COLUMN LAYOUT: NOTES & REMINDERS | DETAILS — this IS
+                    "The Desk"; data-jw-layout="column" collapses it to one
+                    column (see .crmTwoCol in Events.module.css). */}
+                <div className={styles.crmTwoCol} data-jw-layout={layoutPref}>
                   {/* LEFT: Notes & Reminders */}
                   <div className={styles.crmNotesCol}>
                     <h4 className={styles.colTitle}>🗒 Notes & Reminders</h4>
@@ -522,10 +684,18 @@ export default function CrmApp() {
                         options={[{ key: "RENTER", label: "Renter" }, { key: "BUYER", label: "Buyer" }]}
                         display={detail.clientType === "BUYER" ? "Buyer" : "Renter"}
                         onSave={(v) => patchClient(detail.id, { clientType: v }, "Client type saved")} />
-                      <EditableField label="Email" type="email" value={detail.email}
-                        onSave={(v) => patchClient(detail.id, { email: v, emailIsReal: Boolean(v.trim()) }, "Email saved")} />
-                      <EditableField label="Phone" type="tel" value={detail.phone}
-                        onSave={(v) => patchClient(detail.id, { phone: v }, "Phone saved")} />
+                      {lock.lockEnabled && !lock.unlocked ? (
+                        <MaskedField label="Email" onUnlock={() => requireUnlock(() => {})} />
+                      ) : (
+                        <EditableField label="Email" type="email" value={detail.email}
+                          onSave={(v) => patchClient(detail.id, { email: v, emailIsReal: Boolean(v.trim()) }, "Email saved")} />
+                      )}
+                      {lock.lockEnabled && !lock.unlocked ? (
+                        <MaskedField label="Phone" onUnlock={() => requireUnlock(() => {})} />
+                      ) : (
+                        <EditableField label="Phone" type="tel" value={detail.phone}
+                          onSave={(v) => patchClient(detail.id, { phone: v }, "Phone saved")} />
+                      )}
                       <EditableField label="Partners" value={detail.partners}
                         onSave={(v) => patchClient(detail.id, { partners: v }, "Saved")} />
                       <EditableField label="Household" value={detail.whoLiving}
@@ -666,7 +836,7 @@ export default function CrmApp() {
 
       {/* ---------------- today ---------------- */}
       {!openId && view === "today" && (
-       <>
+       <div className={styles.crmDesk} data-jw-layout={layoutPref}>
         {/* Lead Pipeline strip (15d) — real counts across the funnel */}
         <div className={styles.panel}>
           <div className={styles.panelHead}><h2>🔻 Lead Pipeline</h2></div>
@@ -733,7 +903,7 @@ export default function CrmApp() {
             ))
           )}
         </div>
-       </>
+       </div>
       )}
 
       {/* ---------------- clients ---------------- */}
@@ -748,6 +918,26 @@ export default function CrmApp() {
               </button>
             ))}
           </div>
+
+          {/* Phase 25 — quick filters, own section right under Renter/Buyer.
+              Combinable with the search box and the Renter/Buyer chip above
+              (AND'd, not a replace — see filteredClients). Same card again
+              clears it. */}
+          <div className={styles.conMetrics} data-cols="4">
+            <button type="button" className={styles.conMetric} data-active={cardFilter === "priorities"} onClick={() => setCardFilter((p) => (p === "priorities" ? null : "priorities"))}>
+              <span>⭐ My Priorities</span><b>{clients ? metrics.priorities : "…"}</b><em>need action</em>
+            </button>
+            <button type="button" className={styles.conMetric} data-active={cardFilter === "followUps"} onClick={() => setCardFilter((p) => (p === "followUps" ? null : "followUps"))}>
+              <span>🗓 Follow-ups</span><b>{clients ? metrics.followUps : "…"}</b><em>due now</em>
+            </button>
+            <button type="button" className={styles.conMetric} data-active={cardFilter === "newLeads"} onClick={() => setCardFilter((p) => (p === "newLeads" ? null : "newLeads"))}>
+              <span>👤 New Leads</span><b>{clients ? metrics.newLeads : "…"}</b><em>never contacted</em>
+            </button>
+            <button type="button" className={styles.conMetric} data-active={cardFilter === "contracts"} onClick={() => setCardFilter((p) => (p === "contracts" ? null : "contracts"))}>
+              <span>💼 Active Contracts</span><b>{clients ? metrics.contracts : "…"}</b><em>in late-stage pipeline</em>
+            </button>
+          </div>
+
           {clients === null ? (
             <p className={styles.calBlurb}>Loading…</p>
           ) : filteredClients.length === 0 ? (
@@ -817,10 +1007,51 @@ export default function CrmApp() {
         </div>
       )}
 
+      {/* ---------------- recently deleted (Phase 25 soft-delete recovery) ---------------- */}
+      {!openId && view === "trash" && (
+        <div className={styles.panel}>
+          <div className={styles.panelHead}><h2>🗑 Recently Deleted {trash ? `(${trash.length})` : ""}</h2></div>
+          <p className={styles.calBlurb}>
+            Deleted clients land here instead of being removed right away — restore them
+            anytime, or delete forever if you're sure.
+          </p>
+          {trash === null ? (
+            <p className={styles.calBlurb}>Loading…</p>
+          ) : trash.length === 0 ? (
+            <div className={styles.empty}><h3>Nothing here</h3><p>Deleted clients will show up in this list.</p></div>
+          ) : (
+            trash.map((c) => (
+              <div key={c.id} className={styles.savedRow}>
+                <div className={styles.savedInfo}>
+                  <div className={styles.savedTitle}>{c.name}</div>
+                  <div className={styles.savedMeta}>
+                    {[c.clientType === "BUYER" ? "Buyer" : "Renter", c.neighborhoods.slice(0, 2).join(", ")].filter(Boolean).join(" · ")}
+                  </div>
+                </div>
+                <div className={styles.savedActions}>
+                  <button className={styles.gcalLink} onClick={() => restoreClient(c.id, c.name)}>↩ Restore</button>
+                  <button
+                    className={styles.pbDeleteSection}
+                    onClick={() => {
+                      if (window.confirm(`Permanently delete ${c.name}? This really can't be undone.`)) purgeClient(c.id, c.name);
+                    }}
+                  >
+                    Delete forever
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
       {/* ---------------- settings (15e reset) ---------------- */}
       {!openId && view === "settings" && (
         <div className={styles.panel}>
-          <div className={styles.panelHead}><h2>⚙ CRM Settings</h2></div>
+          <div className={styles.panelHead}>
+            <h2>⚙ CRM Settings</h2>
+            <button className={styles.gcalLink} onClick={() => setView("trash")}>🗑 Recently Deleted{trash?.length ? ` (${trash.length})` : ""}</button>
+          </div>
           <div className={styles.resetBox}>
             <h3>Reset CRM data</h3>
             <p className={styles.calBlurb}>
@@ -865,6 +1096,89 @@ export default function CrmApp() {
               </button>
             </div>
           </div>
+
+          {/* Phase 25 — CRM Data Lock. Separate secret from Julie's real admin
+              login (see app/api/crm/lock/route.js) — gates deleting a client
+              and viewing full email/phone on a profile, nothing else. */}
+          <div className={styles.resetBox}>
+            <h3>🔒 CRM Data Lock</h3>
+            <p className={styles.calBlurb}>
+              {lock.lockEnabled
+                ? lock.unlocked
+                  ? "Enabled — unlocked for this session."
+                  : "Enabled — locked. Deleting a client and viewing full email/phone require the lock password."
+                : "Off. Turn on to require a separate password before deleting a client or viewing full contact info."}
+            </p>
+
+            {lockSettings.mode === null && (
+              <div className={styles.conFormRow}>
+                {!lock.lockEnabled && (
+                  <button className={styles.syncBtn} onClick={() => setLockSettings((s) => ({ ...s, mode: "setup" }))}>
+                    Enable Data Lock
+                  </button>
+                )}
+                {lock.lockEnabled && !lock.unlocked && (
+                  <>
+                    <button className={styles.syncBtn} onClick={() => requireUnlock(() => {})}>Unlock</button>
+                    <button className={styles.gcalLink} onClick={() => setLockSettings((s) => ({ ...s, mode: "forgot" }))}>Forgot lock password?</button>
+                  </>
+                )}
+                {lock.lockEnabled && lock.unlocked && (
+                  <>
+                    <button className={styles.gcalLink} onClick={relock}>🔒 Re-lock now</button>
+                    <button className={styles.pbDeleteSection} onClick={() => setLockSettings((s) => ({ ...s, mode: "disable" }))}>Disable Data Lock</button>
+                  </>
+                )}
+              </div>
+            )}
+
+            {lockSettings.mode === "setup" && (
+              <div className={styles.conForm}>
+                <input className={styles.authInput} type="password" placeholder="New lock password" value={lockSettings.password}
+                  onChange={(e) => setLockSettings((s) => ({ ...s, password: e.target.value }))} />
+                <input className={styles.authInput} type="password" placeholder="Confirm password" value={lockSettings.confirm}
+                  onChange={(e) => setLockSettings((s) => ({ ...s, confirm: e.target.value }))} />
+                {lockSettings.error && <p className={styles.calNotice}>{lockSettings.error}</p>}
+                <div className={styles.conFormRow}>
+                  <button className={styles.syncBtn} disabled={lockSettings.busy} onClick={submitLockSettings}>
+                    {lockSettings.busy ? "Saving…" : "Save"}
+                  </button>
+                  <button className={styles.gcalLink} onClick={() => setLockSettings({ mode: null, password: "", confirm: "", adminPassword: "", newPassword: "", busy: false, error: "" })}>Cancel</button>
+                </div>
+              </div>
+            )}
+
+            {lockSettings.mode === "disable" && (
+              <div className={styles.conForm}>
+                <input className={styles.authInput} type="password" placeholder="Current lock password" value={lockSettings.password}
+                  onChange={(e) => setLockSettings((s) => ({ ...s, password: e.target.value }))} />
+                {lockSettings.error && <p className={styles.calNotice}>{lockSettings.error}</p>}
+                <div className={styles.conFormRow}>
+                  <button className={styles.pbDeleteSection} disabled={lockSettings.busy} onClick={submitLockSettings}>
+                    {lockSettings.busy ? "Disabling…" : "Confirm disable"}
+                  </button>
+                  <button className={styles.gcalLink} onClick={() => setLockSettings({ mode: null, password: "", confirm: "", adminPassword: "", newPassword: "", busy: false, error: "" })}>Cancel</button>
+                </div>
+              </div>
+            )}
+
+            {lockSettings.mode === "forgot" && (
+              <div className={styles.conForm}>
+                <p className={styles.calBlurb}>Enter your real admin login password to set a new lock password.</p>
+                <input className={styles.authInput} type="password" placeholder="Your admin login password" value={lockSettings.adminPassword}
+                  onChange={(e) => setLockSettings((s) => ({ ...s, adminPassword: e.target.value }))} />
+                <input className={styles.authInput} type="password" placeholder="New lock password" value={lockSettings.newPassword}
+                  onChange={(e) => setLockSettings((s) => ({ ...s, newPassword: e.target.value }))} />
+                {lockSettings.error && <p className={styles.calNotice}>{lockSettings.error}</p>}
+                <div className={styles.conFormRow}>
+                  <button className={styles.syncBtn} disabled={lockSettings.busy} onClick={submitLockSettings}>
+                    {lockSettings.busy ? "Saving…" : "Reset lock password"}
+                  </button>
+                  <button className={styles.gcalLink} onClick={() => setLockSettings({ mode: null, password: "", confirm: "", adminPassword: "", newPassword: "", busy: false, error: "" })}>Cancel</button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -885,6 +1199,35 @@ export default function CrmApp() {
         </button>
         {/* eslint-enable @next/next/no-img-element */}
       </nav>
+
+      {/* Phase 25 — CRM Data Lock's inline unlock prompt, shared by every
+          gated action (delete, PII reveal, or the Settings "Unlock" button). */}
+      {unlockPrompt && (
+        <>
+          <div className={styles.bellScrim} onClick={() => setUnlockPrompt(null)} />
+          <div className={styles.pbModal}>
+            <h3 style={{ marginBottom: 10 }}>🔒 CRM is locked</h3>
+            <p className={styles.calBlurb}>Enter the Data Lock password to continue.</p>
+            <input
+              className={styles.authInput}
+              type="password"
+              autoFocus
+              placeholder="Lock password"
+              value={unlockPrompt.password}
+              onChange={(e) => setUnlockPrompt((p) => ({ ...p, password: e.target.value }))}
+              onKeyDown={(e) => { if (e.key === "Enter") submitUnlockPrompt(); if (e.key === "Escape") setUnlockPrompt(null); }}
+            />
+            {unlockPrompt.error && <p className={styles.calNotice}>{unlockPrompt.error}</p>}
+            <div className={styles.conFormRow} style={{ marginTop: 10 }}>
+              <button className={styles.syncBtn} disabled={unlockPrompt.busy} onClick={submitUnlockPrompt}>
+                {unlockPrompt.busy ? "Checking…" : "Unlock"}
+              </button>
+              <button className={styles.gcalLink} onClick={() => setUnlockPrompt(null)}>Cancel</button>
+            </div>
+          </div>
+        </>
+      )}
+
       {fb.node}
     </div>
   );
