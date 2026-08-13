@@ -2,9 +2,11 @@
 // anonymous visitors and viewers; Julie's dashboard lives at /admin.
 // Only public data crosses this boundary: events, picks, content ideas,
 // view counts. No admin/private data is loaded here at all.
+import { cookies } from "next/headers";
 import ViewerApp from "../components/ViewerApp";
 import { loadEvents } from "../lib/loadEvents";
 import { sessionUser } from "../lib/session";
+import { LAYOUT_OPTIONS } from "../lib/config";
 import {
   viewCountsByEvent,
   eventMetaMap,
@@ -48,6 +50,11 @@ export default async function ViewerPage() {
   const remappedCounts = {};
   for (const [id, n] of Object.entries(counts)) remappedCounts[remapId(id)] = n;
 
+  const layoutValues = LAYOUT_OPTIONS.map((o) => o.value);
+  const jar = await cookies();
+  const cookieLayout = jar.get("jw_layout")?.value;
+  const layoutPref = layoutValues.includes(cookieLayout) ? cookieLayout : "column";
+
   return (
     <ViewerApp
       events={visible}
@@ -56,6 +63,7 @@ export default async function ViewerPage() {
       ideaKeyByEvent={ideaKeyByEvent}
       counts={remappedCounts}
       user={user ? { id: user.id, name: user.name, role: user.role } : null}
+      layoutPref={layoutPref}
     />
   );
 }

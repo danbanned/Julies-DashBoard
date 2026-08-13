@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import styles from "../app/Events.module.css";
 import { useSaveFeedback } from "./Feedback";
+import FeaturedHero from "./FeaturedHero";
 
 // Julie's in-app planning calendar (8g): events she added via 📅 live here
 // until she pushes them to Google Calendar (8e). Simple month grid — clean,
@@ -49,6 +50,18 @@ export default function CalendarView({
   });
   const [busyId, setBusyId] = useState(null);
   const [notice, setNotice] = useState(initialNotice);
+  const [highlightIso, setHighlightIso] = useState(null);
+  const gridRef = useRef(null);
+
+  // Jump the grid to the clicked event's month and highlight its date —
+  // the calendar navigates to the event, not just "the event exists in the list".
+  function viewInCalendar(eventStartDate) {
+    if (!eventStartDate) return;
+    const [y2, m2] = eventStartDate.split("-").map(Number);
+    setMonth(new Date(y2, m2 - 1, 1));
+    setHighlightIso(eventStartDate);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   const planned = useMemo(
     () =>
@@ -119,10 +132,12 @@ export default function CalendarView({
   }
 
   return (
-    <div className={styles.panel}>
-      <div className={styles.panelHead}>
-        <h2>📆 My Calendar</h2>
-      </div>
+    <>
+      <FeaturedHero title="📆 My Calendar" subtitle="Plan ahead. See what's coming up." />
+      <div className={styles.panel}>
+        <div className={styles.panelHead}>
+          <h2>📆 My Calendar</h2>
+        </div>
       <p className={styles.calBlurb}>
         {showGoogle
           ? "Events you plan with 📅 land here first. Push them to Google Calendar when you're ready."
@@ -151,7 +166,7 @@ export default function CalendarView({
         <button className={styles.calNavBtn} onClick={() => setMonth(new Date(y, mo + 1, 1))}>›</button>
       </div>
 
-      <div className={styles.calGrid}>
+      <div className={styles.calGrid} ref={gridRef}>
         {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
           <span key={i} className={styles.calDow}>{d}</span>
         ))}
@@ -159,7 +174,7 @@ export default function CalendarView({
           d === null ? (
             <span key={`x${i}`} />
           ) : (
-            <div key={d} className={styles.calCell} data-has={Boolean(byDate[iso(d)])}>
+            <div key={d} className={styles.calCell} data-has={Boolean(byDate[iso(d)])} data-highlight={iso(d) === highlightIso}>
               <span className={styles.calDay}>{d}</span>
               {(byDate[iso(d)] || []).slice(0, 2).map((r) => (
                 <span key={r.eventId} className={styles.calChip} title={r.eventTitle}>
@@ -222,6 +237,13 @@ export default function CalendarView({
                 </div>
               </div>
               <div className={styles.savedActions}>
+                <button
+                  className={styles.gcalLink}
+                  title="Jump the calendar to this event's date"
+                  onClick={() => viewInCalendar(r.eventStartDate)}
+                >
+                  📆 View
+                </button>
                 {editable && (
                   <button
                     className={styles.gcalLink}
@@ -253,6 +275,7 @@ export default function CalendarView({
         )}
       </div>
       {fb.node}
-    </div>
+      </div>
+    </>
   );
 }

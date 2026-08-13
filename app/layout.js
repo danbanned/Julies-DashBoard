@@ -1,4 +1,6 @@
 import { Playfair_Display, Inter } from "next/font/google";
+import { cookies } from "next/headers";
+import { THEME_OPTIONS, SEASON_OPTIONS } from "../lib/config";
 import "./globals.css";
 
 // Phase 20 typography: Playfair Display (headings) + Inter (body/UI), loaded
@@ -43,9 +45,26 @@ export const viewport = {
   themeColor: "#1A1A1A",
 };
 
-export default function RootLayout({ children }) {
+// Phase 24 — Theme/Seasonal read from cookies (jw_theme/jw_season), the SSR
+// path that also works for anonymous visitors (no session lookup needed).
+// data-jw-theme / data-jw-season are set here since this is the one place
+// both ViewerApp and the admin surfaces (CrmApp, PlaybookApp, EventsSection)
+// share — Layout (data-jw-layout) is different: it's applied per-surface,
+// see components/CrmApp.js.
+export default async function RootLayout({ children }) {
+  const jar = await cookies();
+  const themeValues = THEME_OPTIONS.map((o) => o.value);
+  const seasonValues = SEASON_OPTIONS.map((o) => o.value);
+  const theme = themeValues.includes(jar.get("jw_theme")?.value) ? jar.get("jw_theme").value : "original";
+  const season = seasonValues.includes(jar.get("jw_season")?.value) ? jar.get("jw_season").value : "off";
+
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
+    <html
+      lang="en"
+      className={`${playfair.variable} ${inter.variable}`}
+      data-jw-theme={theme}
+      data-jw-season={season}
+    >
       <body>{children}</body>
     </html>
   );

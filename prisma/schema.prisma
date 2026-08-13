@@ -41,6 +41,29 @@ model User {
   googleRefreshToken String?
   googleAccessToken  String?
   googleTokenExpiry  DateTime?
+
+  // Phase 24: Settings — Account/Layout/Theme/Seasonal prefs. Cookies are the
+  // SSR read path (works for anonymous visitors too); these persist the same
+  // values for signed-in users across devices.
+  phone      String?
+  themePref  String  @default("original") // original | ledger | trailhead
+  layoutPref String  @default("column")   // full | column | desk | cards | fixed-nav | hidden-nav | featured-image
+  seasonPref String  @default("off")      // off | spring | summer | fall | winter
+
+  // Phase 25 — CRM Data Lock. A separate secret from passwordHash above (real
+  // admin login) so compromising one never compromises the other. Session
+  // unlock is tracked via the crm_unlock cookie (app/api/crm/lock/route.js),
+  // not a DB field — nothing here says whether THIS session is unlocked.
+  lockPasswordHash String?
+  lockEnabled      Boolean @default(false)
+}
+
+// Single global-config row (not per-user) — currently just the Daily Streak
+// card's admin-replaceable background image, which otherwise defaults to
+// lib/config.js's weekly rotation (weeklyStreakImage()).
+model SiteSetting {
+  id             String  @id @default("singleton")
+  streakImageUrl String?
 }
 
 // One row per (user, event): Julie's relationship to a feed event. The feed
@@ -272,6 +295,11 @@ model Client {
   rawSource Json? // original ingested row, for audit/debug
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Phase 25 correction — soft delete. Set instead of removing the row so a
+  // misclick on real lead data is recoverable; null = active/visible
+  // everywhere. Indefinite recovery window, manual only — no auto-purge cron.
+  deletedAt DateTime?
 
   tags          Tag[]
   clientNotes   ClientNote[]

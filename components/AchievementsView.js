@@ -2,6 +2,7 @@
 
 import styles from "../app/Events.module.css";
 import { ACHIEVEMENT_DEFS } from "../lib/achievementDefs";
+import FeaturedHero from "./FeaturedHero";
 
 function weekLabel(weekStart) {
   const [y, m, d] = weekStart.split("-").map(Number);
@@ -17,6 +18,8 @@ export default function AchievementsView({ achievements }) {
   const byKey = Object.fromEntries(week.map((r) => [r.key, r]));
 
   return (
+    <>
+    <FeaturedHero title="🏅 Badges" subtitle="What you've earned, week by week." />
     <div className={styles.panel}>
       <div className={styles.panelHead}>
         <h2>🏆 This Week</h2>
@@ -83,5 +86,6 @@ export default function AchievementsView({ achievements }) {
         </div>
       )}
     </div>
+    </>
   );
 }

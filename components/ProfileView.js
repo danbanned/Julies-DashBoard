@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "../app/Events.module.css";
+import FeaturedHero from "./FeaturedHero";
 
 // Profile (8f) — for now one tab: Saved Events, read from the DB via the
 // interactions map. Rows render from the DB snapshot so they still work
@@ -11,9 +12,12 @@ export default function ProfileView({ interactions, act }) {
     .sort((a, b) => String(a.eventStartDate || "").localeCompare(String(b.eventStartDate || "")));
 
   return (
+    <>
+    <FeaturedHero title="👤 Profile" subtitle="Your saved events, all in one place." />
     <div className={styles.panel}>
       <div className={styles.panelHead}>
         <h2>👤 Profile</h2>
+        <a className={styles.gcalLink} href="/settings">⚙️ Settings</a>
       </div>
       <div className={styles.profileTabs}>
         <span className={styles.profileTab} data-active="true">🔖 Saved Events</span>
@@ -65,5 +69,6 @@ export default function ProfileView({ interactions, act }) {
         </div>
       )}
     </div>
+    </>
   );
 }

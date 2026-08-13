@@ -43,13 +43,26 @@
   --red-fill: #994f42;
   --amber-fill: #996c3f;
 
-  --radius: 18px;
+  /* Phase 24 — Theme geometry scale. Named tiers replace what used to be
+     ad-hoc per-declaration radius/shadow numbers scattered through
+     Events.module.css; "original" (the default, formerly informally
+     "Cream & Clay") is the :root baseline below — html[data-jw-theme="..."]
+     blocks further down override only these tokens, never colors. Theme and
+     Layout (data-jw-layout) must never read each other's state. */
+  --radius-xs: 8px;
   --radius-sm: 14px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-pill: 999px;
+  /* kept for any pre-Phase-24 reference still in flight */
+  --radius: var(--radius-md);
   /* Flat by default (Phase 20 removes heavy drop shadows) — surfaces rely on
      the --line border instead. The one exception (center nav "+" button)
-     uses --shadow-float, defined below, not this. */
+     uses --shadow-md, defined below, not this. */
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 10px 24px -6px rgba(0, 0, 0, 0.55);
   --shadow: none;
-  --shadow-float: 0 10px 24px -6px rgba(0, 0, 0, 0.55);
+  --shadow-float: var(--shadow-md);
 
   --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
   --font-body: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -60,6 +73,10 @@
      target ratio later; until then this is a single constant to tweak, not a
      layout rebuild. */
   --fallback-ratio: 4 / 5;
+
+  /* Phase 24 — "The Column" layout, formalized. Desk (admin/CRM only) lives
+     in Events.module.css's .crmTwoCol / data-jw-layout rules instead. */
+  --content-max: 760px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -100,3 +117,60 @@ body { background: var(--navy-900); }
 /* thin scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: var(--navy-600); border-radius: 8px; }
+
+/* ---------------------------------------------------------------------------
+   Phase 24 — Theme presets. Geometry only, never color — html[data-jw-theme]
+   overrides just the --radius and --shadow tokens above. "original" needs no
+   block; it IS the :root baseline.
+   --------------------------------------------------------------------------- */
+html[data-jw-theme="ledger"] {
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 10px;
+  --shadow-md: var(--shadow-sm);
+}
+html[data-jw-theme="trailhead"] {
+  --radius-xs: 12px;
+  --radius-sm: 20px;
+  --radius-md: 24px;
+  --radius-lg: 34px;
+  --shadow-md: 0 14px 30px -8px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------------------------------------------------------------------------
+   Correction pass — Seasonal Aesthetic now DOES change accent color
+   (reverses the original Phase 24 rule that button color stay constant).
+   The dark charcoal --navy-900 base is NEVER touched here — only the accent
+   trio (--purple/--purple-soft/--accent-text) that buttons/badges/pills
+   already reference throughout Events.module.css, so no component CSS needs
+   editing. Values reuse this file's own already dark-theme-tuned color
+   families (--green/--amber/--red/--blue) rather than the light-mockup's
+   literal hex values, which would not read correctly on #1a1a1a.
+   --------------------------------------------------------------------------- */
+html[data-jw-season="spring"] {
+  /* closest to today's actual default accent — easiest to harmonize */
+  --purple: #3e5f46;
+  --purple-soft: rgba(62, 95, 70, 0.18);
+  --accent-text: #8fbf9f;
+}
+html[data-jw-season="summer"] {
+  --purple: #cf9c5e;
+  --purple-soft: rgba(207, 156, 94, 0.18);
+  --accent-text: #e8c98f;
+}
+html[data-jw-season="fall"] {
+  --purple: #994f42;
+  --purple-soft: rgba(204, 120, 103, 0.18);
+  --accent-text: #e0a394;
+}
+html[data-jw-season="winter"] {
+  --purple: #7fa39c;
+  --purple-soft: rgba(127, 163, 156, 0.18);
+  --accent-text: #bcdcd6;
+}
+
+/* Seasonal Aesthetic's photo now displays inside the Featured Image layout's
+   Home hero instead of a standalone overlay — see .vPhotoHero rules in
+   Events.module.css (correction pass retired the old .seasonalLayer div). */

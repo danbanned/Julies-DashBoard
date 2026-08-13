@@ -15,6 +15,7 @@ import { signOut } from "next-auth/react";
 import styles from "../app/Events.module.css";
 import EventsMap, { hasMapsKey } from "./EventsMap";
 import CalendarView from "./CalendarView";
+import WalkwayRail from "./WalkwayRail";
 
 function fmtViews(n) {
   if (!n) return null;
@@ -228,7 +229,7 @@ function ViewerCard({ ev, count, row, act, user, onOpen, onTag, activeTags }) {
   );
 }
 
-export default function ViewerApp({ events, suggestedIds, ideas, ideaKeyByEvent, counts, user }) {
+export default function ViewerApp({ events, suggestedIds, ideas, ideaKeyByEvent, counts, user, layoutPref = "column" }) {
   const [sort, setSort] = useState("soonest");
   const [showDates, setShowDates] = useState(false);
   const [range, setRange] = useState("all");
@@ -236,6 +237,7 @@ export default function ViewerApp({ events, suggestedIds, ideas, ideaKeyByEvent,
   const [ideaFilter, setIdeaFilter] = useState(null);
   const [view, setView] = useState("home"); 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [inter, setInter] = useState({});
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState("All");
@@ -398,7 +400,10 @@ export default function ViewerApp({ events, suggestedIds, ideas, ideaKeyByEvent,
   );
 
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} data-jw-layout={layoutPref}>
+      {/* Phase 24 — "The Walkway": desktop-only (>=1024px), hidden via CSS
+          below that width — mobile bottom nav/drawer below are unaffected. */}
+      <WalkwayRail user={user} view={view} setView={setView} />
       {/* header band */}
       {/* eslint-disable @next/next/no-img-element */}
       <header className={styles.vHeader}>
@@ -434,17 +439,41 @@ export default function ViewerApp({ events, suggestedIds, ideas, ideaKeyByEvent,
             ) : (
               <a className={styles.drawerLink} href="/login">👤 Sign in</a>
             )}
-            <h4>About App</h4>
-            <p>
-              Julie&apos;s Event surfaces the best of Philadelphia — Fairmount,
-              Brewerytown and beyond. Local events, curated by Julie, synced
-              fresh every morning.
-            </p>
-            <p className={styles.credits}>
-              <a target="_blank" rel="noopener noreferrer" href="https://icons8.com/icon/pVlzUsxgdINd/camper">Camper</a>
-              {" "}icon by{" "}
-              <a target="_blank" rel="noopener noreferrer" href="https://icons8.com">Icons8</a>
-            </p>
+            {/* eslint-disable @next/next/no-img-element */}
+            <div className={styles.socialRow}>
+              <a className={styles.socialLink} href="https://www.instagram.com/julietoursphilly/" target="_blank" rel="noopener noreferrer" aria-label="Julie on Threads">
+                <img src="/icons/threads.png" alt="Threads" />
+              </a>
+              <a className={styles.socialLink} href="https://www.instagram.com/julietoursphilly/" target="_blank" rel="noopener noreferrer" aria-label="Julie on Instagram">
+                <img src="/icons/instagram.png" alt="Instagram" />
+              </a>
+              <a className={styles.socialLink} href="https://www.julietoursphilly.com/" target="_blank" rel="noopener noreferrer" aria-label="Julie's website">
+                <img src="/icons/website.png" alt="Website" />
+              </a>
+            </div>
+            {/* eslint-enable @next/next/no-img-element */}
+            <button
+              className={styles.pastToggle}
+              onClick={() => setAboutOpen((v) => !v)}
+              aria-expanded={aboutOpen}
+            >
+              <h4>About App</h4>
+              <span className={styles.pastChev} data-open={aboutOpen}>›</span>
+            </button>
+            {aboutOpen && (
+              <>
+                <p>
+                  Julie&apos;s Event surfaces the best of Philadelphia — Fairmount,
+                  Brewerytown and beyond. Local events, curated by Julie, synced
+                  fresh every morning.
+                </p>
+                <p className={styles.credits}>
+                  <a target="_blank" rel="noopener noreferrer" href="https://icons8.com/icon/pVlzUsxgdINd/camper">Camper</a>
+                  {" "}icon by{" "}
+                  <a target="_blank" rel="noopener noreferrer" href="https://icons8.com">Icons8</a>
+                </p>
+              </>
+            )}
           </aside>
         </div>
       )}
@@ -720,7 +749,10 @@ export default function ViewerApp({ events, suggestedIds, ideas, ideaKeyByEvent,
         {view === "profile" && (
           <div className={styles.viewContainer}>
             <section className={styles.panel}>
-              <div className={styles.panelHead}><h2>👤 Profile</h2></div>
+              <div className={styles.panelHead}>
+                <h2>👤 Profile</h2>
+                <a className={styles.gcalLink} href="/settings">⚙️ Settings</a>
+              </div>
               {user ? (
                 <div className={styles.empty}>
                   <h3>{user.name}</h3>

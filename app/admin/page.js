@@ -1,5 +1,6 @@
 // Julie's private dashboard (12b) — ADMIN only, enforced server-side.
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import EventsSection from "../../components/EventsSection";
 import { loadEvents } from "../../lib/loadEvents";
 import { requireAdmin } from "../../lib/session";
@@ -11,6 +12,7 @@ import {
   applyImageOverrides,
 } from "../../lib/platform";
 import { prisma } from "../../lib/db";
+import { LAYOUT_OPTIONS } from "../../lib/config";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +44,7 @@ export default async function AdminPage() {
   // 22.1a: "Total Views"/"Engagement" cards must reflect distinct viewers
   // too, not raw EventView rows, same as viewCountsByEvent() — otherwise a
   // handful of people refreshing the page would read as a traffic spike.
-  const [counts, meta, ideas, manual, totalViewsRows, weekViewsRows, posts] = await Promise.all([
+  const [counts, meta, ideas, manual, totalViewsRows, weekViewsRows, posts, siteSetting] = await Promise.all([
     viewCountsByEvent(),
     eventMetaMap(),
     contentIdeas(),
@@ -50,7 +52,21 @@ export default async function AdminPage() {
     prisma.$queryRaw`SELECT COUNT(DISTINCT COALESCE("viewerId", "anonId")) AS count FROM "EventView"`,
     prisma.$queryRaw`SELECT COUNT(DISTINCT COALESCE("viewerId", "anonId")) AS count FROM "EventView" WHERE "createdAt" >= ${new Date(Date.now() - 7 * 86400000)}`,
     prisma.post.count(),
+    prisma.siteSetting.findUnique({ where: { id: "singleton" } }),
   ]);
+
+  // Layout (data-jw-layout) is per-surface — same DB-first/cookie-fallback
+  // pattern as app/admin/crm/page.js, so Julie's saved choice (e.g. Featured
+  // Image) persists across devices for her main dashboard too.
+  const layoutValues = LAYOUT_OPTIONS.map((o) => o.value);
+  const dbLayoutUser = await prisma.user.findUnique({ where: { id: admin.id }, select: { layoutPref: true } });
+  const jar = await cookies();
+  const cookieLayout = jar.get("jw_layout")?.value;
+  const layoutPref = layoutValues.includes(dbLayoutUser?.layoutPref)
+    ? dbLayoutUser.layoutPref
+    : layoutValues.includes(cookieLayout)
+      ? cookieLayout
+      : "column";
   const totalViews = Number(totalViewsRows[0]?.count || 0);
   const weekViews = Number(weekViewsRows[0]?.count || 0);
 
@@ -78,6 +94,8 @@ export default async function AdminPage() {
         pastEvents={pastEvents}
         chips={chips}
         consoleData={consoleData}
+        streakImageUrl={siteSetting?.streakImageUrl || null}
+        layoutPref={layoutPref}
       />
     </>
   );

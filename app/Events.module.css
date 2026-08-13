@@ -65,7 +65,7 @@
   width: 44px;
   height: 44px;
   border: 1px solid var(--line);
-  border-radius: 13px;
+  border-radius: var(--radius-sm);
   background: var(--card);
   color: var(--ink);
   font-size: 18px;
@@ -95,7 +95,7 @@
   color: #fff;
   font-size: 11px;
   font-weight: 800;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 .hello {
   text-align: center;
@@ -125,13 +125,24 @@
   width: 39px;
   height: 39px;
   border-radius: 50%;
-  border: 2px solid var(--line);
+  /* was var(--line) (#313131) — nearly invisible against the dark charcoal
+     canvas; brightened for real contrast. */
+  border: 2px solid var(--ink-soft);
+  background: var(--card-soft);
   display: grid;
   place-items: center;
   transition: transform 0.12s, border-color 0.12s;
 }
 .socialLink:hover { transform: translateY(-1px); border-color: var(--accent-text); }
-.socialLink img { width: 18px; height: 18px; display: block; }
+.socialLink img {
+  width: 18px;
+  height: 18px;
+  display: block;
+  /* these icons are solid black line-art on transparent PNGs — invisible on
+     a dark canvas without this. Inverts black -> white; transparency is
+     preserved. */
+  filter: invert(1);
+}
 
 /* ---------- auth pages (12a) ---------- */
 .authShell {
@@ -158,7 +169,7 @@
 .authForm { display: flex; flex-direction: column; gap: 10px; }
 .authInput {
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   background: var(--card);
   color: var(--ink);
   padding: 12px 14px;
@@ -167,7 +178,7 @@
 .authInput:focus { outline: 2px solid var(--purple); border-color: var(--accent-text); }
 .authBtn {
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   background: var(--purple);
   color: #fff;
   font-weight: 700;
@@ -346,13 +357,13 @@
   height: 8px;
   margin: 6px 0 4px;
   background: var(--card-soft);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 .progressFill {
   height: 100%;
   background: linear-gradient(90deg, var(--purple), #9f7bff);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 .progressCount { display: block; text-align: right; font-weight: 700; }
 .levelRing {
@@ -379,7 +390,7 @@
 }
 .levelRing :hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-md);
 }
 .levelNum { font-size: 13px; font-weight: 800; color: var(--ink); }
 .levelName { font-size: 9px; font-weight: 700; color: var(--ink-soft); line-height: 1.2; }
@@ -387,6 +398,7 @@
 
 .streakCard {
   /* weekly-rotating photo set inline by the component; scrim keeps text legible */
+  position: relative;
   background-color: var(--navy-800);
   background-size: cover;
   background-position: center;
@@ -397,6 +409,27 @@
   display: flex;
   flex-direction: column;
   text-shadow: 0 1px 8px rgba(20, 15, 10, 0.45);
+}
+/* Confirmed, deliberate exception to the general "no hover-only edit
+   controls" rule — hover-revealed by design for this one component only. */
+.streakEditBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+.streakCard:hover .streakEditBtn,
+.streakEditBtn:focus-visible {
+  opacity: 1;
 }
 .streakCard h2 {
   font-family: var(--font-display);
@@ -455,7 +488,7 @@
   color: var(--ink-soft);
   min-height: 30px; /* comfortable tap target on mobile */
   padding: 6px 11px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -477,7 +510,7 @@
   opacity: 0.75;
   background: rgba(255, 255, 255, 0.08);
   padding: 1px 7px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 .chip[data-active="true"] .chipCount { background: rgba(255, 255, 255, 0.2); }
 
@@ -497,7 +530,7 @@
   flex: 0 0 auto;
   min-height: 32px;
   padding: 0 14px;
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   border: 1px solid transparent;
   background: var(--card-soft, #f5f3f0);
   color: var(--ink-soft, #6b5f4f);
@@ -527,7 +560,7 @@
   margin-left: auto;
   min-height: 34px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--card);
   color: var(--ink);
   font-size: 12.5px;
@@ -561,7 +594,7 @@
 }
 .pastCount {
   background: var(--card-soft, #f0edeb);
-  border-radius: 40px;
+  border-radius: var(--radius-lg);
   padding: 2px 12px;
   font-size: 13px;
   font-weight: 500;
@@ -594,7 +627,7 @@
 }
 .scrollBox::-webkit-scrollbar-thumb {
   background: var(--line);
-  border-radius: 20px;
+  border-radius: var(--radius-md);
 }
 
 /* Happening Now is a compact side-section, not the main feed */
@@ -612,14 +645,14 @@
 }
 .wCard {
   background: var(--card);
-  border-radius: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
   border: 1px solid var(--line, #eae4dd);
   overflow: hidden;
   transition: box-shadow 0.2s;
 }
 .wCard:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-md);
 }
 .wMain {
   display: grid;
@@ -674,7 +707,7 @@
   color: #fff;
   font-size: 10px;
   padding: 2px 8px;
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   backdrop-filter: blur(2px);
 }
 .wDateBlock {
@@ -714,7 +747,7 @@
 }
 .wPriority {
   padding: 0 10px;
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   text-transform: uppercase;
   letter-spacing: 0.4px;
   color: #fff;
@@ -762,7 +795,7 @@
 }
 .wTags .tag {
   background: var(--card-soft, #f0edeb);
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   padding: 0 10px;
   font-size: 10px;
   font-weight: 500;
@@ -792,7 +825,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   transition: all 0.15s;
 }
 .wActBtn[data-on="true"] {
@@ -820,7 +853,7 @@
 .card[data-link="false"] { cursor: default; }
 .card[data-link="true"]:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px -14px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-md);
   border-color: var(--line);
 }
 /* genuinely-new events keep a visible signal in date order (10c) */
@@ -866,7 +899,7 @@
   text-transform: uppercase;
   color: #fff;
   padding: 4px 9px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 .badge[data-p="high"] { background: var(--red-fill); }
 .badge[data-p="medium"] { background: var(--amber-fill); }
@@ -880,7 +913,7 @@
   font-size: 10px;
   font-weight: 800;
   padding: 4px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 
 /* stacked date column, colored by priority — like the mockup's MAY / 18 / SAT */
@@ -946,7 +979,7 @@
   font-size: 11px;
   font-weight: 600;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--card-soft);
   color: var(--ink-soft);
 }
@@ -1020,7 +1053,7 @@
   color: #fff;
   min-height: 44px;
   padding: 10px 14px;
-  border-radius: 13px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -1046,7 +1079,7 @@
 .ovCount {
   font-weight: 800;
   background: var(--card-soft);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 3px 12px;
   font-size: 14px;
 }
@@ -1084,7 +1117,7 @@
   align-items: center;
   gap: 6px;
   text-align: center;
-  box-shadow: 0 8px 18px -12px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-md);
 }
 .achieveItem[data-locked="true"] { opacity: 0.55; }
 .achieveIcon {
@@ -1118,7 +1151,7 @@
   /* Phase 20: solid flat charcoal nav — no blur/translucency */
   background: var(--navy-800);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-float);
 }
 .navItem {
@@ -1134,7 +1167,7 @@
   cursor: pointer;
   min-height: 44px;
 }
-.navItem span { font-size: 19px; line-height: 1; padding: 6px 14px; border-radius: 12px; display: grid; place-items: center; }
+.navItem span { font-size: 19px; line-height: 1; padding: 6px 14px; border-radius: var(--radius-sm); display: grid; place-items: center; }
 .navItem[data-active="true"] { color: #fff; }
 .navItem[data-active="true"] span { background: var(--purple); }
 /* Icons8 hand-drawn PNGs are dark ink — invert to read on the dark nav bar */
@@ -1175,7 +1208,7 @@
   height: 34px;
   min-width: 34px;
   min-height: 34px;
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   border: 1px solid var(--line);
   background: var(--card-soft);
   color: var(--ink-soft);
@@ -1198,7 +1231,7 @@
   font-size: 13px;
   font-weight: 700;
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--card-soft);
   color: var(--ink-soft);
 }
@@ -1225,7 +1258,7 @@
   font-size: 12px;
   font-weight: 700;
   padding: 9px 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -1267,7 +1300,7 @@
   font-size: 13px;
   font-weight: 600;
   padding: 9px 16px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
 }
 /* footer for the push button */
@@ -1277,7 +1310,7 @@
   display: flex;
   justify-content: center;
   background: var(--card-soft, #f8f6f4);
-  border-radius: 0 0 16px 16px;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
 }
 /* "Enable notifications" prompt inside the notification dropdown footer */
 .pushInline {
@@ -1287,7 +1320,7 @@
   font-size: 13px;
   font-weight: 600;
   padding: 8px 16px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
 }
 .pushInline:disabled { opacity: 0.6; cursor: default; }
@@ -1325,7 +1358,7 @@
   background: var(--navy-800);
   border: 1px solid var(--line);
   color: var(--ink);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 10px 18px;
   font-size: 13px;
   font-weight: 600;
@@ -1436,7 +1469,7 @@
 .subForm { display: flex; flex-direction: column; gap: 12px; }
 .subEmailLocked { font-size: 13px; color: var(--ink-soft); }
 .subHoods { display: flex; flex-wrap: wrap; gap: 8px; }
-.subPending { font-size: 12px; color: var(--amber); background: var(--amber-soft); border-radius: 8px; padding: 8px 10px; }
+.subPending { font-size: 12px; color: var(--amber); background: var(--amber-soft); border-radius: var(--radius-xs); padding: 8px 10px; }
 
 /* ---------- in-app calendar (8g) ---------- */
 .calBlurb { font-size: 13px; color: var(--ink-soft); margin: 4px 0 12px; }
@@ -1445,7 +1478,7 @@
   width: 36px;
   height: 36px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   background: var(--card);
   color: var(--ink);
   font-size: 18px;
@@ -1461,11 +1494,13 @@
 .calCell {
   min-height: 52px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   padding: 3px 4px;
   overflow: hidden;
 }
 .calCell[data-has="true"] { border-color: var(--accent-text); background: var(--purple-soft); }
+/* "View in calendar" target — a clicked event's date, until another is clicked */
+.calCell[data-highlight="true"] { border-width: 2px; border-color: var(--purple); box-shadow: 0 0 0 2px var(--purple-soft); }
 .calDay { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
 .calChip {
   display: block;
@@ -1477,7 +1512,7 @@
   text-overflow: ellipsis;
 }
 .calMore { font-size: 9px; color: var(--ink-soft); }
-.calNotice { font-size: 13px; color: var(--ink); background: var(--card-soft); border-radius: 10px; padding: 10px 12px; margin-top: 12px; }
+.calNotice { font-size: 13px; color: var(--ink); background: var(--card-soft); border-radius: var(--radius-xs); padding: 10px 12px; margin-top: 12px; }
 
 /* ---------- achievements view (8i — calm, habit-tracker style) ---------- */
 .weekList { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
@@ -1489,13 +1524,20 @@
   border-radius: var(--radius-sm);
   padding: 12px 14px;
 }
-.weekRow[data-earned="true"] { border-color: var(--accent-text); background: var(--green-soft); }
+/* Correction pass: was --green/--green-soft (the generic "success/done"
+   tint used elsewhere for unrelated states like calendar's "good" notice or
+   CRM's "done" pipeline step — left untouched deliberately, since recoloring
+   that globally per season would confuse those unrelated meanings). Badges'
+   own progress fill + earned-state highlight use --purple/--purple-soft
+   instead, the actual season-controlled accent, so seasonal colors now
+   visibly show here too. */
+.weekRow[data-earned="true"] { border-color: var(--accent-text); background: var(--purple-soft); }
 .weekIcon { font-size: 20px; }
 .weekInfo { flex: 1; min-width: 0; }
 .weekLabel { font-weight: 700; font-size: 14px; color: var(--ink); }
 .weekDesc { font-size: 12px; color: var(--ink-soft); margin: 1px 0 6px; }
-.weekTrack { height: 6px; background: var(--card-soft); border-radius: 999px; overflow: hidden; }
-.weekFill { height: 100%; background: var(--green); border-radius: 999px; }
+.weekTrack { height: 6px; background: var(--card-soft); border-radius: var(--radius-pill); overflow: hidden; }
+.weekFill { height: 100%; background: var(--purple); border-radius: var(--radius-pill); }
 .weekStatus { font-weight: 800; font-size: 14px; color: var(--ink-soft); }
 .weekRow[data-earned="true"] .weekStatus { color: var(--accent-text); }
 .historyList { display: flex; flex-direction: column; margin-top: 8px; }
@@ -1605,7 +1647,7 @@
   text-decoration: none;
   padding: 12px 8px;
   margin: 0 -8px;
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   border-bottom: 1px solid var(--line);
 }
 .drawerLink:hover,
@@ -1625,7 +1667,7 @@
 .signOutBtn {
   width: 100%;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   background: var(--card);
   color: var(--red);
   font-size: 14px;
@@ -1713,7 +1755,7 @@
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: flex-end;
-  border-radius: 0 0 20px 20px;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
 }
 .evHeroInner {
   width: 100%;
@@ -1741,7 +1783,7 @@
   flex: 1 0 auto;
   min-height: 40px;
   padding: 0 16px;
-  border-radius: 40px;
+  border-radius: var(--radius-lg);
   border: 1px solid rgba(255,255,255,0.4);
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(4px);
@@ -1755,7 +1797,7 @@
 .evPill[data-active="true"] {
   background: var(--purple);
   border-color: var(--accent-text);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .evHeroInner { width: 100%; padding: 20px 16px 18px; }
@@ -1774,7 +1816,7 @@
 .evPill {
   flex: 1;
   min-height: 44px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid rgba(255, 255, 255, 0.55);
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
@@ -1790,7 +1832,7 @@
   width: 100%;
   padding: 10px 16px 10px 44px;
   border: 1px solid var(--line, #eae4dd);
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23a6a6a6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") no-repeat 16px center;
   background-size: 18px;
   font-size: 14px;
@@ -1831,7 +1873,7 @@
 .vHeroActions { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
 .vExplore {
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--purple);
   color: #fff;
   font-weight: 700;
@@ -1849,7 +1891,7 @@
   background: var(--card);
   color: var(--ink-soft);
   min-height: 44px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -1866,7 +1908,7 @@
   color: inherit;
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.vCard:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -14px rgba(0, 0, 0, 0.5); }
+.vCard:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .vThumb { position: relative; height: 150px; background: var(--card-soft); }
 .vThumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -1958,7 +2000,7 @@
 .conMeta { font-size: 12px; color: var(--ink-soft); margin: 2px 0 6px; }
 .conIdea {
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: var(--radius-xs);
   background: var(--card);
   color: var(--ink);
   font-size: 12px;
@@ -1972,7 +2014,7 @@
   border: 1px solid var(--line);
   background: var(--card-soft);
   color: var(--ink-soft);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: 12px;
   font-weight: 700;
   padding: 7px 12px;
@@ -1989,8 +2031,8 @@
 .perfList { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
 .perfRow { display: grid; grid-template-columns: 150px 1fr 48px; gap: 10px; align-items: center; }
 .perfLabel { font-size: 13px; font-weight: 600; color: var(--ink); }
-.perfTrack { height: 8px; border-radius: 999px; background: var(--card-soft); overflow: hidden; }
-.perfFill { height: 100%; border-radius: 999px; background: var(--purple); }
+.perfTrack { height: 8px; border-radius: var(--radius-pill); background: var(--card-soft); overflow: hidden; }
+.perfFill { height: 100%; border-radius: var(--radius-pill); background: var(--purple); }
 .perfCount { font-size: 12px; font-weight: 800; color: var(--ink-soft); text-align: right; }
 
 /* ---------- family group chat (12i) ---------- */
@@ -2041,7 +2083,7 @@
   color: var(--ink);
   margin: 10px auto -25px auto;   /* -25px pulls the composer up to overlap */
   padding: 9px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   /* hug the text and center it; never wider than the screen on mobile */
   width: fit-content;
   max-width: 100%;
@@ -2053,7 +2095,7 @@
 .chatComposer {
   background: var(--card, #fffdf9);
   border: 1px solid var(--line, #eae4dd);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 12px;
 }
 
@@ -2070,7 +2112,7 @@
 }
 .composerInputs .authInput {
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   background: var(--card-soft);
   padding: 10px 14px;
   font-size: 14px;
@@ -2107,7 +2149,7 @@
   font-weight: 700;
   color: var(--ink);
   cursor: pointer;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   transition: background 0.15s, color 0.15s;
 }
 .chatTabs button:hover {
@@ -2126,7 +2168,7 @@
 .typeChip {
   flex: 0 0 auto;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--card);
   color: var(--ink);
   font-size: 13px;
@@ -2145,7 +2187,7 @@
   letter-spacing: 0.4px;
   text-transform: uppercase;
   padding: 3px 9px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   margin-bottom: 6px;
   background: var(--green-soft);
   color: var(--accent-text);
@@ -2164,9 +2206,9 @@
 .postCard {
   background: var(--card, #fffdf9);
   border: 1px solid var(--line, #eae4dd);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-sm);
 }
 .postHeader {
   display: flex;
@@ -2182,7 +2224,7 @@
   font-size: 15px;
   cursor: pointer;
   padding: 6px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   opacity: 0.6;
   transition: opacity 0.12s, background 0.12s, color 0.12s;
 }
@@ -2215,7 +2257,7 @@
   font-size: 11px;
   font-weight: 700;
   padding: 0 10px;
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   line-height: 22px;
 }
 .postTime {
@@ -2236,7 +2278,7 @@
   margin: 0 0 10px;
 }
 .postImage {
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   margin: 8px 0 12px;
 }
@@ -2253,7 +2295,7 @@
 }
 .postTags .tag {
   background: var(--card-soft, #f0edeb);
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   padding: 0 12px;
   font-size: 11px;
   font-weight: 600;
@@ -2276,7 +2318,7 @@
   margin-top: 12px;
   padding: 12px;
   background: var(--card-soft);
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
 }
 .feedbackTitle {
   display: flex;
@@ -2310,7 +2352,7 @@
   gap: 6px;
   border: 1px solid var(--line);
   background: var(--card);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 12px 8px;
   font-size: 11.5px;
   font-weight: 600;
@@ -2349,7 +2391,7 @@
   margin-top: 12px;
   padding: 12px;
   background: var(--card-soft, #f8f6f4);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   border-left: 4px solid var(--purple);
 }
 .adminNote > span {
@@ -2372,7 +2414,7 @@
 .remindBtn {
   background: none;
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   padding: 4px 14px;
   font-size: 12px;
   font-weight: 600;
@@ -2421,7 +2463,7 @@
 .resetBox h3 { color: var(--red); font-family: var(--font-display); font-size: 17px; margin-bottom: 6px; }
 .resetBtn {
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   background: var(--red-fill);
   color: #fff;
   font-weight: 700;
@@ -2474,7 +2516,7 @@
 .conMetrics[data-cols="4"] { grid-template-columns: repeat(2, 1fr); }
 @media (min-width: 720px) {
   .conMetrics[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
-  .crmBanner { margin: -32px -24px 18px; border-radius: 0 0 22px 22px; overflow: hidden; }
+  .crmBanner { margin: -32px -24px 18px; border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden; }
 }
 .crmRow {
   display: flex;
@@ -2498,7 +2540,7 @@
   text-transform: uppercase;
   background: var(--purple-soft);
   color: var(--accent-text);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 2px 8px;
 }
 .queueCard {
@@ -2517,7 +2559,7 @@
   font-weight: 700;
   color: var(--red);
   background: var(--red-soft);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 3px 9px;
 }
 .crmActions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
@@ -2529,7 +2571,7 @@
   color: var(--ink-soft);
   background: var(--card-soft);
   border: 1px dashed var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   padding: 8px 12px;
   white-space: nowrap;
 }
@@ -2551,7 +2593,7 @@
   color: var(--ink-soft);
   font-size: 12px;
   font-weight: 700;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 7px 12px;
   cursor: pointer;
 }
@@ -2576,7 +2618,7 @@
   background: var(--card);
   backdrop-filter: blur(4px);
   border: 1px solid rgba(0,0,0,0.06);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-md);
 }
 .bellBadge {
   position: absolute;
@@ -2588,7 +2630,7 @@
   font-weight: 800;
   min-width: 20px;
   height: 20px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2610,10 +2652,17 @@
 .conMetric {
   background: var(--card, #fff);
   border: 1px solid var(--line, #eae4dd);
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
   padding: 14px 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-sm);
+  /* Phase 25: these are now buttons (dashboard card filters) — reset the
+     browser's default button chrome/alignment. */
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
 }
+.conMetric[data-active="true"] { border-color: var(--accent-text); background: var(--purple-soft); }
 .conMetric span {
   display: block;
   font-size: 12px;
@@ -2648,8 +2697,8 @@
   width: min(340px, calc(100vw - 24px));
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: 0 20px 48px -12px rgba(0,0,0,0.25);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
 }
 .notifHead {
@@ -2728,7 +2777,7 @@
   padding: 0;
 }
 .panel .crmProfile {
-  border-radius: 16px;
+  border-radius: var(--radius-md);
 }
 
 /* header card */
@@ -2781,7 +2830,7 @@
   background: var(--purple-soft, #ede5f3);
   color: var(--accent-text);
   padding: 0 12px;
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 700;
   line-height: 24px;
@@ -2795,7 +2844,7 @@
   background: var(--red-soft, #fce8e6);
   color: var(--red, #b33a34);
   padding: 0 12px;
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 700;
   line-height: 24px;
@@ -2808,7 +2857,7 @@
 }
 .profileTags .tag {
   background: var(--card-soft, #f0edeb);
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   padding: 0 10px;
   font-size: 11px;
   font-weight: 500;
@@ -2860,7 +2909,7 @@
 .step {
   flex: 0 0 auto;
   padding: 6px 16px;
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--line);
   background: var(--card);
   color: var(--ink-soft);
@@ -2887,20 +2936,8 @@
   transform: translateY(-1px);
 }
 
-/* two‑column layout (Notes | Details) */
-.crmTwoCol {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 20px;
-  padding: 20px;
-}
-@media (max-width: 768px) {
-  .crmTwoCol {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-}
-
+/* two‑column layout (Notes | Details) — see the consolidated .crmTwoCol
+   definition further down (Phase 24 removed this duplicate). */
 
 .crmNotesCol .savedMeta {
   font-size: 14px;
@@ -2959,7 +2996,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   background: var(--card-soft);
   color: var(--ink-soft);
   font-size: 13px;
@@ -2969,7 +3006,7 @@
 }
 .syncBtn {
   border: none;
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   background: var(--purple, #6b4f8c);
   color: #fff;
   font-weight: 700;
@@ -2992,7 +3029,7 @@
   border: 1px solid var(--line);
   background: var(--card);
   color: var(--ink-soft);
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   font-size: 13px;
   font-weight: 600;
   padding: 6px 16px;
@@ -3030,7 +3067,7 @@
 }
 .authInput {
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   background: var(--card);
   color: var(--ink);
   padding: 10px 14px;
@@ -3066,7 +3103,7 @@ textarea.authInput {
 /* ---------- Today queue ---------- */
 .queueCard {
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
   padding: 14px;
   margin-bottom: 12px;
   background: var(--card);
@@ -3091,7 +3128,7 @@ textarea.authInput {
   font-size: 12px;
   font-weight: 600;
   padding: 2px 10px;
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   display: inline-block;
 }
 
@@ -3113,7 +3150,7 @@ textarea.authInput {
   background: var(--card-soft, #f8f6f4);
   margin: 0 -12px;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
 }
 .crmRow .savedTitle {
   display: flex;
@@ -3127,7 +3164,7 @@ textarea.authInput {
   font-size: 11px;
   font-weight: 700;
   padding: 0 10px;
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   line-height: 22px;
 }
 .pastChev {
@@ -3152,7 +3189,7 @@ textarea.authInput {
 }
 .tag {
   background: var(--card-soft);
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   padding: 0 10px;
   font-size: 11px;
   font-weight: 500;
@@ -3169,7 +3206,7 @@ textarea.authInput {
 }
 .navItem[data-active="true"] span {
   background: var(--purple);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
 }
 .navImg {
   width: 24px;
@@ -3195,7 +3232,7 @@ textarea.authInput {
 }
 .calNotice {
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   background: var(--purple-soft, #ede5f3);
   color: var(--accent-text);
   margin-bottom: 12px;
@@ -3211,13 +3248,24 @@ textarea.authInput {
   font-size: 14px;
 }
 
-/* ---------- two‑column layout ---------- */
+/* ---------- two‑column layout ("The Desk") ---------- */
+/* Phase 24: data-jw-layout="desk" (default look, unchanged) is the 2-col
+   grid below; data-jw-layout="column" collapses it to one column — same
+   rule the <768px breakpoint already used, now also a Layout choice. */
 .crmTwoCol {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
   gap: 20px;
   padding: 20px;
   position: relative; /* optional, for future use */
+}
+.crmTwoCol[data-jw-layout="column"] {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+.crmTwoCol[data-jw-layout="column"] .crmNotesCol {
+  border-right: none;
+  padding-right: 0;
 }
 
 @media (max-width: 768px) {
@@ -3230,6 +3278,20 @@ textarea.authInput {
     border-right: none !important;
     padding-right: 0 !important;
   }
+}
+
+/* Phase 24 — "The Desk" for the CRM Dashboard ("Today") view: the Lead
+   Pipeline strip + Top Clients queue, currently two stacked .panel blocks,
+   become a 2-column grid. data-jw-layout="column" keeps today's stacked
+   default. */
+.crmDesk[data-jw-layout="desk"] {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .crmDesk[data-jw-layout="desk"] { grid-template-columns: 1fr; }
 }
 
 /* ----- LEFT COLUMN (Notes & Reminders) ----- */
@@ -3277,7 +3339,7 @@ textarea.authInput {
   font: inherit;
   padding: 2px 4px;
   margin: -2px -4px;
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   max-width: 62%;
   text-align: right;
@@ -3289,8 +3351,8 @@ textarea.authInput {
 .detailEditable:hover .detailPencil { opacity: 0.7; }
 .detailEditRow { display: flex; align-items: center; gap: 6px; flex: 1 1 auto; min-width: 0; justify-content: flex-end; }
 .detailEditRow .authInput { flex: 1 1 auto; min-width: 0; padding: 6px 8px; font-size: 13px; }
-.detailSaveBtn { flex: 0 0 auto; border: none; background: var(--purple); color: #fff; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
-.detailCancelBtn { flex: 0 0 auto; border: 1px solid var(--line); background: var(--card); color: var(--ink-soft); font-size: 12px; padding: 6px 9px; border-radius: 8px; cursor: pointer; }
+.detailSaveBtn { flex: 0 0 auto; border: none; background: var(--purple); color: #fff; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: var(--radius-xs); cursor: pointer; }
+.detailCancelBtn { flex: 0 0 auto; border: 1px solid var(--line); background: var(--card); color: var(--ink-soft); font-size: 12px; padding: 6px 9px; border-radius: var(--radius-xs); cursor: pointer; }
 .crmDoneRow { display: flex; justify-content: flex-end; margin-top: 16px; }
 .crmDoneRow .syncBtn { font-size: 14px; padding: 10px 26px; }
 
@@ -3301,9 +3363,9 @@ textarea.authInput {
 .pbSub { color: var(--ink-soft); font-size: 13px; margin-top: 4px; }
 .pbTabs { display: flex; align-items: center; gap: 8px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: none; }
 .pbTabs::-webkit-scrollbar { display: none; }
-.pbTab { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); font-size: 13px; font-weight: 700; padding: 9px 18px; cursor: pointer; transition: background 0.15s, color 0.15s; }
+.pbTab { flex: 0 0 auto; border: 1px solid var(--line); border-radius: var(--radius-pill); background: var(--card); color: var(--ink); font-size: 13px; font-weight: 700; padding: 9px 18px; cursor: pointer; transition: background 0.15s, color 0.15s; }
 .pbTab[data-active="true"] { background: var(--purple); border-color: var(--accent-text); color: #fff; }
-.pbExport { flex: 0 0 auto; margin-left: auto; font-size: 13px; font-weight: 700; color: #fff; text-decoration: none; padding: 9px 16px; white-space: nowrap; background: var(--purple); border-radius: 999px; }
+.pbExport { flex: 0 0 auto; margin-left: auto; font-size: 13px; font-weight: 700; color: #fff; text-decoration: none; padding: 9px 16px; white-space: nowrap; background: var(--purple); border-radius: var(--radius-pill); }
 .pbSectionTitle { font-family: var(--font-display); font-size: 22px; color: var(--ink); margin: 14px 0 10px; }
 .pbPillarGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 @media (min-width: 720px) { .pbPillarGrid { grid-template-columns: repeat(4, 1fr); } }
@@ -3313,7 +3375,7 @@ textarea.authInput {
 .pbPillarLink:hover { color: var(--accent-text); }
 .pbEmptyLink { font-size: 12px; color: var(--ink-soft); opacity: 0.6; }
 /* idea count: one uniform pill across every pillar (no more alternating tints) */
-.pbCount { margin-top: auto; align-self: stretch; text-align: center; background: var(--purple-soft); color: var(--accent-text); font-size: 12px; font-weight: 800; padding: 6px 10px; border-radius: 999px; }
+.pbCount { margin-top: auto; align-self: stretch; text-align: center; background: var(--purple-soft); color: var(--accent-text); font-size: 12px; font-weight: 800; padding: 6px 10px; border-radius: var(--radius-pill); }
 .pbStartRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 8px; cursor: pointer; }
 .pbStartRow:hover { border-color: var(--accent-text); }
 .pbStartTitle { font-weight: 700; font-size: 14px; color: var(--ink); }
@@ -3355,14 +3417,14 @@ textarea.authInput {
 .pbMd a { color: var(--accent-text); word-break: break-word; }
 .pbMd h3, .pbMd h4 { font-family: var(--font-display); color: var(--ink); margin: 10px 0 4px; font-size: 15px; }
 /* wide tables scroll horizontally instead of breaking the layout at 375px */
-.pbTableWrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 8px 0; border: 1px solid var(--line); border-radius: 10px; }
+.pbTableWrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 8px 0; border: 1px solid var(--line); border-radius: var(--radius-xs); }
 .pbMd table { border-collapse: collapse; width: 100%; min-width: 480px; font-size: 12.5px; }
 .pbMd th, .pbMd td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
 .pbMd th { background: var(--card-soft); font-weight: 700; white-space: nowrap; }
 
 /* 16c/16d: Events Calendar as stacked event cards with per-event delete */
 .pbEventCards { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
-.pbEventCard { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--card); }
+.pbEventCard { border: 1px solid var(--line); border-radius: var(--radius-xs); padding: 10px 12px; background: var(--card); }
 .pbEventTop { display: flex; align-items: center; gap: 8px; }
 .pbEventPri { font-size: 11px; font-weight: 800; }
 .pbEventDate { font-size: 12px; font-weight: 600; color: var(--ink-soft); }
@@ -3373,16 +3435,16 @@ textarea.authInput {
 .pbEventDesc .pbMd p { margin: 0; }
 
 /* 16c: frozen-snapshot notice */
-.pbAsOf { font-size: 12px; font-weight: 600; color: #8a6d3b; background: var(--amber-soft); border-radius: 8px; padding: 8px 12px; margin: 4px 0 10px; }
+.pbAsOf { font-size: 12px; font-weight: 600; color: #8a6d3b; background: var(--amber-soft); border-radius: var(--radius-xs); padding: 8px 12px; margin: 4px 0 10px; }
 
 /* 16d: delete-section button */
-.pbDeleteSection { border: 1px solid var(--red); background: none; color: var(--red); font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.pbDeleteSection { border: 1px solid var(--red); background: none; color: var(--red); font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: var(--radius-pill); cursor: pointer; white-space: nowrap; }
 .pbDeleteSection:hover { background: var(--red-soft); }
 /* 18a: neutral "Edit" pill (section head) + callout edit-pencil offset */
-.pbTextBtn { border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.pbTextBtn { border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: var(--radius-pill); cursor: pointer; white-space: nowrap; }
 .pbTextBtn:hover { background: var(--card-soft); }
 .pbCallout .pbTinyBtn[data-pos="edit"] { right: 26px; }
-.pbCallout { display: flex; flex-direction: column; gap: 2px; padding: 9px 12px; margin: 6px 0; border-left: 3px solid var(--line); background: var(--card-soft); border-radius: 8px; position: relative; }
+.pbCallout { display: flex; flex-direction: column; gap: 2px; padding: 9px 12px; margin: 6px 0; border-left: 3px solid var(--line); background: var(--card-soft); border-radius: var(--radius-xs); position: relative; }
 .pbCallout[data-type="DONT_DO_THIS"] { border-left-color: var(--red); }
 .pbCallout[data-type="PRO_TIP"] { border-left-color: var(--amber); }
 .pbCallout[data-type="CONTENT_IDEA"] { border-left-color: var(--accent-text); }
@@ -3392,8 +3454,8 @@ textarea.authInput {
 .pbTinyBtn { position: absolute; top: 6px; right: 6px; border: none; background: none; color: var(--ink-soft); font-size: 12px; cursor: pointer; opacity: 0.5; }
 .pbBlockHead .pbTinyBtn { position: static; opacity: 0.5; }
 .pbTinyBtn:hover { opacity: 1; }
-.pbAddIdea { margin-top: 6px; border: 1px dashed var(--line); background: none; color: var(--accent-text); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
-.pbAddBlock { margin-top: 14px; border: 1px dashed var(--purple); background: var(--purple-soft); color: var(--accent-text); font-size: 13px; font-weight: 700; padding: 9px 14px; border-radius: 10px; cursor: pointer; width: 100%; }
+.pbAddIdea { margin-top: 6px; border: 1px dashed var(--line); background: none; color: var(--accent-text); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: var(--radius-xs); cursor: pointer; }
+.pbAddBlock { margin-top: 14px; border: 1px dashed var(--purple); background: var(--purple-soft); color: var(--accent-text); font-size: 13px; font-weight: 700; padding: 9px 14px; border-radius: var(--radius-xs); cursor: pointer; width: 100%; }
 .pbModal { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(440px, calc(100vw - 24px)); max-height: 88vh; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-float); padding: 18px; z-index: 95; }
 
 /* ---------- narrow phones ---------- */
@@ -3410,18 +3472,147 @@ textarea.authInput {
   .card { grid-template-columns: 84px 50px 1fr; }
 }
 
+/* ---------- "The Walkway" — desktop-only wayfinding rail ---------- */
+/* Hidden below 1024px (a new breakpoint tier — everything else in this file
+   keys off 720px); bottom nav/drawer are completely unaffected at any width.
+   Correction pass: hidden off-screen by default (data-open="false") and
+   slides in via the always-visible edge handle — applies the same way
+   regardless of which Layout is selected, confirmed, not just Full Width. */
+.walkwayRail { display: none; }
+.walkwayHandle { display: none; }
+@media (min-width: 1024px) {
+  .walkwayHandle {
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 120px;
+    width: 22px;
+    height: 44px;
+    border: 1px solid var(--line);
+    border-left: none;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: var(--card);
+    color: var(--ink-soft);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 21;
+  }
+  .walkwayHandle:hover { color: var(--accent-text); }
+  .walkwayRail {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: fixed;
+    left: 0;
+    top: 120px;
+    width: 180px;
+    padding: 12px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    z-index: 20;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .walkwayRail[data-open="true"] { transform: translateX(0); }
+  .walkwayItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    background: none;
+    color: var(--ink-soft);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-align: left;
+  }
+  .walkwayItem[data-active="true"] { background: var(--purple-soft); color: var(--accent-text); }
+  .walkwayItem:hover { background: var(--card-soft); }
+  .walkwayIcon { font-size: 16px; width: 20px; text-align: center; }
+}
+
 /* ---------- desktop: same single-column feed, just roomier ---------- */
+/* Phase 24 — "The Column" formalized: today's single-feed behavior, named
+   and given a real max-width clamp on wide screens (mobile unchanged). */
 @media (min-width: 720px) {
   .shell { padding: 32px 24px 130px; }
+  .shellContent { max-width: var(--content-max, 760px); margin-inline: auto; width: 100%; }
   .topBar {
     margin: -32px -24px 20px;
     padding: 20px 24px 16px;
   }
   .vHeader { margin: -32px -24px 0; padding: 18px 24px 14px; }
   .vHero { margin: -32px -24px 0; padding: 34px 24px 20px; }
-  .vPhotoHero { margin: 0 -24px 18px; min-height: 400px; border-radius: 0 0 24px 24px; }
+  .vPhotoHero { margin: 0 -24px 18px; min-height: 400px; border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
   .vPhotoTitle { font-size: 44px; }
   .hello h1 { font-size: 32px; }
   .card { grid-template-columns: 150px 64px 1fr; }
   .scrollBox { max-height: 1000px; }
 }
+
+/* ---------- Corrections pass: Full Width / Card-Block / Hidden Nav ---------- */
+/* "Fixed Navigation" needs no CSS — it IS today's default (.bottomNav always
+   visible), just formalized as an explicit, named Layout choice. */
+@media (min-width: 720px) {
+  /* Full Width: the honest pre-Settings original — cancels Column's clamp. */
+  .shell[data-jw-layout="full"] .shellContent { max-width: 100%; }
+}
+/* Card / Block: the shared .list container (Home/Events/Favorites all use
+   it) becomes a responsive grid instead of one stacked column. */
+.shell[data-jw-layout="cards"] .list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (min-width: 720px) {
+  .shell[data-jw-layout="cards"] .list { grid-template-columns: repeat(3, 1fr); }
+}
+/* Hidden Navigation: bottom nav tucked away, hamburger drawer is the only
+   nav path — reclaim the space .shell normally reserves for the fixed nav.
+   Correction pass: this is meant to be a genuine high-density mode, not just
+   "same sizing, minus the nav bar" — cards/panels/type also shrink so more
+   content fits per screen. */
+.shell[data-jw-layout="hidden-nav"] .bottomNav { display: none; }
+.shell[data-jw-layout="hidden-nav"] { padding-bottom: 20px; }
+@media (min-width: 720px) {
+  .shell[data-jw-layout="hidden-nav"] { padding-bottom: 32px; }
+}
+.shell[data-jw-layout="hidden-nav"] .list { gap: 8px; }
+.shell[data-jw-layout="hidden-nav"] .panel { padding: 10px; margin-bottom: 10px; }
+.shell[data-jw-layout="hidden-nav"] .wBody { padding: 6px 8px 4px 6px; }
+.shell[data-jw-layout="hidden-nav"] .wTitle { font-size: 14px; margin: 1px 0; }
+.shell[data-jw-layout="hidden-nav"] .wMeta { font-size: 11px; margin: 0 0 2px; }
+
+/* Featured Image: brings back a real photo hero on Home (retired in Phase
+   20's flat-color redesign) — opt-in via Layout, not a default. This is also
+   the ONLY place the Seasonal Aesthetic photo displays (correction pass —
+   replaces the old standalone .seasonalLayer overlay entirely). No season
+   picked ("off") = still the flat-color hero, nothing broken. */
+.shell[data-jw-layout="featured-image"] .vPhotoHero {
+  min-height: 400px;
+  background-size: cover;
+  background-position: center;
+}
+.shell[data-jw-layout="featured-image"] .vPhotoInner {
+  background: linear-gradient(180deg, rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 0.8) 100%);
+  width: 100%;
+}
+html[data-jw-season="spring"] .shell[data-jw-layout="featured-image"] .vPhotoHero { background-image: url(/seasonal_assets/spring.png); }
+html[data-jw-season="summer"] .shell[data-jw-layout="featured-image"] .vPhotoHero { background-image: url(/seasonal_assets/summer.png); }
+html[data-jw-season="fall"] .shell[data-jw-layout="featured-image"] .vPhotoHero   { background-image: url(/seasonal_assets/fall.png); }
+html[data-jw-season="winter"] .shell[data-jw-layout="featured-image"] .vPhotoHero { background-image: url(/seasonal_assets/winter.png); }
+
+/* Correction pass: Featured Image extended to Calendar/Profile/Badges
+   (components/FeaturedHero.js) — unlike Home's hero (always visible as a
+   plain color band on other Layouts), these three already have their own
+   .panelHead heading, so an extra unstyled band would just be clutter under
+   non-Featured-Image Layouts. Hidden by default; only shown — with the same
+   photo/gradient/season rules above, which already target any .vPhotoHero
+   under a featured-image .shell — once that Layout is actually selected. */
+.vPhotoHero[data-featured-only="true"] { display: none; }
+.shell[data-jw-layout="featured-image"] .vPhotoHero[data-featured-only="true"] { display: flex; }

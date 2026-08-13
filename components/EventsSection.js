@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import styles from "../app/Events.module.css";
@@ -222,7 +222,7 @@ function EventCard({ ev, row, act }) {
   );
 }
 
-export default function EventsSection({ events, pastEvents = [], chips, consoleData = null }) {
+export default function EventsSection({ events, pastEvents = [], chips, consoleData = null, streakImageUrl = null, layoutPref = "column" }) {
   const [active, setActive] = useState("All");
   const [linksOnly, setLinksOnly] = useState(false);
   const [highOnly, setHighOnly] = useState(false); // 18e: High Priority tier filter
@@ -230,6 +230,38 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
   const [sortBy, setSortBy] = useState("soonest"); // soonest | newest (10b)
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPast, setShowPast] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  // Daily Streak image replace (confirmed hover-only exception — see the
+  // button's own comment below for why this one deliberately breaks the
+  // general "no hover-only edit controls" rule).
+  const [streakImg, setStreakImg] = useState(streakImageUrl);
+  const [uploadingStreak, setUploadingStreak] = useState(false);
+  const streakFileInputRef = useRef(null);
+  const openStreakFilePicker = () => streakFileInputRef.current?.click();
+  const handleStreakFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      setUploadingStreak(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      const uploaded = await res.json();
+      const saveRes = await fetch("/api/settings/streak-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ streakImageUrl: uploaded.url }),
+      });
+      if (!saveRes.ok) throw new Error("Save failed");
+      setStreakImg(uploaded.url);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUploadingStreak(false);
+    }
+  };
   const [view, setView] = useState("dashboard"); // dashboard | profile | calendar | achievements
 
   const router = useRouter();
@@ -456,7 +488,7 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
   );
 
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} data-jw-layout={layoutPref}>
       {/* ---------- 1. top header bar ---------- */}
       <header className={styles.topBar}>
         <button
@@ -590,13 +622,22 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
             <a className={styles.drawerLink} href="/admin/crm">👥 Client CRM</a>
             <a className={styles.drawerLink} href="/admin/playbook">📖 Content Playbook</a>
             <a className={styles.drawerLink} href="/">🏙 View public site</a>
-            <h4>About App</h4>
-            <p>
-              Julie&apos;s Dashboard surfaces upcoming events across Philadelphia
-              that are perfect for real-estate content. Events sync
-              automatically every morning at 9am from Visit Philly, the City
-              of Philadelphia and more.
-            </p>
+            <button
+              className={styles.pastToggle}
+              onClick={() => setAboutOpen((v) => !v)}
+              aria-expanded={aboutOpen}
+            >
+              <h4>About App</h4>
+              <span className={styles.pastChev} data-open={aboutOpen}>›</span>
+            </button>
+            {aboutOpen && (
+              <p>
+                Julie&apos;s Dashboard surfaces upcoming events across Philadelphia
+                that are perfect for real-estate content. Events sync
+                automatically every morning at 9am from Visit Philly, the City
+                of Philadelphia and more.
+              </p>
+            )}
             <div className={styles.drawerFoot}>
               <button
                 className={styles.signOutBtn}
@@ -680,9 +721,28 @@ export default function EventsSection({ events, pastEvents = [], chips, consoleD
         <div
           className={styles.streakCard}
           style={{
-            backgroundImage: `linear-gradient(rgba(35,28,22,0.5), rgba(35,28,22,0.62)), url(${weeklyStreakImage()})`,
+            backgroundImage: `linear-gradient(rgba(35,28,22,0.5), rgba(35,28,22,0.62)), url(${streakImg || weeklyStreakImage()})`,
           }}
         >
+          {/* Deliberate, confirmed exception to the general "no hover-only
+              edit controls" rule (that rule still applies everywhere else —
+              headers, newsletter, badges). Opacity-on-hover only. */}
+          <button
+            type="button"
+            className={styles.streakEditBtn}
+            onClick={openStreakFilePicker}
+            disabled={uploadingStreak}
+            title="Replace this image"
+          >
+            {uploadingStreak ? "Uploading…" : "✎ Replace image"}
+          </button>
+          <input
+            ref={streakFileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleStreakFileChange}
+          />
           <h2>Daily Streak 🔥</h2>
           <div className={styles.streakNum}>{streak.days}</div>
           <div className={styles.streakSub}>
