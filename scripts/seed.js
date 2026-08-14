@@ -7,7 +7,7 @@ require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const { Client } = require("pg");
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "julie@julietoursphilly.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "jarrett.julieanna@gmail.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "julie-philly-2026";
 
 const IDEAS = [
