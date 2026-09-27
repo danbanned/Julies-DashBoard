@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "event_name": "First Bank of the United States",
+    "start_date": "Now Open",
+    "description": "The historic site reopens for the first time in 50 years with two brand-new exhibits.",
+    "event_url": "https://www.visitphilly.com/things-to-do/attractions/first-bank-of-the-united-states/",
+    "end_date": null,
+    "venue_name": null,
+    "street_address": null,
+    "category": null,
+    "cost": null,
+    "start_time": null,
+    "end_time": null,
+    "image_url": null
+  },
+  {
+    "event_name": "National Constitution Center Gallery Openings",
+    "start_date": "Now Open",
+    "venue_name": "National Constitution Center",
+    "description": "History comes to life in a brand-new way with rare artifacts and new galleries.",
+    "event_url": "https://www.visitphilly.com/features/national-constitution-center-2026/",
+    "end_date": null,
+    "street_address": null,
+    "category": null,
+    "cost": null,
+    "start_time": null,
+    "end_time": null,
+    "image_url": null
+  },
+  {
+    "event_name": "Rocky Fest",
+    "start_date": "December 2026",
+    "description": "Go the distance with an only-in-Philly celebration of America’s favorite underdog.",
+    "event_url": "https://www.visitphilly.com/articles/philadelphia/events-festivals-2026/#rockyfest-50-the-50th-anniversary-of-rocky",
+    "end_date": null,
+    "venue_name": null,
+    "street_address": null,
+    "category": null,
+    "cost": null,
+    "start_time": null,
+    "end_time": null,
+    "image_url": null
+  }
+]
