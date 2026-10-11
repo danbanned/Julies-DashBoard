@@ -1,16 +1,16 @@
 [
   {
-    "event_name": "Red, White & Blue To-Do Brings All-Day Festivities to Philly on July 2",
-    "start_date": "July 2",
-    "end_date": null,
-    "venue_name": null,
+    "event_name": "52 Weeks of Firsts",
+    "start_date": "2026-01-01",
+    "end_date": "2026-12-26",
+    "venue_name": "Locations Throughout the City",
+    "description": "Honor Philly’s groundbreaking inventions and firsts all year long.",
+    "category": "Anniversary",
+    "event_url": "https://www.visitphilly.com/52-weeks-of-firsts/",
     "street_address": null,
-    "description": null,
-    "category": "Event",
     "cost": null,
     "start_time": null,
     "end_time": null,
-    "event_url": "https://www.visitphilly.com/things-to-do/events/red-white-and-blue-to-do/",
-    "image_url": "https://www.visitphilly.com/wp-content/uploads/2026/04/red-white-blue-to-do-independence-hall-photo-by-visitphilly-2200x1237px-460x348.jpg"
+    "image_url": null
   }
 ]
