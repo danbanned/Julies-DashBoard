@@ -8,8 +8,8 @@
     "address": "P.O. Box 15001, Philadelphia, PA 19130",
     "fee": "",
     "fee_frequency": "",
-    "start_date": "2026-10-03",
-    "end_date": "2026-10-03",
+    "start_date": "2027-10-02",
+    "end_date": "2027-10-02",
     "start_time": "",
     "end_time": "",
     "days": "First Saturday in October",
@@ -24,7 +24,7 @@
     "usedFallback": false,
     "source": "fespp",
     "new_since_last": false,
-    "ingested_at": "2026-10-01T13:08:38.913Z",
+    "ingested_at": "2026-11-01T14:04:54.175Z",
     "lat": null,
     "lng": null
   },
@@ -53,7 +53,7 @@
     "usedFallback": false,
     "source": "fespp",
     "new_since_last": false,
-    "ingested_at": "2026-10-01T13:08:38.913Z",
+    "ingested_at": "2026-11-01T14:04:54.175Z",
     "lat": null,
     "lng": null
   },
@@ -82,7 +82,7 @@
     "usedFallback": false,
     "source": "fespp",
     "new_since_last": false,
-    "ingested_at": "2026-10-01T13:08:38.913Z",
+    "ingested_at": "2026-11-01T14:04:54.175Z",
     "lat": null,
     "lng": null
   }
