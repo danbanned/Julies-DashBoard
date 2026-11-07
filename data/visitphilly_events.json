@@ -24,7 +24,7 @@
     "usedFallback": false,
     "source": "visit-philly",
     "new_since_last": false,
-    "ingested_at": "2026-11-01T14:04:58.259Z",
+    "ingested_at": "2026-11-07T22:32:38.947Z",
     "lat": null,
     "lng": null
   },
@@ -53,7 +53,7 @@
     "usedFallback": false,
     "source": "visit-philly",
     "new_since_last": false,
-    "ingested_at": "2026-11-01T14:04:58.260Z",
+    "ingested_at": "2026-11-07T22:32:38.947Z",
     "lat": null,
     "lng": null
   },
@@ -82,7 +82,7 @@
     "usedFallback": false,
     "source": "visit-philly",
     "new_since_last": false,
-    "ingested_at": "2026-11-01T14:04:58.260Z",
+    "ingested_at": "2026-11-07T22:32:38.947Z",
     "lat": null,
     "lng": null
   },
@@ -95,7 +95,7 @@
     "address": "",
     "fee": "",
     "fee_frequency": "",
-    "start_date": "2026-11-01",
+    "start_date": "2026-11-07",
     "end_date": "2027-12-31",
     "start_time": "",
     "end_time": "",
@@ -111,7 +111,7 @@
     "usedFallback": false,
     "source": "visit-philly",
     "new_since_last": false,
-    "ingested_at": "2026-11-01T14:04:58.260Z",
+    "ingested_at": "2026-11-07T22:32:38.947Z",
     "lat": null,
     "lng": null
   },
@@ -124,7 +124,7 @@
     "address": "",
     "fee": "",
     "fee_frequency": "",
-    "start_date": "2026-11-01",
+    "start_date": "2026-11-07",
     "end_date": "2027-12-31",
     "start_time": "",
     "end_time": "",
@@ -140,7 +140,7 @@
     "usedFallback": false,
     "source": "visit-philly",
     "new_since_last": false,
-    "ingested_at": "2026-11-01T14:04:58.260Z",
+    "ingested_at": "2026-11-07T22:32:38.947Z",
     "lat": null,
     "lng": null
   },
@@ -153,7 +153,7 @@
     "address": "",
     "fee": "",
     "fee_frequency": "",
-    "start_date": "2026-11-01",
+    "start_date": "2026-11-07",
     "end_date": "2027-09-05",
     "start_time": "",
     "end_time": "",
@@ -169,7 +169,7 @@
     "usedFallback": false,
     "source": "visit-philly",
     "new_since_last": false,
-    "ingested_at": "2026-11-01T14:04:58.260Z",
+    "ingested_at": "2026-11-07T22:32:38.947Z",
     "lat": null,
     "lng": null
   },
@@ -198,7 +198,7 @@
     "usedFallback": false,
     "source": "visit-philly",
     "new_since_last": false,
-    "ingested_at": "2026-11-01T14:04:58.260Z",
+    "ingested_at": "2026-11-07T22:32:38.947Z",
     "lat": null,
     "lng": null
   }
