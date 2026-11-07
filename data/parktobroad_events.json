@@ -31,7 +31,7 @@
     "usedFallback": false,
     "source": "park-to-broad",
     "new_since_last": false,
-    "ingested_at": "2026-11-01T14:04:55.897Z",
+    "ingested_at": "2026-11-07T22:32:37.043Z",
     "lat": null,
     "lng": null
   },
@@ -74,7 +74,7 @@
     "usedFallback": false,
     "source": "park-to-broad",
     "new_since_last": false,
-    "ingested_at": "2026-11-01T14:04:55.897Z",
+    "ingested_at": "2026-11-07T22:32:37.043Z",
     "lat": null,
     "lng": null
   }
