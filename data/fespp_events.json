@@ -1,38 +1,9 @@
 [
   {
-    "id": "corefitness-breakout-race-5k-kids-run",
-    "title": "CoreFitness Breakout Race - 5K & KIDS RUN",
-    "description": "Join 200+ runners and community members for a fun, energetic race supporting our park and garden.",
-    "category": "",
-    "location": "Eastern State Penitentiary Park",
-    "address": "P.O. Box 15001, Philadelphia, PA 19130",
-    "fee": "",
-    "fee_frequency": "",
-    "start_date": "2027-10-02",
-    "end_date": "2027-10-02",
-    "start_time": "",
-    "end_time": "",
-    "days": "First Saturday in October",
-    "neighborhood": "",
-    "zip": "19130",
-    "priority": "",
-    "event_url": "https://runtheday.com/register/detail/corefitness-breakout-race-2025-cao/",
-    "image_url": "https://images.squarespace-cdn.com/content/v1/65f9bf21542fd141df7d47df/6fbaa4f1-d6a4-415c-b907-12b0ad441946/1.png",
-    "images": [
-      "https://images.squarespace-cdn.com/content/v1/65f9bf21542fd141df7d47df/6fbaa4f1-d6a4-415c-b907-12b0ad441946/1.png"
-    ],
-    "usedFallback": false,
-    "source": "fespp",
-    "new_since_last": false,
-    "ingested_at": "2026-11-08T07:41:20.964Z",
-    "lat": null,
-    "lng": null
-  },
-  {
     "id": "neighbor-nights",
     "title": "NEIGHBOR NIGHTS",
     "description": "A laid-back, family-friendly evening on the lawn with food, music, games, and ways to connect with your neighbors.",
-    "category": "",
+    "category": "FESPP Signature Events",
     "location": "Eastern State Penitentiary Park",
     "address": "P.O. Box 15001, Philadelphia, PA 19130",
     "fee": "",
@@ -53,7 +24,7 @@
     "usedFallback": false,
     "source": "fespp",
     "new_since_last": false,
-    "ingested_at": "2026-11-08T07:41:20.965Z",
+    "ingested_at": "2026-11-09T18:32:10.752Z",
     "lat": null,
     "lng": null
   },
@@ -61,7 +32,7 @@
     "id": "treecycling",
     "title": "Treecycling",
     "description": "Recycle your holiday tree, meet neighbors, and support our community gardens in this beloved annual tradition.",
-    "category": "",
+    "category": "FESPP Signature Events",
     "location": "Eastern State Penitentiary Park",
     "address": "P.O. Box 15001, Philadelphia, PA 19130",
     "fee": "",
@@ -82,7 +53,7 @@
     "usedFallback": false,
     "source": "fespp",
     "new_since_last": false,
-    "ingested_at": "2026-11-08T07:41:20.965Z",
+    "ingested_at": "2026-11-09T18:32:10.752Z",
     "lat": null,
     "lng": null
   }
